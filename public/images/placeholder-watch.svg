@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </radialGradient>
+    <radialGradient id="dial" cx="45%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#000"/>
+    </radialGradient>
+    <linearGradient id="bezel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2f2f2f"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+    <linearGradient id="case" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9a9a9a"/>
+      <stop offset="50%" stop-color="#d4d4d4"/>
+      <stop offset="100%" stop-color="#6a6a6a"/>
+    </linearGradient>
+    <linearGradient id="strap" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4a4a4a"/>
+      <stop offset="100%" stop-color="#2a2a2a"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+
+  <!-- Upper strap -->
+  <path d="M 230 95 L 370 95 L 360 85 L 240 85 Z" fill="url(#strap)" opacity="0.7"/>
+  <rect x="235" y="85" width="130" height="14" fill="url(#strap)" opacity="0.5"/>
+
+  <!-- Lower strap -->
+  <path d="M 230 505 L 370 505 L 360 515 L 240 515 Z" fill="url(#strap)" opacity="0.7"/>
+  <rect x="235" y="501" width="130" height="14" fill="url(#strap)" opacity="0.5"/>
+
+  <!-- Case outer -->
+  <circle cx="300" cy="300" r="210" fill="url(#case)"/>
+  <!-- Bezel ring -->
+  <circle cx="300" cy="300" r="195" fill="url(#bezel)"/>
+  <!-- Bezel outer markers (tiny gold dots every 30°) -->
+  <g fill="#C9A961" opacity="0.5">
+    <circle cx="300" cy="112" r="3"/>
+    <circle cx="465" cy="205" r="3"/>
+    <circle cx="465" cy="395" r="3"/>
+    <circle cx="300" cy="488" r="3"/>
+    <circle cx="135" cy="395" r="3"/>
+    <circle cx="135" cy="205" r="3"/>
+  </g>
+
+  <!-- Dial -->
+  <circle cx="300" cy="300" r="170" fill="url(#dial)"/>
+
+  <!-- Indices -->
+  <g fill="#C9A961">
+    <rect x="296" y="142" width="8" height="22" rx="2"/>
+    <rect x="296" y="436" width="8" height="22" rx="2"/>
+    <rect x="142" y="296" width="22" height="8" rx="2"/>
+    <rect x="436" y="296" width="22" height="8" rx="2"/>
+    <circle cx="380" cy="185" r="5"/>
+    <circle cx="415" cy="300" r="5"/>
+    <circle cx="380" cy="415" r="5"/>
+    <circle cx="220" cy="415" r="5"/>
+    <circle cx="185" cy="300" r="5"/>
+    <circle cx="220" cy="185" r="5"/>
+  </g>
+
+  <!-- Hands -->
+  <g transform="translate(300,300)">
+    <!-- Hour hand -->
+    <rect x="-4" y="-100" width="8" height="100" fill="#E5C87A" rx="2"/>
+    <!-- Minute hand -->
+    <rect x="-3" y="-140" width="6" height="140" fill="#E5C87A" rx="2"/>
+    <!-- Seconds -->
+    <rect x="-1.5" y="-155" width="3" height="180" fill="#C9A961" rx="1"/>
+    <!-- Center cap -->
+    <circle cx="0" cy="0" r="9" fill="#C9A961"/>
+    <circle cx="0" cy="0" r="3" fill="#0a0a0a"/>
+  </g>
+
+  <!-- Brand wordmark -->
+  <text x="300" y="220" font-family="Georgia, serif" font-size="12" fill="#C9A961" text-anchor="middle" letter-spacing="3" opacity="0.9">HANIC</text>
+  <text x="300" y="395" font-family="Georgia, serif" font-size="9" fill="#8B7340" text-anchor="middle" letter-spacing="4">SUPER CLONE</text>
+
+  <!-- Crown -->
+  <rect x="502" y="288" width="10" height="24" fill="url(#case)" rx="1"/>
+</svg>
