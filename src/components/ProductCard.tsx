@@ -1,21 +1,26 @@
+"use client";
 import Link from "next/link";
-import Image from "next/image";
+import { useState } from "react";
 import type { Product } from "@/types/product";
 import { Price } from "@/components/Price";
 import { WishlistButton } from "@/components/WishlistButton";
 
+const PLACEHOLDER = "/images/placeholder-watch.svg";
+
 export function ProductCard({ product: p }: { product: Product }) {
-  const img = p.main_image || "/images/placeholder-watch.svg";
+  const initial = p.main_image || PLACEHOLDER;
+  const [src, setSrc] = useState(initial);
   return (
     <div className="group relative">
       <Link href={`/product/${p.slug}`} className="block card overflow-hidden transition-all hover:border-gold-deep">
         <div className="relative aspect-square bg-bg overflow-hidden">
-          <Image
-            src={img}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
             alt={p.model_name}
-            fill
-            sizes="(max-width:768px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            onError={() => src !== PLACEHOLDER && setSrc(PLACEHOLDER)}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute top-3 left-3 flex flex-col gap-1">
             {p.is_new_arrival && <span className="chip-gold">NEW</span>}

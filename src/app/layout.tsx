@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { CartProvider } from "@/components/CartProvider";
 import { WishlistProvider } from "@/components/WishlistProvider";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
+import LayoutShell from "@/components/LayoutShell";
 import { SITE_CONFIG } from "@/lib/config";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -37,9 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CurrencyProvider>
           <WishlistProvider>
             <CartProvider>
-              <Header />
-              <main className="min-h-[calc(100vh-64px)]">{children}</main>
-              <Footer />
+              <LayoutShell>{children}</LayoutShell>
             </CartProvider>
           </WishlistProvider>
         </CurrencyProvider>

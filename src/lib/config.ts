@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
   tagline: "Swiss Mechanism. Worldwide Shipping.",
   description:
     "Premium super clone watches — Rolex, Audemars Piguet, Patek Philippe, and more. Swiss-grade mechanisms, discreet worldwide delivery.",
-  url: "https://clonicawatch.com", // will be updated on launch
+  url: "https://clonica.online", // primary domain
   defaultLocale: "en",
   supportedLocales: ["en"] as const,
   defaultCurrency: "USD" as const,

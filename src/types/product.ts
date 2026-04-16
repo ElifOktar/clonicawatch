@@ -10,21 +10,19 @@ export type Brand =
 
 export type QualityTier = "Super Clone" | "1:1" | "AAA+" | "Top Quality";
 
-export type Factory =
-  | "Clean" | "ZF" | "Noob" | "VS" | "BP" | "ARF" | "APF"
-  | "N Factory" | "BT" | "Other";
+// Factory names are open-ended — replica factories appear/disappear frequently.
+// Common names listed here for reference, but any string is accepted.
+export type Factory = string;
 
-export type CaseMaterial =
-  | "Stainless Steel 904L" | "Stainless Steel 316L"
-  | "Yellow Gold Plated" | "Rose Gold Plated"
-  | "Two-Tone (Gold/Steel)" | "Ceramic" | "Titanium"
-  | "PVD Black" | "Carbon Fiber";
+// Case material is open-ended (real catalogs use many variants: 904L SS,
+// 316L SS, ceramic, titanium, carbotech, gold wrap, 3D carbon, etc.).
+export type CaseMaterial = string;
 
 export type Crystal = "Sapphire" | "Mineral" | "Hardlex";
 
-export type StrapType =
-  | "Oyster" | "Jubilee" | "President" | "Leather" | "Rubber"
-  | "NATO" | "Mesh/Milanese" | "Integrated Bracelet";
+// Strap type is open-ended (leather, rubber, integrated bracelet,
+// composite, titanium, mesh, alligator, steel, etc.).
+export type StrapType = string;
 
 export type MovementType = "Automatic" | "Quartz" | "Manual Wind";
 
@@ -32,9 +30,9 @@ export type StockStatus = "In Stock" | "Limited Stock" | "Sold Out" | "Pre-Order
 
 export type Gender = "Men" | "Women" | "Unisex";
 
-export type StyleTag =
-  | "Diver" | "Chronograph" | "Dress" | "Pilot" | "Sport" | "GMT"
-  | "Moonphase" | "Skeleton" | "Tourbillon" | "Perpetual Calendar";
+// Style tags are open-ended — sites use many variants beyond the
+// classic complications: Luxury, Travel, Casual, Icon, Ladies, etc.
+export type StyleTag = string;
 
 export type Currency = "USD" | "EUR" | "GBP" | "AED" | "TRY";
 
