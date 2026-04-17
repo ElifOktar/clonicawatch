@@ -48,27 +48,14 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
           </button>
 
           <Link href="/" className="flex items-center gap-2 group">
-            {/* CC Monogram Logo */}
-            <svg width="38" height="38" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-              {/* Outer circle */}
-              <circle cx="60" cy="60" r="58" stroke="url(#gold-grad)" strokeWidth="2.5" />
-              {/* Inner circle */}
-              <circle cx="60" cy="60" r="50" stroke="url(#gold-grad)" strokeWidth="1" opacity="0.4" />
-              {/* Left C */}
-              <path d="M52 40C42.5 42 36 50 36 60C36 70 42.5 78 52 80" stroke="url(#gold-grad)" strokeWidth="5" strokeLinecap="round" fill="none" />
-              {/* Right C (mirrored) */}
-              <path d="M68 40C77.5 42 84 50 84 60C84 70 77.5 78 68 80" stroke="url(#gold-grad)" strokeWidth="5" strokeLinecap="round" fill="none" />
-              {/* Diamond accent */}
-              <rect x="56" y="28" width="8" height="8" rx="1" transform="rotate(45 60 32)" fill="url(#gold-grad)" />
-              {/* Bottom diamond */}
-              <rect x="56" y="84" width="8" height="8" rx="1" transform="rotate(45 60 88)" fill="url(#gold-grad)" />
-              <defs>
-                <linearGradient id="gold-grad" x1="0" y1="0" x2="120" y2="120">
-                  <stop offset="0%" stopColor="#D4AF37" />
-                  <stop offset="50%" stopColor="#F5D680" />
-                  <stop offset="100%" stopColor="#C9A84C" />
-                </linearGradient>
-              </defs>
+            {/* CC Monogram Logo — solid gold color for SSR compatibility */}
+            <svg width="38" height="38" viewBox="0 0 120 120" fill="none" className="flex-shrink-0">
+              <circle cx="60" cy="60" r="58" stroke="#C9A84C" strokeWidth="2.5" />
+              <circle cx="60" cy="60" r="50" stroke="#C9A84C" strokeWidth="1" opacity="0.4" />
+              <path d="M52 40C42.5 42 36 50 36 60C36 70 42.5 78 52 80" stroke="#D4AF37" strokeWidth="5" strokeLinecap="round" fill="none" />
+              <path d="M68 40C77.5 42 84 50 84 60C84 70 77.5 78 68 80" stroke="#D4AF37" strokeWidth="5" strokeLinecap="round" fill="none" />
+              <rect x="56" y="28" width="8" height="8" rx="1" transform="rotate(45 60 32)" fill="#F5D680" />
+              <rect x="56" y="84" width="8" height="8" rx="1" transform="rotate(45 60 88)" fill="#F5D680" />
             </svg>
             <span className="font-serif text-xl md:text-2xl tracking-[0.2em] text-gold group-hover:text-gold-bright transition-colors">
               {SITE_CONFIG.name}
