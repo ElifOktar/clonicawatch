@@ -4,10 +4,10 @@
 
 @layer base {
   html {
-    @apply bg-bg text-ink antialiased;
+    @apply bg-bg text-ink antialiased overflow-x-hidden;
     font-feature-settings: "ss01", "cv11";
   }
-  body { @apply min-h-screen; }
+  body { @apply min-h-screen overflow-x-hidden; }
   ::selection { @apply bg-gold/30 text-ink; }
 
   ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -100,6 +100,12 @@
   }
   .promo-slider::-webkit-scrollbar { display: none; }
   .promo-slider { scrollbar-width: none; }
+
+  /* Prevent mobile horizontal overflow */
+  .overflow-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
 
   /* Mobile-specific touch target improvements */
   @media (max-width: 767px) {
