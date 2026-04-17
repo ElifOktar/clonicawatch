@@ -1,10 +1,41 @@
 "use client";
 
+import Image from "next/image";
+
 /**
- * Elegant gradient blog cover — no image files needed.
- * Generates a unique color scheme per post based on the slug.
+ * Premium blog cover — real watch photos from Unsplash with elegant text overlay.
+ * Each post gets a curated, high-quality image. Falls back to a rich gradient design.
  */
 
+/* ── Curated Unsplash images per slug ─────────────────────────── */
+const COVER_IMAGES: Record<string, string> = {
+  "what-is-a-super-clone-watch":
+    "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80&auto=format",
+  "clean-vs-vs-factory":
+    "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&q=80&auto=format",
+  "how-to-spot-fake":
+    "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=800&q=80&auto=format",
+  "history-of-rolex":
+    "https://images.unsplash.com/photo-1626567011978-66e70e424d10?w=800&q=80&auto=format",
+  "audemars-piguet-royal-oak-legend":
+    "https://images.unsplash.com/photo-1618220252344-8ec99ec624b1?w=800&q=80&auto=format",
+  "swiss-movement-explained":
+    "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=800&q=80&auto=format",
+  "sapphire-vs-mineral-crystal":
+    "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80&auto=format",
+  "water-resistance-guide":
+    "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=800&q=80&auto=format",
+  "most-popular-watches-2026":
+    "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=800&q=80&auto=format",
+  "which-watch-matches-your-style":
+    "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800&q=80&auto=format",
+  "caring-for-your-watch":
+    "https://images.unsplash.com/photo-1585123334904-845d60e97b29?w=800&q=80&auto=format",
+  "rolex-vs-omega-vs-ap":
+    "https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=800&q=80&auto=format",
+};
+
+/* ── Gradient fallback palettes ───────────────────────────────── */
 const PALETTES = [
   { from: "#0a0e17", via: "#1a1a2e", to: "#16213e", accent: "#c9a84c" },
   { from: "#0a0e17", via: "#1b1425", to: "#251636", accent: "#c9a84c" },
@@ -22,7 +53,7 @@ function hashSlug(slug: string): number {
   return Math.abs(h);
 }
 
-// Category label based on slug keywords
+/* Category label from slug keywords */
 function getCategory(slug: string): string {
   if (slug.includes("history") || slug.includes("legend") || slug.includes("royal-oak")) return "BRAND STORY";
   if (slug.includes("vs") || slug.includes("rolex-omega")) return "COMPARISON";
@@ -39,59 +70,57 @@ interface Props {
 }
 
 export function BlogCover({ slug, title, className = "" }: Props) {
+  const imageUrl = COVER_IMAGES[slug];
+  const category = getCategory(slug);
   const idx = hashSlug(slug) % PALETTES.length;
   const p = PALETTES[idx];
-  const category = getCategory(slug);
-
-  // Get a short display title (first 3-4 words max)
-  const shortTitle = title.split(/[:\—\-–]/).at(-1)?.trim().split(" ").slice(0, 4).join(" ") || title.split(" ").slice(0, 3).join(" ");
 
   return (
-    <div
-      className={`relative w-full h-full overflow-hidden ${className}`}
-      style={{
-        background: `linear-gradient(135deg, ${p.from} 0%, ${p.via} 50%, ${p.to} 100%)`,
-      }}
-    >
-      {/* Radial glow */}
+    <div className={`relative w-full h-full overflow-hidden ${className}`}>
+      {/* ── Background: real photo or gradient fallback ── */}
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={title}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          unoptimized
+        />
+      ) : (
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(135deg, ${p.from} 0%, ${p.via} 50%, ${p.to} 100%)`,
+          }}
+        />
+      )}
+
+      {/* ── Dark gradient overlay for text readability ── */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+
+      {/* ── Subtle gold line at bottom ── */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] rounded-full opacity-[0.06]"
-        style={{ background: `radial-gradient(circle, ${p.accent}, transparent 70%)` }}
+        className="absolute bottom-0 left-0 w-full h-[2px] opacity-60"
+        style={{ background: `linear-gradient(to right, transparent, #c9a84c, transparent)` }}
       />
 
-      {/* Decorative crosshair lines */}
-      <div
-        className="absolute top-1/2 left-0 w-full h-px opacity-20"
-        style={{ background: `linear-gradient(to right, transparent, ${p.accent}40, transparent)` }}
-      />
-      <div
-        className="absolute top-0 left-1/2 w-px h-full opacity-10"
-        style={{ background: `linear-gradient(to bottom, transparent, ${p.accent}30, transparent)` }}
-      />
-
-      {/* Corner accents */}
-      <svg className="absolute top-3 left-3 w-8 h-8 opacity-30" viewBox="0 0 32 32" fill="none" stroke={p.accent} strokeWidth="1.5">
-        <path d="M0 12 L0 0 L12 0" />
-      </svg>
-      <svg className="absolute bottom-3 right-3 w-8 h-8 opacity-30" viewBox="0 0 32 32" fill="none" stroke={p.accent} strokeWidth="1.5">
-        <path d="M32 20 L32 32 L20 32" />
-      </svg>
-
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-        {/* Diamond */}
-        <div className="w-3 h-3 rotate-45 border border-gold/50 mb-3" />
+      {/* ── Content overlay ── */}
+      <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-5">
         {/* Category chip */}
-        <span className="text-gold text-[10px] tracking-[0.25em] font-medium mb-2">
+        <span className="inline-block self-start text-[10px] tracking-[0.2em] font-medium px-2 py-0.5 mb-2 rounded-sm bg-gold/20 text-gold border border-gold/30 backdrop-blur-sm">
           {category}
         </span>
-        {/* Title */}
-        <h3 className="font-serif text-ink text-base md:text-lg leading-snug max-w-[80%]">
-          {shortTitle}
+
+        {/* Full title */}
+        <h3 className="font-serif text-white text-sm md:text-base lg:text-lg leading-snug line-clamp-2 drop-shadow-lg">
+          {title}
         </h3>
-        {/* Bottom line */}
-        <div className="w-10 h-px bg-gold/40 mt-3" />
-        <span className="text-ink-dim text-[9px] tracking-[0.2em] mt-2">CLONICAWATCH</span>
+
+        {/* Brand watermark */}
+        <span className="text-white/30 text-[8px] tracking-[0.15em] mt-2">
+          CLONICAWATCH
+        </span>
       </div>
     </div>
   );
