@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getFeaturedProducts, getNewArrivals, getOnSale } from "@/lib/products";
 import { ProductGrid } from "@/components/ProductGrid";
@@ -19,35 +18,15 @@ export default function HomePage() {
       {/* Brand Circles */}
       <BrandCircles />
 
-      {/* Logo + Tagline Section */}
-      <section className="py-12 md:py-16">
+      {/* Tagline Section */}
+      <section className="py-10 md:py-14">
         <div className="container text-center">
           <div className="inline-flex flex-col items-center">
-            {/* Decorative line */}
-            <div className="w-12 h-px bg-gold/40 mb-6" />
-
-            {/* Logo Image */}
-            <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-2 border-gold/30 shadow-lg shadow-gold/10 mb-5">
-              <Image
-                src="/images/clonica-logo.jpg"
-                alt="Clonica Watch Logo"
-                width={144}
-                height={144}
-                className="w-full h-full object-cover"
-                priority
-              />
-            </div>
-
-            {/* Brand Name */}
-            <h2 className="font-serif text-4xl md:text-5xl tracking-[0.2em] text-gold">
-              CLONICA
-            </h2>
-            <p className="text-xs md:text-sm tracking-[0.3em] uppercase text-ink-muted mt-3">
+            <div className="w-12 h-px bg-gold/40 mb-5" />
+            <h2 className="font-serif text-3xl md:text-4xl tracking-[0.15em] text-gold">
               {SITE_CONFIG.tagline}
-            </p>
-
-            {/* Decorative line */}
-            <div className="w-12 h-px bg-gold/40 mt-6" />
+            </h2>
+            <div className="w-12 h-px bg-gold/40 mt-5" />
           </div>
         </div>
       </section>
