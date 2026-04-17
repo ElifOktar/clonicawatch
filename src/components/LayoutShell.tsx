@@ -18,7 +18,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   return (
     <>
       <Header />
-      <main className="min-h-[calc(100vh-64px)] pb-24 md:pb-0">{children}</main>
+      <main className="min-h-[calc(100vh-64px)] pb-24 md:pb-0 overflow-x-hidden">{children}</main>
       <Footer />
       <FloatingButtons />
       <BottomNav />
