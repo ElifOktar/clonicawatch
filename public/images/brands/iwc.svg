@@ -1,0 +1,10 @@
+<svg viewBox="0 0 120 120" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <rect width="120" height="120" fill="transparent"/>
+
+  <!-- IWC monogram - large letters -->
+  <text x="60" y="60" font-family="Georgia, serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#d4af37" letter-spacing="-1">IWC</text>
+
+  <!-- SCHAFFHAUSEN small text -->
+  <text x="60" y="80" font-family="Georgia, serif" font-size="8" font-weight="300" text-anchor="middle" fill="#d4af37" letter-spacing="0.5">SCHAFFHAUSEN</text>
+</svg>

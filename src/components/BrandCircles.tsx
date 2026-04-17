@@ -1,21 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRef } from "react";
 
 const BRANDS = [
-  { name: "Rolex", slug: "rolex" },
-  { name: "Patek Philippe", slug: "patek-philippe" },
-  { name: "Audemars Piguet", slug: "audemars-piguet" },
-  { name: "Cartier", slug: "cartier" },
-  { name: "Richard Mille", slug: "richard-mille" },
-  { name: "Omega", slug: "omega" },
-  { name: "Hublot", slug: "hublot" },
-  { name: "Breitling", slug: "breitling" },
-  { name: "TAG Heuer", slug: "tag-heuer" },
-  { name: "Panerai", slug: "panerai" },
-  { name: "IWC", slug: "iwc" },
-  { name: "Tudor", slug: "tudor" },
+  { name: "Rolex", slug: "rolex", logo: "/images/brands/rolex.svg" },
+  { name: "Patek Philippe", slug: "patek-philippe", logo: "/images/brands/patek-philippe.svg" },
+  { name: "Audemars Piguet", slug: "audemars-piguet", logo: "/images/brands/audemars-piguet.svg" },
+  { name: "Cartier", slug: "cartier", logo: "/images/brands/cartier.svg" },
+  { name: "Richard Mille", slug: "richard-mille", logo: "/images/brands/richard-mille.svg" },
+  { name: "Omega", slug: "omega", logo: "/images/brands/omega.svg" },
+  { name: "Hublot", slug: "hublot", logo: "/images/brands/hublot.svg" },
+  { name: "Breitling", slug: "breitling", logo: "/images/brands/breitling.svg" },
+  { name: "TAG Heuer", slug: "tag-heuer", logo: "/images/brands/tag-heuer.svg" },
+  { name: "Panerai", slug: "panerai", logo: "/images/brands/panerai.svg" },
+  { name: "IWC", slug: "iwc", logo: "/images/brands/iwc.svg" },
+  { name: "Tudor", slug: "tudor", logo: "/images/brands/tudor.svg" },
 ];
 
 export function BrandCircles() {
@@ -56,13 +57,17 @@ export function BrandCircles() {
               {BRANDS.map((brand) => (
                 <Link
                   key={brand.slug}
-                  href={`/brand/${brand.slug}`}
+                  href={"/brand/" + brand.slug}
                   className="flex flex-col items-center gap-3 flex-shrink-0 group"
                 >
-                  <div className="w-20 h-20 rounded-full bg-bg border-2 border-gold/30 flex items-center justify-center group-hover:border-gold group-hover:bg-bg-elev transition-all duration-200">
-                    <span className="text-center text-[10px] font-medium text-gold text-opacity-70 group-hover:text-opacity-100 transition-all px-2 leading-tight">
-                      {brand.name}
-                    </span>
+                  <div className="w-20 h-20 rounded-full bg-[#1a1a2e] border-2 border-gold/30 flex items-center justify-center group-hover:border-gold group-hover:bg-[#1f1f35] transition-all duration-200 overflow-hidden p-2">
+                    <Image
+                      src={brand.logo}
+                      alt={brand.name + " logo"}
+                      width={60}
+                      height={60}
+                      className="object-contain"
+                    />
                   </div>
                   <p className="text-xs text-ink-muted text-center w-20 truncate group-hover:text-gold transition-colors">
                     {brand.name}
@@ -86,15 +91,7 @@ export function BrandCircles() {
       </div>
 
       {/* Custom scrollbar hide styles */}
-      <style jsx>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+      <style jsx>{"\n        .scrollbar-hide {\n          -ms-overflow-style: none;\n          scrollbar-width: none;\n        }\n        .scrollbar-hide::-webkit-scrollbar {\n          display: none;\n        }\n      "}</style>
     </section>
   );
 }

@@ -1,0 +1,13 @@
+<svg viewBox="0 0 120 120" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <rect width="120" height="120" fill="transparent"/>
+
+  <!-- PATEK line 1 -->
+  <text x="60" y="48" font-family="Garamond, serif" font-size="16" font-weight="300" text-anchor="middle" fill="#d4af37" letter-spacing="1.5">PATEK</text>
+
+  <!-- PHILIPPE line 2 -->
+  <text x="60" y="68" font-family="Garamond, serif" font-size="16" font-weight="300" text-anchor="middle" fill="#d4af37" letter-spacing="1.5">PHILIPPE</text>
+
+  <!-- GENEVE small text -->
+  <text x="60" y="82" font-family="Garamond, serif" font-size="8" font-weight="300" text-anchor="middle" fill="#d4af37" letter-spacing="0.5">GENÈVE</text>
+</svg>

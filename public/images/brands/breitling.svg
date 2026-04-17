@@ -1,0 +1,17 @@
+<svg viewBox="0 0 120 120" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <rect width="120" height="120" fill="transparent"/>
+
+  <!-- Wings icon above -->
+  <g transform="translate(60, 30)">
+    <!-- Left wing -->
+    <path d="M -8 2 Q -12 -2 -10 -6" stroke="#d4af37" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- Right wing -->
+    <path d="M 8 2 Q 12 -2 10 -6" stroke="#d4af37" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="2" fill="#d4af37"/>
+  </g>
+
+  <!-- BREITLING text -->
+  <text x="60" y="75" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#d4af37" letter-spacing="1">BREITLING</text>
+</svg>

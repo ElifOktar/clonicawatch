@@ -1,0 +1,17 @@
+<svg viewBox="0 0 120 120" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <rect width="120" height="120" fill="transparent"/>
+
+  <!-- Shield/Rose icon above -->
+  <g transform="translate(60, 28)">
+    <!-- Shield outline -->
+    <path d="M -7 -4 L -7 3 Q 0 8 7 3 L 7 -4 Z" stroke="#d4af37" stroke-width="1.5" fill="none"/>
+    <!-- Rose - simple rose shape -->
+    <circle cx="0" cy="0" r="2" fill="#d4af37"/>
+    <circle cx="-2" cy="-1" r="1.2" fill="#d4af37" opacity="0.8"/>
+    <circle cx="2" cy="-1" r="1.2" fill="#d4af37" opacity="0.8"/>
+  </g>
+
+  <!-- TUDOR text -->
+  <text x="60" y="72" font-family="Georgia, serif" font-size="26" font-weight="bold" text-anchor="middle" fill="#d4af37" letter-spacing="1">TUDOR</text>
+</svg>

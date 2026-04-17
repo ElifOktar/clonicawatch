@@ -1,0 +1,13 @@
+<svg viewBox="0 0 120 120" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <rect width="120" height="120" fill="transparent"/>
+
+  <!-- Shield icon above -->
+  <g transform="translate(60, 28)">
+    <!-- Shield shape -->
+    <path d="M -6 -4 L -6 4 Q 0 8 6 4 L 6 -4 Z" stroke="#d4af37" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- TAG HEUER text -->
+  <text x="60" y="72" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#d4af37" letter-spacing="1.5">TAG HEUER</text>
+</svg>
