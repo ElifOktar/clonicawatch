@@ -5,19 +5,18 @@ import { useRef } from "react";
 
 const BRANDS = [
   { name: "Rolex", slug: "rolex", logo: "/images/logos/brands/rolex.png" },
-  { name: "Patek Philippe", slug: "patek-philippe", logo: "/images/logos/brands/patek-philippe.png" },
   { name: "Audemars Piguet", slug: "audemars-piguet", logo: "/images/logos/brands/audemars-piguet.png" },
+  { name: "Patek Philippe", slug: "patek-philippe", logo: "/images/logos/brands/patek-philippe.png" },
   { name: "Cartier", slug: "cartier", logo: "/images/logos/brands/cartier.png" },
   { name: "Richard Mille", slug: "richard-mille", logo: "/images/logos/brands/richard-mille.webp" },
-  { name: "Omega", slug: "omega", logo: "/images/logos/brands/omega.png" },
   { name: "Hublot", slug: "hublot", logo: "/images/logos/brands/hublot.png" },
   { name: "Breitling", slug: "breitling", logo: "/images/logos/brands/breitling.png" },
-  { name: "TAG Heuer", slug: "tag-heuer", logo: "/images/logos/brands/tag-heuer.png" },
-  { name: "Panerai", slug: "panerai", logo: "/images/logos/brands/panerai.png" },
+  { name: "Franck Muller", slug: "franck-muller", logo: "/images/logos/brands/franck-muller.png" },
   { name: "IWC", slug: "iwc", logo: "/images/logos/brands/iwc.png" },
+  { name: "Panerai", slug: "panerai", logo: "/images/logos/brands/panerai.png" },
   { name: "Tudor", slug: "tudor", logo: "/images/logos/brands/tudor.png" },
   { name: "Vacheron Constantin", slug: "vacheron-constantin", logo: "/images/logos/brands/vacheron-constantin.png" },
-  { name: "Jaeger-LeCoultre", slug: "jaeger-lecoultre", logo: "/images/logos/brands/jaeger-lecoultre.png" },
+  { name: "Ladies", slug: "ladies", logo: "" },
 ];
 
 export function BrandCircles() {
@@ -58,17 +57,25 @@ export function BrandCircles() {
               {BRANDS.map((brand) => (
                 <Link
                   key={brand.slug}
-                  href={"/brand/" + brand.slug}
+                  href={brand.slug === "ladies" ? "/ladies" : "/brand/" + brand.slug}
                   className="flex flex-col items-center gap-2.5 flex-shrink-0 group"
                 >
-                  <div className="w-[72px] h-[72px] md:w-20 md:h-20 rounded-full bg-white border-2 border-gold/20 flex items-center justify-center group-hover:border-gold group-hover:shadow-[0_0_20px_rgba(201,168,76,0.15)] transition-all duration-300 overflow-hidden p-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={brand.logo}
-                      alt={brand.name + " logo"}
-                      className="w-full h-full object-contain"
-                      loading="lazy"
-                    />
+                  <div className={`w-[72px] h-[72px] md:w-20 md:h-20 rounded-full ${brand.logo ? "bg-white" : "bg-pink-500/10"} border-2 ${brand.slug === "ladies" ? "border-pink-400/30 group-hover:border-pink-400" : "border-gold/20 group-hover:border-gold"} flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(201,168,76,0.15)] transition-all duration-300 overflow-hidden p-3`}>
+                    {brand.logo ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={brand.logo}
+                          alt={brand.name + " logo"}
+                          className="w-full h-full object-contain"
+                          loading="lazy"
+                        />
+                      </>
+                    ) : (
+                      <svg className="w-8 h-8 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                      </svg>
+                    )}
                   </div>
                   <p className="text-[11px] text-ink-muted text-center w-20 truncate group-hover:text-gold transition-colors">
                     {brand.name}

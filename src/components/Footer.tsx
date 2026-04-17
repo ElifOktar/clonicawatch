@@ -56,6 +56,7 @@ export function Footer() {
             <li><Link href="/brand/audemars-piguet" className="hover:text-gold transition-colors">Audemars Piguet</Link></li>
             <li><Link href="/brand/patek-philippe" className="hover:text-gold transition-colors">Patek Philippe</Link></li>
             <li><Link href="/brand/omega" className="hover:text-gold transition-colors">Omega</Link></li>
+            <li><Link href="/ladies" className="hover:text-gold transition-colors">Ladies Watches</Link></li>
             <li><Link href="/new-arrivals" className="hover:text-gold transition-colors">New Arrivals</Link></li>
             <li><Link href="/on-sale" className="hover:text-gold transition-colors">Sale</Link></li>
           </ul>
