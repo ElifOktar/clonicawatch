@@ -67,6 +67,7 @@ export default function ProductForm({ initialData, mode }: Props) {
     features: "",
     package_contents: "Watch, Box, Warranty card, Adjustment tool",
     main_image: "/images/placeholder-watch.svg",
+    video_url: "",
     ...initialData,
   };
 
@@ -211,6 +212,7 @@ export default function ProductForm({ initialData, mode }: Props) {
       package_contents: form.package_contents.split(",").map((s: string) => s.trim()).filter(Boolean),
       main_image: imageUrls[0] || "/images/placeholder-watch.svg",
       gallery_images: imageUrls.length ? imageUrls : ["/images/placeholder-watch.svg"],
+      video_url: form.video_url || undefined,
     };
 
     try {
@@ -619,6 +621,24 @@ export default function ProductForm({ initialData, mode }: Props) {
 
             <p className="text-[11px] text-ink-dim leading-relaxed">
               Ilk gorsel <strong className="text-gold">ana gorsel</strong> olarak kullanilir. Ok tuslariyla sirayi degistirebilirsin.
+            </p>
+          </div>
+
+          {/* Video */}
+          <div className={sectionCls}>
+            <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Video</h2>
+            <div>
+              <label className={labelCls}>Video URL (MP4 dosya linki)</label>
+              <input
+                value={form.video_url}
+                onChange={set("video_url")}
+                placeholder="https://... veya /videos/urun-video.mp4"
+                className={inputCls}
+              />
+            </div>
+            <p className="text-[11px] text-ink-dim leading-relaxed">
+              Video, urun sayfasinda fotograflardan sonra ayri bir sekmede gosterilir.
+              Bos birakirsan video sekmesi gorunmez.
             </p>
           </div>
         </div>
