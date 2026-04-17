@@ -5,34 +5,39 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm luxury palette — not harsh black, more "deep espresso"
+        // Refined luxury palette — deep midnight + platinum accents
         bg: {
-          DEFAULT: "#14100c",        // warm near-black
-          elev: "#1f1914",           // elevated cards (warmer)
-          soft: "#2a2219",           // hover / subtle
+          DEFAULT: "#0a0e17",        // deep midnight navy
+          elev: "#111827",           // elevated cards
+          soft: "#1a2236",           // hover / subtle
         },
-        // Light / "ivory" sections for breathing room
+        // Light sections for breathing room
         cream: {
-          DEFAULT: "#f5efe3",
+          DEFAULT: "#f8f6f3",        // warm white
           elev: "#ffffff",
-          ink: "#1a1510",            // dark text on cream
-          muted: "#6b5f4e",
-          line: "#e5dcc9",
+          ink: "#0f1419",            // dark text on cream
+          muted: "#5a6577",
+          line: "#e2e4e9",
         },
         ink: {
-          DEFAULT: "#faf5ea",        // warmer off-white
-          muted: "#b8a990",          // warm muted
-          dim: "#7a6f5e",
+          DEFAULT: "#f0f2f5",        // clean off-white
+          muted: "#8b95a5",          // cool muted
+          dim: "#5a6577",
         },
         gold: {
-          DEFAULT: "#d4b86e",        // warmer gold
-          bright: "#f0d78c",         // highlight
-          deep: "#9b7f3a",           // borders
+          DEFAULT: "#c9a84c",        // refined gold
+          bright: "#e0c068",         // highlight
+          deep: "#a08030",           // borders
         },
-        line: "#2e261c",
-        danger: "#e25858",
-        success: "#7fb76b",
-        wine: "#7a2a2a",             // optional secondary accent
+        platinum: {
+          DEFAULT: "#c0c8d4",        // platinum accent
+          bright: "#dde3eb",
+          deep: "#8a96a8",
+        },
+        line: "#1e293b",
+        danger: "#ef4444",
+        success: "#22c55e",
+        wine: "#7a2a2a",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
