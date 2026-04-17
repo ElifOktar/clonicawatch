@@ -8,6 +8,10 @@ export interface PromoSlide {
   title?: string;
   subtitle?: string;
   link?: string;
+  /** If true, renders as a gradient CTA slide instead of image-based */
+  isCta?: boolean;
+  ctaButton?: string;
+  ctaIcon?: "email" | "whatsapp";
 }
 
 const DEFAULT_SLIDES: PromoSlide[] = [
@@ -22,6 +26,16 @@ const DEFAULT_SLIDES: PromoSlide[] = [
     image: "/images/products/rolex-submariner-126610lv/main.jpeg",
     title: "Submariner Kermit",
     subtitle: "The iconic green bezel",
+  },
+  {
+    id: "promo-cta",
+    image: "",
+    title: "Can't Find the Watch You Want?",
+    subtitle: "Send us a photo or a link — we'll source it for you",
+    link: "mailto:info@clonica.online?subject=Watch%20Request",
+    isCta: true,
+    ctaButton: "Email Your Request",
+    ctaIcon: "email",
   },
   {
     id: "promo-3",
@@ -78,34 +92,84 @@ export function PromoSlider() {
               i === current ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >
-            <Image
-              src={slide.image}
-              alt={slide.title || "Promotion"}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority={i === 0}
-            />
-            {/* Dark gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-bg/90 via-bg/50 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-transparent" />
+            {slide.isCta ? (
+              /* ─── CTA Slide — gradient background, centered text ─── */
+              <>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0a0e17] via-[#1a1a2e] to-[#16213e]" />
+                {/* Decorative gold accent lines */}
+                <div className="absolute inset-0 overflow-hidden">
+                  <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+                  <div className="absolute top-0 left-1/2 w-px h-full bg-gradient-to-b from-transparent via-gold/10 to-transparent" />
+                  {/* Subtle radial glow */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gold/5 blur-[120px]" />
+                </div>
 
-            {/* Text content */}
-            {(slide.title || slide.subtitle) && (
-              <div className="absolute bottom-12 left-0 right-0 container">
-                <div className="max-w-lg">
-                  {slide.subtitle && (
-                    <p className="text-gold text-xs tracking-[0.25em] uppercase mb-2">
-                      {slide.subtitle}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center max-w-2xl px-6">
+                    {/* Diamond icon */}
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-gold/30 bg-gold/5 mb-6">
+                      <svg className="w-7 h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                      </svg>
+                    </div>
+                    <p className="text-gold text-xs tracking-[0.3em] uppercase mb-4 font-medium">
+                      Special Request
                     </p>
-                  )}
-                  {slide.title && (
-                    <h2 className="font-serif text-3xl md:text-5xl text-ink tracking-tight leading-tight">
+                    <h2 className="font-serif text-3xl md:text-5xl text-ink tracking-tight leading-tight mb-4">
                       {slide.title}
                     </h2>
-                  )}
+                    <p className="text-ink-muted text-base md:text-lg mb-8 max-w-md mx-auto leading-relaxed">
+                      {slide.subtitle}
+                    </p>
+                    {slide.link && slide.ctaButton && (
+                      <a
+                        href={slide.link}
+                        className="inline-flex items-center gap-2.5 bg-gold hover:bg-gold-bright text-bg font-semibold px-8 py-3.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        {slide.ctaIcon === "email" && (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                          </svg>
+                        )}
+                        {slide.ctaButton}
+                      </a>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </>
+            ) : (
+              /* ─── Standard Image Slide ─── */
+              <>
+                <Image
+                  src={slide.image}
+                  alt={slide.title || "Promotion"}
+                  fill
+                  sizes="100vw"
+                  className="object-cover"
+                  priority={i === 0}
+                />
+                {/* Dark gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-bg/90 via-bg/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-transparent" />
+
+                {/* Text content */}
+                {(slide.title || slide.subtitle) && (
+                  <div className="absolute bottom-12 left-0 right-0 container">
+                    <div className="max-w-lg">
+                      {slide.subtitle && (
+                        <p className="text-gold text-xs tracking-[0.25em] uppercase mb-2">
+                          {slide.subtitle}
+                        </p>
+                      )}
+                      {slide.title && (
+                        <h2 className="font-serif text-3xl md:text-5xl text-ink tracking-tight leading-tight">
+                          {slide.title}
+                        </h2>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}
