@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 /** Map ladies brand slugs to their logo image paths */
 const LADIES_LOGOS: Record<string, string> = {
   "rolex-ladies": "/images/logos/brands/rolex.png",
-  "bvlgari": "/images/logos/brands/cartier.png", // placeholder until Bvlgari logo is added
+  "bvlgari": "/images/logos/brands/bvlgari.png",
   "cartier-ladies": "/images/logos/brands/cartier.png",
   "audemars-piguet-ladies": "/images/logos/brands/audemars-piguet.png",
   "patek-philippe-ladies": "/images/logos/brands/patek-philippe.png",
