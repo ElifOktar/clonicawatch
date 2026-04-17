@@ -1,12 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAdminAuth } from "./AdminAuth";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
   { href: "/admin/products", label: "Urunler", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
   { href: "/admin/products/new", label: "Urun Ekle", icon: "M12 4v16m8-8H4" },
+  { href: "/admin/reviews", label: "Degerlendirmeler", icon: "M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" },
   { href: "/admin/promo", label: "Promosyon Banner", icon: "M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" },
   { href: "/admin/photos", label: "Fotograflar", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
   { href: "/admin/blog", label: "Blog", icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" },
@@ -26,6 +28,15 @@ function SvgIcon({ d }: { d: string }) {
 export default function AdminSidebar() {
   const pathname = usePathname();
   const { logout } = useAdminAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    try {
+      const reviews = JSON.parse(localStorage.getItem("clonicawatch_reviews") || "[]");
+      const pending = reviews.filter((r: any) => r.status === "pending").length;
+      setPendingCount(pending);
+    } catch {}
+  }, []);
 
   return (
     <aside className="w-60 bg-bg-elev border-r border-line min-h-screen flex flex-col">
@@ -47,7 +58,7 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors relative ${
                 active
                   ? "bg-gold/10 text-gold"
                   : "text-ink-muted hover:text-ink hover:bg-bg-soft"
@@ -55,6 +66,11 @@ export default function AdminSidebar() {
             >
               <SvgIcon d={item.icon} />
               {item.label}
+              {item.href === "/admin/reviews" && pendingCount > 0 && (
+                <span className="ml-auto inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-gold text-bg rounded-full">
+                  {pendingCount}
+                </span>
+              )}
             </Link>
           );
         })}

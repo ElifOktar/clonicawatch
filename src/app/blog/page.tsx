@@ -3,7 +3,7 @@ import { getAllPosts } from "@/lib/blog";
 import { BlogCover } from "@/components/BlogCover";
 
 export const metadata = {
-  title: "Journal",
+  title: "News & Blog",
   description: "Guides, comparisons, and the craft behind premium timepieces.",
 };
 
@@ -12,8 +12,8 @@ export default function BlogIndexPage() {
   return (
     <div className="container py-12">
       <header className="mb-12">
-        <p className="chip-gold inline-block mb-4">JOURNAL</p>
-        <h1 className="h-serif text-4xl md:text-5xl">Watches, Makers, and Markets</h1>
+        <p className="chip-gold inline-block mb-4">NEWS / BLOG</p>
+        <h1 className="h-serif text-4xl md:text-5xl">News & Blog</h1>
         <p className="text-ink-muted mt-3 max-w-2xl">
           Everything you need to know about premium timepieces — buying guides,
           detailed reviews, and reference comparisons.

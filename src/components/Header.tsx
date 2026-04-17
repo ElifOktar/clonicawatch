@@ -10,8 +10,9 @@ import { CurrencySwitcher } from "@/components/CurrencyProvider";
 import { SearchModal } from "@/components/SearchModal";
 import { AuthModal } from "@/components/AuthModal";
 import { getAllProducts } from "@/lib/products";
+import { MobileMenu } from "@/components/MobileMenu";
 
-export function Header() {
+export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const { itemCount, isHydrated: cartHydrated } = useCart();
   const { items: wishItems, isHydrated: wishHydrated } = useWishlist();
   const { user, signOut } = useAuth();
@@ -19,25 +20,42 @@ export function Header() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const openAuth = (tab: "signin" | "signup") => {
     setAuthTab(tab);
     setAuthOpen(true);
   };
 
+  const handleMobileMenuOpen = () => {
+    setMobileMenuOpen(true);
+    onMobileMenuOpen?.();
+  };
+
   return (
     <>
       <header className="sticky top-0 z-40 bg-bg/90 backdrop-blur-md border-b border-line">
-        <div className="container flex items-center justify-between h-16">
+        <div className="container flex items-center justify-between h-16 gap-4">
+          {/* Hamburger Menu Button - visible on all screen sizes */}
+          <button
+            onClick={handleMobileMenuOpen}
+            className="flex-shrink-0 w-10 h-10 rounded flex items-center justify-center text-gold hover:bg-bg-elev transition-colors"
+            aria-label="Open menu"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
           <Link href="/" className="flex items-center gap-2 font-serif text-2xl tracking-[0.2em] text-gold">
             {SITE_CONFIG.name}
           </Link>
 
-          <nav className="hidden md:flex items-center gap-7 text-sm">
+          <nav className="hidden md:flex items-center gap-7 text-sm flex-1 justify-center">
             <Link href="/" className="hover:text-gold transition-colors">Shop</Link>
             <Link href="/new-arrivals" className="hover:text-gold transition-colors">New Arrivals</Link>
             <Link href="/on-sale" className="text-gold/90 hover:text-gold transition-colors">Sale</Link>
-            <Link href="/blog" className="hover:text-gold transition-colors">Journal</Link>
+            <Link href="/blog" className="hover:text-gold transition-colors">News</Link>
             <Link href="/faq" className="hover:text-gold transition-colors">FAQ</Link>
           </nav>
 
@@ -122,6 +140,7 @@ export function Header() {
       </header>
 
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} defaultTab={authTab} />
+      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
     </>
   );
 }

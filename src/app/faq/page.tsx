@@ -8,7 +8,7 @@ export const metadata = {
 const FAQS = [
   {
     q: "What is a 'Super Clone' watch?",
-    a: "Super clone watches are the highest tier of replica watches — built to 1:1 specifications of the original using the same materials (904L stainless steel, ceramic bezels, sapphire crystals) and movements that mimic the original caliber. They're produced by specialized ateliers (Clean, APF, BP, ZF, Noob) renowned for their accuracy.",
+    a: "Super clone watches are the highest tier of replica watches — built to 1:1 specifications of the original using premium materials (904L stainless steel, ceramic bezels, sapphire crystals) and movements that replicate the original caliber with exceptional accuracy.",
   },
   {
     q: "Are these Swiss-made?",
@@ -28,7 +28,7 @@ const FAQS = [
   },
   {
     q: "What if there's a problem with my order?",
-    a: "We stand behind every piece. If your watch arrives damaged, defective, or not as described, reach out on WhatsApp within 7 days and we'll resolve it — repair, replacement, or refund. Buyer's remorse returns are handled case-by-case.",
+    a: "We stand behind every piece. If your watch arrives damaged, defective, or not as described, reach out on WhatsApp within 7 days and we'll work with you to find the best solution.",
   },
   {
     q: "What's the difference between AAA+, 1:1, and Super Clone?",

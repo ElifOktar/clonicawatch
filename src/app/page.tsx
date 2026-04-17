@@ -1,17 +1,26 @@
 import Link from "next/link";
-import { getFeaturedProducts, getNewArrivals, getAllBrands } from "@/lib/products";
+import { getFeaturedProducts, getNewArrivals, getProductsByBrand } from "@/lib/products";
 import { ProductGrid } from "@/components/ProductGrid";
 import { SITE_CONFIG } from "@/lib/config";
 import { Reviews } from "@/components/Reviews";
-import { InstagramFeed } from "@/components/InstagramFeed";
-import { getAllPosts } from "@/lib/blog";
 import { PromoSlider } from "@/components/PromoSlider";
+import { BrandCircles } from "@/components/BrandCircles";
 import Image from "next/image";
+import type { Brand } from "@/types/product";
 
-const BRAND_LINKS = [
+const SHOWCASE_BRANDS: Array<{ name: Brand; slug: string }> = [
   { name: "Rolex", slug: "rolex" },
   { name: "Audemars Piguet", slug: "audemars-piguet" },
   { name: "Patek Philippe", slug: "patek-philippe" },
+  { name: "Omega", slug: "omega" },
+  { name: "Hublot", slug: "hublot" },
+  { name: "Cartier", slug: "cartier" },
+];
+
+const BRAND_LINKS: Array<{ name: string; slug: string }> = [
+  { name: "Rolex", slug: "rolex" },
+  { name: "Patek Philippe", slug: "patek-philippe" },
+  { name: "Audemars Piguet", slug: "audemars-piguet" },
   { name: "Omega", slug: "omega" },
   { name: "Hublot", slug: "hublot" },
   { name: "Cartier", slug: "cartier" },
@@ -21,19 +30,28 @@ const BRAND_LINKS = [
   { name: "IWC", slug: "iwc" },
   { name: "Richard Mille", slug: "richard-mille" },
   { name: "Tudor", slug: "tudor" },
-  { name: "Vacheron Constantin", slug: "vacheron-constantin" },
-  { name: "Jaeger-LeCoultre", slug: "jaeger-lecoultre" },
 ];
 
 export default function HomePage() {
   const featured = getFeaturedProducts(8);
   const newArrivals = getNewArrivals(8);
-  const posts = getAllPosts().slice(0, 3);
+  // Get one representative product per showcase brand
+  const brandShowcases = SHOWCASE_BRANDS.map((brand) => {
+    const products = getProductsByBrand(brand.name);
+    return {
+      brand: brand.name,
+      slug: brand.slug,
+      product: products[0],
+    };
+  }).filter((b) => b.product);
 
   return (
     <>
       {/* PROMO SLIDER — Scrollable banner at top */}
       <PromoSlider />
+
+      {/* BRAND CIRCLES — Horizontal scrollable brand navigation */}
+      <BrandCircles />
 
       {/* TRUST STRIP */}
       <section className="border-b border-line bg-bg-elev/50">
@@ -46,100 +64,60 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* MAIN CONTENT — Sidebar + Products */}
-      <div className="container py-10">
-        <div className="grid lg:grid-cols-[220px,1fr] gap-8">
-
-          {/* LEFT SIDEBAR — Brand Filter */}
-          <aside className="lg:sticky lg:top-20 h-fit space-y-6">
+      {/* MAIN CONTENT — Full width, no sidebar */}
+      <div className="container py-10 space-y-16">
+        {/* NEW ARRIVALS */}
+        <section>
+          <div className="flex items-end justify-between mb-6">
             <div>
-              <h3 className="text-gold text-xs tracking-[0.2em] uppercase font-medium mb-4">
-                Brands
-              </h3>
-              <div className="space-y-0.5">
-                {BRAND_LINKS.map((b) => (
-                  <Link
-                    key={b.slug}
-                    href={`/brand/${b.slug}`}
-                    className="block px-3 py-2 text-sm text-ink-muted hover:text-gold hover:bg-bg-elev rounded-lg transition-colors"
-                  >
-                    {b.name}
-                  </Link>
-                ))}
-              </div>
-              <Link
-                href="/brand"
-                className="block mt-2 px-3 py-2 text-xs text-gold hover:text-gold-bright transition-colors"
-              >
-                View All Brands →
-              </Link>
+              <h2 className="font-serif text-3xl md:text-4xl tracking-tight">New Arrivals</h2>
+              <p className="text-ink-muted mt-2 text-sm">Fresh additions to our collection.</p>
             </div>
-
-            {/* Quick Links */}
-            <div className="border-t border-line pt-5">
-              <h3 className="text-gold text-xs tracking-[0.2em] uppercase font-medium mb-4">
-                Categories
-              </h3>
-              <div className="space-y-0.5">
-                {[
-                  { name: "Diver", slug: "diver" },
-                  { name: "Chronograph", slug: "chronograph" },
-                  { name: "Dress", slug: "dress" },
-                  { name: "GMT", slug: "gmt" },
-                  { name: "Pilot", slug: "pilot" },
-                  { name: "Sport", slug: "sport" },
-                ].map((s) => (
-                  <Link
-                    key={s.slug}
-                    href={`/category/${s.slug}`}
-                    className="block px-3 py-2 text-sm text-ink-muted hover:text-gold hover:bg-bg-elev rounded-lg transition-colors"
-                  >
-                    {s.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Filter */}
-            <div className="border-t border-line pt-5">
-              <h3 className="text-gold text-xs tracking-[0.2em] uppercase font-medium mb-4">
-                Price Range
-              </h3>
-              <div className="space-y-1">
-                {["Under $500", "$500–$1,000", "$1,000–$1,500", "$1,500+"].map((range) => (
-                  <div key={range} className="px-3 py-1.5 text-sm text-ink-muted">
-                    {range}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
-
-          {/* MAIN CONTENT AREA */}
-          <div className="space-y-16">
-            {/* NEW ARRIVALS */}
-            <section>
-              <div className="flex items-end justify-between mb-6">
-                <div>
-                  <h2 className="font-serif text-3xl md:text-4xl tracking-tight">New Arrivals</h2>
-                  <p className="text-ink-muted mt-2 text-sm">Fresh additions to our collection.</p>
-                </div>
-                <Link href="/new-arrivals" className="text-gold text-sm hover:text-gold-bright transition-colors">
-                  View All →
-                </Link>
-              </div>
-              <ProductGrid products={newArrivals} />
-            </section>
-
-            {/* FEATURED COLLECTION */}
-            <section>
-              <div className="flex items-end justify-between mb-6">
-                <h2 className="font-serif text-3xl md:text-4xl tracking-tight">Featured Collection</h2>
-              </div>
-              <ProductGrid products={featured} />
-            </section>
+            <Link href="/new-arrivals" className="text-gold text-sm hover:text-gold-bright transition-colors">
+              View All →
+            </Link>
           </div>
-        </div>
+          <ProductGrid products={newArrivals} />
+        </section>
+
+        {/* BRAND SHOWCASE BANNERS */}
+        <section>
+          <h2 className="font-serif text-3xl md:text-4xl tracking-tight mb-8">Explore by Brand</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {brandShowcases.map((showcase) => (
+              <Link
+                key={showcase.slug}
+                href={`/brand/${showcase.slug}`}
+                className="group relative h-64 rounded-lg overflow-hidden bg-bg-elev border border-line hover:border-gold-deep transition-colors"
+              >
+                {/* Background Image */}
+                {showcase.product?.main_image && (
+                  <Image
+                    src={showcase.product.main_image}
+                    alt={showcase.brand}
+                    fill
+                    className="object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-300"
+                  />
+                )}
+                {/* Dark overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-bg/20 to-bg/80" />
+                {/* Content */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <h3 className="font-serif text-3xl md:text-4xl text-ink">{showcase.brand}</h3>
+                  <p className="text-gold text-sm mt-3">Explore Collection →</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* FEATURED COLLECTION */}
+        <section>
+          <div className="flex items-end justify-between mb-6">
+            <h2 className="font-serif text-3xl md:text-4xl tracking-tight">Featured Collection</h2>
+          </div>
+          <ProductGrid products={featured} />
+        </section>
       </div>
 
       {/* WHY US — dark elevated */}

@@ -10,6 +10,7 @@ interface Stats {
   onSale: number;
   featured: number;
   recentProducts: { id: string; model_name: string; brand: string; price: { usd: number }; stock_status: string; created_at: string }[];
+  pendingReviews: number;
 }
 
 function StatCard({ label, value, color, href }: { label: string; value: string | number; color: string; href?: string }) {
@@ -32,6 +33,14 @@ export default function AdminDashboard() {
       .then((data) => {
         const products = data.products || [];
         const brands = [...new Set(products.map((p: any) => p.brand))] as string[];
+
+        // Get pending reviews count
+        let pendingReviews = 0;
+        try {
+          const reviews = JSON.parse(localStorage.getItem("clonicawatch_reviews") || "[]");
+          pendingReviews = reviews.filter((r: any) => r.status === "pending").length;
+        } catch {}
+
         setStats({
           totalProducts: products.length,
           totalBlog: 0,
@@ -40,6 +49,7 @@ export default function AdminDashboard() {
           onSale: products.filter((p: any) => p.is_on_sale).length,
           featured: products.filter((p: any) => p.is_featured).length,
           recentProducts: products.slice(0, 5),
+          pendingReviews,
         });
       });
     fetch("/api/admin/blog")
@@ -63,7 +73,7 @@ export default function AdminDashboard() {
         <StatCard label="Toplam Urun" value={stats.totalProducts} color="gold" href="/admin/products" />
         <StatCard label="Marka" value={stats.brands.length} color="gold-bright" />
         <StatCard label="Stokta" value={stats.inStock} color="green-400" />
-        <StatCard label="Indirimde" value={stats.onSale} color="red-400" />
+        <StatCard label="Onay Bekleme" value={stats.pendingReviews} color="yellow-400" href="/admin/reviews" />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
