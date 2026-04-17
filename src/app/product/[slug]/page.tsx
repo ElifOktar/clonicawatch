@@ -72,7 +72,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="container py-8 pb-20 md:pb-0">
+      <div className="container py-8 pb-20 md:pb-0 overflow-hidden">
         {/* Breadcrumb */}
         <nav className="text-xs text-ink-muted mb-6">
           <Link href="/" className="hover:text-gold">Home</Link>
@@ -84,7 +84,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
           <span className="text-ink">{p.collection}</span>
         </nav>
 
-        <div className="grid lg:grid-cols-2 gap-10">
+        <div className="grid lg:grid-cols-2 gap-6 md:gap-10">
           {/* GALLERY — supports 7-8 images + video */}
           <ProductGallery
             images={gallery}
@@ -102,7 +102,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             <p className="text-xs text-ink-dim tracking-widest uppercase">
               {p.brand} · {p.collection}
             </p>
-            <h1 className="h-serif text-3xl md:text-4xl mt-2">{p.model_name}</h1>
+            <h1 className="h-serif text-3xl md:text-4xl mt-2 break-words">{p.model_name}</h1>
             {p.reference && (
               <p className="text-ink-muted mt-1 text-sm">Ref. {p.reference}</p>
             )}
@@ -137,7 +137,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               )}
             </div>
 
-            <p className="mt-4 text-ink-muted leading-relaxed">
+            <p className="mt-4 text-ink-muted leading-relaxed break-words overflow-wrap-anywhere">
               {p.short_description}
             </p>
 
@@ -157,7 +157,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             {/* Specs — cleaned up, no factory/technical info */}
             <div className="mt-8 card p-5">
               <h3 className="text-xs tracking-widest uppercase text-gold mb-4">Details</h3>
-              <dl className="grid grid-cols-2 gap-y-3 text-sm">
+              <dl className="grid grid-cols-2 gap-y-3 text-sm break-words">
                 <dt className="text-ink-muted">Case</dt>
                 <dd>{p.case_diameter_mm}mm</dd>
                 <dt className="text-ink-muted">Material</dt>
@@ -181,10 +181,10 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         </div>
 
         {/* DESCRIPTION */}
-        <div className="mt-16 grid md:grid-cols-2 gap-10">
+        <div className="mt-12 md:mt-16 grid md:grid-cols-2 gap-6 md:gap-10">
           <div>
             <h2 className="h-serif text-2xl mb-4">Description</h2>
-            <div className="text-ink-muted leading-relaxed whitespace-pre-wrap">
+            <div className="text-ink-muted leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere">
               {p.long_description}
             </div>
           </div>
