@@ -17,23 +17,20 @@ export default function TrackingPage() {
     e.preventDefault();
     if (!trackingNumber.trim()) return;
 
-    let url = "";
-    switch (carrier) {
-      case "dhl":
-        url = `https://www.dhl.com/en/express/tracking.html?AWB=${trackingNumber}`;
-        break;
-      case "fedex":
-        url = `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`;
-        break;
-      case "ups":
-        url = `https://www.ups.com/track?tracknum=${trackingNumber}`;
-        break;
-    }
+    const urls: Record<string, string> = {
+      dhl: "https://www.dhl.com/en/express/tracking.html?AWB=" + trackingNumber,
+      fedex: "https://www.fedex.com/fedextrack/?trknbr=" + trackingNumber,
+      ups: "https://www.ups.com/track?tracknum=" + trackingNumber,
+    };
 
+    const url = urls[carrier];
     if (url) {
       window.open(url, "_blank", "noopener,noreferrer");
     }
   };
+
+  const waUrl = "https://wa.me/" + SITE_CONFIG.contact.whatsapp + "?text=Hi, I have a question about my order tracking.";
+  const mailUrl = "mailto:" + SITE_CONFIG.contact.email;
 
   return (
     <div className="container py-12 max-w-2xl">
@@ -101,24 +98,25 @@ export default function TrackingPage() {
 
       <div className="bg-bg-elev rounded-lg p-6 mb-8">
         <p className="text-ink-muted text-sm leading-relaxed mb-4">
-          <span className="text-gold font-medium">Track via WhatsApp:</span> Tracking numbers are sent via WhatsApp immediately after your order ships. Our team typically responds within 2 hours during business hours.
+          <span className="text-gold font-medium">Track via WhatsApp:</span>{" "}
+          Tracking numbers are sent via WhatsApp immediately after your order ships.
         </p>
         
-          href={`https://wa.me/${SITE_CONFIG.contact.whatsapp}?text=Hi, I have a question about my order tracking.`}
+          href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block btn-gold px-6 py-2 text-sm font-medium transition-all"
         >
-          💬 Message us on WhatsApp
+          Message us on WhatsApp
         </a>
       </div>
 
       <div className="text-center">
         <p className="text-ink-muted text-sm mb-3">
-          Can&apos;t find your tracking number?
+          Cannot find your tracking number?
         </p>
         
-          href={`mailto:${SITE_CONFIG.contact.email}`}
+          href={mailUrl}
           className="inline-block text-gold hover:text-gold/80 transition-colors font-medium"
         >
           Contact Support
