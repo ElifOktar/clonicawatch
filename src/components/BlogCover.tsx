@@ -3,28 +3,25 @@
 import { useState } from "react";
 
 /**
- * Elegant gradient blog cover with optional image support.
- * Generates a unique color scheme per post based on the slug.
- * If image loads, it displays with the gradient overlay.
- * If image fails or not provided, shows the gradient background.
+ * Blog cover with real supporting images from Unsplash.
+ * Each article gets a relevant watch/luxury image.
+ * Falls back to elegant gradient if image fails to load.
  */
 
-const PALETTES = [
-  { from: "#0a0e17", via: "#1a1a2e", to: "#16213e", accent: "#c9a84c" },
-  { from: "#0a0e17", via: "#1b1425", to: "#251636", accent: "#c9a84c" },
-  { from: "#0a0e17", via: "#1a2020", to: "#0f2a1f", accent: "#c9a84c" },
-  { from: "#0a0e17", via: "#201a14", to: "#2a1f0f", accent: "#c9a84c" },
-  { from: "#0a0e17", via: "#141a25", to: "#0f1a36", accent: "#c9a84c" },
-  { from: "#0a0e17", via: "#1a1520", to: "#2a1025", accent: "#c9a84c" },
-];
-
-function hashSlug(slug: string): number {
-  let h = 0;
-  for (let i = 0; i < slug.length; i++) {
-    h = ((h << 5) - h + slug.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
+const BLOG_IMAGES: Record<string, string> = {
+  "what-is-a-super-clone-watch": "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=800&h=500&fit=crop&q=80",
+  "clean-vs-vs-factory": "https://images.unsplash.com/photo-1548171916-c8d1c2d1bb30?w=800&h=500&fit=crop&q=80",
+  "how-to-spot-fake": "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=800&h=500&fit=crop&q=80",
+  "history-of-rolex": "https://images.unsplash.com/photo-1627037558426-c2d07beda3af?w=800&h=500&fit=crop&q=80",
+  "audemars-piguet-royal-oak-legend": "https://images.unsplash.com/photo-1618220179428-22790b461013?w=800&h=500&fit=crop&q=80",
+  "swiss-movement-explained": "https://images.unsplash.com/photo-1495857000853-fe46c8aefc30?w=800&h=500&fit=crop&q=80",
+  "sapphire-vs-mineral-crystal": "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=800&h=500&fit=crop&q=80",
+  "water-resistance-guide": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&h=500&fit=crop&q=80",
+  "most-popular-watches-2026": "https://images.unsplash.com/photo-1622434641406-a158123450f9?w=800&h=500&fit=crop&q=80",
+  "which-watch-matches-your-style": "https://images.unsplash.com/photo-1434056886845-dbe89f0b9571?w=800&h=500&fit=crop&q=80",
+  "caring-for-your-watch": "https://images.unsplash.com/photo-1526045431048-f857369baa09?w=800&h=500&fit=crop&q=80",
+  "rolex-vs-omega-vs-ap": "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&h=500&fit=crop&q=80",
+};
 
 // Category label based on slug keywords
 function getCategory(slug: string): string {
@@ -41,79 +38,48 @@ interface Props {
   title: string;
   className?: string;
   imageUrl?: string;
+  showCategory?: boolean;
 }
 
-export function BlogCover({ slug, title, className = "", imageUrl }: Props) {
-  const idx = hashSlug(slug) % PALETTES.length;
-  const p = PALETTES[idx];
+export function BlogCover({ slug, title, className = "", imageUrl, showCategory = true }: Props) {
   const category = getCategory(slug);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-
-  // Get a short display title (first 3-4 words max)
-  const shortTitle = title.split(/[:\—\-–]/).at(-1)?.trim().split(" ").slice(0, 4).join(" ") || title.split(" ").slice(0, 3).join(" ");
+  const src = imageUrl || BLOG_IMAGES[slug];
 
   return (
-    <div
-      className={`relative w-full h-full overflow-hidden ${className}`}
-      style={{
-        background: `linear-gradient(135deg, ${p.from} 0%, ${p.via} 50%, ${p.to} 100%)`,
-      }}
-    >
-      {/* Optional background image */}
-      {imageUrl && !imageError && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={imageUrl}
-          alt={title}
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageError(true)}
-          className={`absolute inset-0 w-full h-full object-cover opacity-40 transition-opacity ${
-            imageLoaded ? "opacity-40" : "opacity-0"
-          }`}
+    <div className={`relative w-full h-full overflow-hidden bg-bg-elev ${className}`}>
+      {/* Background image */}
+      {src && !imageError ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={title}
+            onError={() => setImageError(true)}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+          {/* Subtle dark overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        </>
+      ) : (
+        /* Fallback gradient */
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(135deg, #0a0e17 0%, #1a1a2e 50%, #16213e 100%)",
+          }}
         />
       )}
 
-      {/* Radial glow */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] rounded-full opacity-[0.06]"
-        style={{ background: `radial-gradient(circle, ${p.accent}, transparent 70%)` }}
-      />
-
-      {/* Decorative crosshair lines */}
-      <div
-        className="absolute top-1/2 left-0 w-full h-px opacity-20"
-        style={{ background: `linear-gradient(to right, transparent, ${p.accent}40, transparent)` }}
-      />
-      <div
-        className="absolute top-0 left-1/2 w-px h-full opacity-10"
-        style={{ background: `linear-gradient(to bottom, transparent, ${p.accent}30, transparent)` }}
-      />
-
-      {/* Corner accents */}
-      <svg className="absolute top-3 left-3 w-8 h-8 opacity-30" viewBox="0 0 32 32" fill="none" stroke={p.accent} strokeWidth="1.5">
-        <path d="M0 12 L0 0 L12 0" />
-      </svg>
-      <svg className="absolute bottom-3 right-3 w-8 h-8 opacity-30" viewBox="0 0 32 32" fill="none" stroke={p.accent} strokeWidth="1.5">
-        <path d="M32 20 L32 32 L20 32" />
-      </svg>
-
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-        {/* Diamond */}
-        <div className="w-3 h-3 rotate-45 border border-gold/50 mb-3" />
-        {/* Category chip */}
-        <span className="text-gold text-[10px] tracking-[0.25em] font-medium mb-2">
-          {category}
-        </span>
-        {/* Title */}
-        <h3 className="font-serif text-ink text-base md:text-lg leading-snug max-w-[80%]">
-          {shortTitle}
-        </h3>
-        {/* Bottom line */}
-        <div className="w-10 h-px bg-gold/40 mt-3" />
-        <span className="text-ink-dim text-[9px] tracking-[0.2em] mt-2">CLONICAWATCH</span>
-      </div>
+      {/* Category badge - bottom left */}
+      {showCategory && (
+        <div className="absolute bottom-3 left-3">
+          <span className="text-[10px] tracking-[0.2em] font-semibold text-gold bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full">
+            {category}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,17 +8,15 @@ export function FloatingButtons() {
         href="https://wa.me/905355430744"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:scale-110 transition-transform duration-200 flex items-center justify-center"
+        className="w-14 h-14 rounded-full bg-[#25D366] shadow-lg shadow-[#25D366]/20 hover:scale-110 hover:shadow-[#25D366]/40 transition-all duration-200 flex items-center justify-center overflow-hidden"
         title="WhatsApp"
       >
-        <svg
-          className="w-7 h-7 text-white"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.996 1.304c-1.464.817-2.763 1.978-3.62 3.368C3.304 10.75 2.913 12.357 2.936 14c.02 1.644.356 3.254 1 4.77 1.234 2.98 3.674 5.34 6.672 6.312 1.449.434 2.979.638 4.537.626 1.557-.012 3.076-.254 4.546-.94 2.988-1.372 5.402-4.1 6.17-7.254.768-3.154.44-6.613-1.016-9.594-.842-1.73-1.921-3.22-3.262-4.354-1.34-1.134-2.927-1.955-4.65-2.368-1.722-.414-3.549-.401-5.37.041zm9.127 8.26c-.315.918-.994 1.648-1.872 1.95-.878.303-1.842.165-2.57-.384-.726-.549-1.139-1.45-1.05-2.368.088-.917.649-1.66 1.431-1.81.782-.15 1.683.123 2.252.816.569.693.78 1.683.509 2.576z" />
-        </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/logos/social/whatsapp.jpg"
+          alt="WhatsApp"
+          className="w-8 h-8 rounded-full object-cover"
+        />
       </a>
 
       {/* Telegram Button */}
@@ -26,17 +24,15 @@ export function FloatingButtons() {
         href="https://t.me/+905355430744"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-14 h-14 rounded-full bg-[#0088cc] shadow-lg hover:scale-110 transition-transform duration-200 flex items-center justify-center"
+        className="w-14 h-14 rounded-full bg-[#0088cc] shadow-lg shadow-[#0088cc]/20 hover:scale-110 hover:shadow-[#0088cc]/40 transition-all duration-200 flex items-center justify-center overflow-hidden"
         title="Telegram"
       >
-        <svg
-          className="w-7 h-7 text-white"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a11.955 11.955 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.487-1.302.512-.428.014-.847-.16-1.254-.484-.407-.324-.649-.758-.896-1.21-.295-.529-.505-1.137-.514-1.748-.01-.568.14-1.14.436-1.667.328-.577 1.529-1.041 2.197-1.117.673-.075 1.334.196 1.928.512 1.512.822 2.999 1.647 4.456 2.444.275.148.518.243.749.243z" />
-        </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/logos/social/telegram.jpg"
+          alt="Telegram"
+          className="w-8 h-8 rounded-full object-cover"
+        />
       </a>
     </div>
   );
