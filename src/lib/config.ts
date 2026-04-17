@@ -22,7 +22,7 @@ export const SITE_CONFIG = {
     whatsapp: "905355430744",           // +90 535 543 07 44
     whatsappDisplay: "+90 535 543 07 44",
     telegram: "",                       // to be added
-    email: "",                          // to be added
+    email: "info@clonica.online",       // watch request emails
     instagram: "",                      // to be added
   },
 
