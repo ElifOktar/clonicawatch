@@ -6,7 +6,7 @@ export type Brand =
   | "Breitling" | "Cartier" | "TAG Heuer" | "Panerai" | "IWC"
   | "Richard Mille" | "Vacheron Constantin" | "Jaeger-LeCoultre"
   | "Tudor" | "Bell & Ross" | "Zenith" | "Chopard" | "Longines"
-  | "Ulysse Nardin" | "Franck Muller" | "Piaget";
+  | "Ulysse Nardin" | "Franck Muller" | "Piaget" | "Bvlgari";
 
 export type QualityTier = "Super Clone" | "1:1" | "AAA+" | "Top Quality";
 
