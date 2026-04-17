@@ -47,7 +47,13 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
             </svg>
           </button>
 
-          <Link href="/" className="flex items-center gap-2 font-serif text-2xl tracking-[0.2em] text-gold">
+          <Link href="/" className="flex items-center gap-2.5 font-serif text-2xl tracking-[0.2em] text-gold">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/clonica-logo.jpg"
+              alt="Clonica"
+              className="w-9 h-9 rounded-full object-cover border border-gold/30"
+            />
             {SITE_CONFIG.name}
           </Link>
 
