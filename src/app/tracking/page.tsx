@@ -3,11 +3,6 @@
 import { useState } from "react";
 import { SITE_CONFIG } from "@/lib/config";
 
-export const metadata = {
-  title: "Track Your Order",
-  description: "Track your shipment status with your tracking number.",
-};
-
 const CARRIERS = [
   { id: "dhl", name: "DHL Express", days: "3-5 business days" },
   { id: "fedex", name: "FedEx", days: "4-7 business days" },
@@ -42,7 +37,6 @@ export default function TrackingPage() {
 
   return (
     <div className="container py-12 max-w-2xl">
-      {/* Header */}
       <div className="text-center mb-12">
         <h1 className="h-serif text-4xl mb-3">Track Your Order</h1>
         <p className="text-ink-muted">
@@ -50,10 +44,8 @@ export default function TrackingPage() {
         </p>
       </div>
 
-      {/* Tracking Form Card */}
       <div className="card p-8 mb-12">
         <form onSubmit={handleTrack} className="space-y-6">
-          {/* Tracking Number Input */}
           <div>
             <label htmlFor="tracking" className="block text-sm font-medium text-ink mb-2">
               Tracking Number
@@ -68,7 +60,6 @@ export default function TrackingPage() {
             />
           </div>
 
-          {/* Carrier Dropdown */}
           <div>
             <label htmlFor="carrier" className="block text-sm font-medium text-ink mb-2">
               Shipping Carrier
@@ -87,7 +78,6 @@ export default function TrackingPage() {
             </select>
           </div>
 
-          {/* Track Button */}
           <button
             type="submit"
             className="w-full btn-gold py-3 font-medium transition-all"
@@ -97,7 +87,6 @@ export default function TrackingPage() {
         </form>
       </div>
 
-      {/* Shipping Info Section */}
       <div className="mb-12">
         <h2 className="h-serif text-2xl mb-6">Shipping Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -110,12 +99,11 @@ export default function TrackingPage() {
         </div>
       </div>
 
-      {/* Additional Info */}
       <div className="bg-bg-elev rounded-lg p-6 mb-8">
         <p className="text-ink-muted text-sm leading-relaxed mb-4">
           <span className="text-gold font-medium">Track via WhatsApp:</span> Tracking numbers are sent via WhatsApp immediately after your order ships. Our team typically responds within 2 hours during business hours.
         </p>
-        <a
+        
           href={`https://wa.me/${SITE_CONFIG.contact.whatsapp}?text=Hi, I have a question about my order tracking.`}
           target="_blank"
           rel="noopener noreferrer"
@@ -125,12 +113,11 @@ export default function TrackingPage() {
         </a>
       </div>
 
-      {/* Help Section */}
       <div className="text-center">
         <p className="text-ink-muted text-sm mb-3">
-          Can't find your tracking number?
+          Can&apos;t find your tracking number?
         </p>
-        <a
+        
           href={`mailto:${SITE_CONFIG.contact.email}`}
           className="inline-block text-gold hover:text-gold/80 transition-colors font-medium"
         >
