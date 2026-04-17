@@ -72,10 +72,10 @@ export function ProductGallery({ images, videoUrl, modelName }: Props) {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 w-full max-w-full min-w-0">
       {/* Main display */}
       <div
-        className="relative aspect-[4/5] md:aspect-square card overflow-hidden cursor-zoom-in max-h-[70vh] md:max-h-none"
+        className="relative w-full aspect-[4/5] md:aspect-square card overflow-hidden cursor-zoom-in max-h-[70vh] md:max-h-none"
         onClick={() => !isVideoSelected && setZoomedIn(!zoomedIn)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
