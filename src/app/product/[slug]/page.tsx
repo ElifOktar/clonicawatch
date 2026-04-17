@@ -14,6 +14,7 @@ import {
 import { ProductGrid } from "@/components/ProductGrid";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductGallery } from "@/components/ProductGallery";
+import { StickyProductCTA } from "@/components/StickyProductCTA";
 
 export function generateStaticParams() {
   return getAllProducts().map((p) => ({ slug: p.slug }));
@@ -71,7 +72,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="container py-8">
+      <div className="container py-8 pb-20 md:pb-0">
         {/* Breadcrumb */}
         <nav className="text-xs text-ink-muted mb-6">
           <Link href="/" className="hover:text-gold">Home</Link>
@@ -216,6 +217,9 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
           </section>
         )}
       </div>
+
+      {/* Sticky Mobile CTA */}
+      <StickyProductCTA waUrl={waUrl} productId={p.id} />
     </>
   );
 }

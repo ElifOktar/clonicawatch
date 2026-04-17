@@ -1,169 +1,225 @@
-import Link from "next/link";
-import { getFeaturedProducts, getNewArrivals, getProductsByBrand } from "@/lib/products";
-import { ProductGrid } from "@/components/ProductGrid";
-import { SITE_CONFIG } from "@/lib/config";
-import { Reviews } from "@/components/Reviews";
-import { PromoSlider } from "@/components/PromoSlider";
-import { BrandCircles } from "@/components/BrandCircles";
 import Image from "next/image";
-import type { Brand } from "@/types/product";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import {
+  getAllProducts,
+  getProductBySlug,
+  getRelatedProducts,
+  formatPrice,
+  getProductMetaTitle,
+  getProductMetaDescription,
+  getProductWhatsAppUrl,
+} from "@/lib/products";
+import { ProductGrid } from "@/components/ProductGrid";
+import { AddToCartButton } from "@/components/AddToCartButton";
+import { ProductGallery } from "@/components/ProductGallery";
+import { StickyProductCTA } from "@/components/StickyProductCTA";
 
-const SHOWCASE_BRANDS: Array<{ name: Brand; slug: string }> = [
-  { name: "Rolex", slug: "rolex" },
-  { name: "Audemars Piguet", slug: "audemars-piguet" },
-  { name: "Patek Philippe", slug: "patek-philippe" },
-  { name: "Omega", slug: "omega" },
-  { name: "Hublot", slug: "hublot" },
-  { name: "Cartier", slug: "cartier" },
-];
+export function generateStaticParams() {
+  return getAllProducts().map((p) => ({ slug: p.slug }));
+}
 
-const BRAND_LINKS: Array<{ name: string; slug: string }> = [
-  { name: "Rolex", slug: "rolex" },
-  { name: "Patek Philippe", slug: "patek-philippe" },
-  { name: "Audemars Piguet", slug: "audemars-piguet" },
-  { name: "Omega", slug: "omega" },
-  { name: "Hublot", slug: "hublot" },
-  { name: "Cartier", slug: "cartier" },
-  { name: "Breitling", slug: "breitling" },
-  { name: "TAG Heuer", slug: "tag-heuer" },
-  { name: "Panerai", slug: "panerai" },
-  { name: "IWC", slug: "iwc" },
-  { name: "Richard Mille", slug: "richard-mille" },
-  { name: "Tudor", slug: "tudor" },
-];
+export function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Metadata {
+  const p = getProductBySlug(params.slug);
+  if (!p) return {};
+  return {
+    title: getProductMetaTitle(p),
+    description: getProductMetaDescription(p),
+    openGraph: {
+      title: getProductMetaTitle(p),
+      description: getProductMetaDescription(p),
+      images: [p.main_image],
+    },
+  };
+}
 
-export default function HomePage() {
-  const featured = getFeaturedProducts(8);
-  const newArrivals = getNewArrivals(8);
-  // Get one representative product per showcase brand
-  const brandShowcases = SHOWCASE_BRANDS.map((brand) => {
-    const products = getProductsByBrand(brand.name);
-    return {
-      brand: brand.name,
-      slug: brand.slug,
-      product: products[0],
-    };
-  }).filter((b) => b.product);
+export default function ProductPage({ params }: { params: { slug: string } }) {
+  const p = getProductBySlug(params.slug);
+  if (!p) notFound();
+
+  const related = getRelatedProducts(p, 4);
+  const waUrl = getProductWhatsAppUrl(p);
+  const gallery = p.gallery_images?.length ? p.gallery_images : [p.main_image];
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.model_name,
+    brand: { "@type": "Brand", name: p.brand },
+    sku: p.sku,
+    image: gallery,
+    description: p.short_description,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "USD",
+      price: p.price.usd,
+      availability:
+        p.stock_status === "In Stock"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/LimitedAvailability",
+    },
+  };
 
   return (
     <>
-      {/* PROMO SLIDER — Scrollable banner at top */}
-      <PromoSlider />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
-      {/* BRAND CIRCLES — Horizontal scrollable brand navigation */}
-      <BrandCircles />
+      <div className="container py-8 pb-20 md:pb-0">
+        {/* Breadcrumb */}
+        <nav className="text-xs text-ink-muted mb-6">
+          <Link href="/" className="hover:text-gold">Home</Link>
+          <span className="mx-2">›</span>
+          <Link href={`/brand/${p.brand.toLowerCase().replace(/\s+/g, "-")}`} className="hover:text-gold">
+            {p.brand}
+          </Link>
+          <span className="mx-2">›</span>
+          <span className="text-ink">{p.collection}</span>
+        </nav>
 
-      {/* TRUST STRIP */}
-      <section className="border-b border-line bg-bg-elev/50">
-        <div className="container py-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm">
-          {SITE_CONFIG.trustSignals.map((t) => (
-            <div key={t.label} className="text-ink-muted">
-              <span className="text-gold mr-2">◆</span>{t.label}
+        <div className="grid lg:grid-cols-2 gap-10">
+          {/* GALLERY — supports 7-8 images + video */}
+          <ProductGallery
+            images={gallery}
+            videoUrl={p.video_url}
+            modelName={p.model_name}
+          />
+
+          {/* INFO */}
+          <div>
+            <div className="flex gap-2 mb-3">
+              {p.is_new_arrival && <span className="chip-gold">NEW</span>}
+              {p.is_on_sale && <span className="chip bg-danger/20 border-danger/40 text-danger">SALE</span>}
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* MAIN CONTENT — Full width, no sidebar */}
-      <div className="container py-10 space-y-16">
-        {/* NEW ARRIVALS */}
-        <section>
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <h2 className="font-serif text-3xl md:text-4xl tracking-tight">New Arrivals</h2>
-              <p className="text-ink-muted mt-2 text-sm">Fresh additions to our collection.</p>
+            <p className="text-xs text-ink-dim tracking-widest uppercase">
+              {p.brand} · {p.collection}
+            </p>
+            <h1 className="h-serif text-3xl md:text-4xl mt-2">{p.model_name}</h1>
+            {p.reference && (
+              <p className="text-ink-muted mt-1 text-sm">Ref. {p.reference}</p>
+            )}
+
+            <div className="mt-6 flex items-baseline gap-3">
+              <span className="text-4xl font-serif text-gold">
+                {formatPrice(p.price.usd)}
+              </span>
+              {p.original_price?.usd && (
+                <span className="text-ink-dim line-through">
+                  {formatPrice(p.original_price.usd)}
+                </span>
+              )}
             </div>
-            <Link href="/new-arrivals" className="text-gold text-sm hover:text-gold-bright transition-colors">
-              View All →
-            </Link>
-          </div>
-          <ProductGrid products={newArrivals} />
-        </section>
 
-        {/* BRAND SHOWCASE BANNERS */}
-        <section>
-          <h2 className="font-serif text-3xl md:text-4xl tracking-tight mb-8">Explore by Brand</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {brandShowcases.map((showcase) => (
-              <Link
-                key={showcase.slug}
-                href={`/brand/${showcase.slug}`}
-                className="group relative h-64 rounded-lg overflow-hidden bg-bg-elev border border-line hover:border-gold-deep transition-colors"
+            <div className="mt-2 text-sm">
+              <span
+                className={
+                  p.stock_status === "In Stock"
+                    ? "text-success"
+                    : p.stock_status === "Limited Stock"
+                      ? "text-gold"
+                      : "text-danger"
+                }
               >
-                {/* Background Image */}
-                {showcase.product?.main_image && (
-                  <Image
-                    src={showcase.product.main_image}
-                    alt={showcase.brand}
-                    fill
-                    className="object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-300"
-                  />
-                )}
-                {/* Dark overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-bg/20 to-bg/80" />
-                {/* Content */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <h3 className="font-serif text-3xl md:text-4xl text-ink">{showcase.brand}</h3>
-                  <p className="text-gold text-sm mt-3">Explore Collection →</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+                ● {p.stock_status}
+              </span>
+              {p.stock_count !== undefined && p.stock_count > 0 && (
+                <span className="text-ink-muted ml-2">
+                  ({p.stock_count} left)
+                </span>
+              )}
+            </div>
 
-        {/* FEATURED COLLECTION */}
-        <section>
-          <div className="flex items-end justify-between mb-6">
-            <h2 className="font-serif text-3xl md:text-4xl tracking-tight">Featured Collection</h2>
+            <p className="mt-4 text-ink-muted leading-relaxed">
+              {p.short_description}
+            </p>
+
+            {/* CTAs */}
+            <div className="mt-8 space-y-3">
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener"
+                className="btn-gold w-full text-base"
+              >
+                Contact Seller on WhatsApp
+              </a>
+              <AddToCartButton productId={p.id} />
+            </div>
+
+            {/* Specs — cleaned up, no factory/technical info */}
+            <div className="mt-8 card p-5">
+              <h3 className="text-xs tracking-widest uppercase text-gold mb-4">Details</h3>
+              <dl className="grid grid-cols-2 gap-y-3 text-sm">
+                <dt className="text-ink-muted">Case</dt>
+                <dd>{p.case_diameter_mm}mm</dd>
+                <dt className="text-ink-muted">Material</dt>
+                <dd>{p.case_material}</dd>
+                <dt className="text-ink-muted">Dial</dt>
+                <dd>{p.dial_color}</dd>
+                {p.bezel_color && <><dt className="text-ink-muted">Bezel</dt><dd>{p.bezel_color}</dd></>}
+                <dt className="text-ink-muted">Strap</dt>
+                <dd>{p.strap_type}</dd>
+                {p.water_resistance && <><dt className="text-ink-muted">Water Resistance</dt><dd>{p.water_resistance}</dd></>}
+              </dl>
+            </div>
+
+            {/* Trust */}
+            <div className="mt-6 flex flex-wrap gap-2 text-xs text-ink-muted">
+              <span className="chip">Discreet Packaging</span>
+              <span className="chip">Worldwide Express</span>
+              <span className="chip">Bank / Crypto / WU / RIA</span>
+            </div>
           </div>
-          <ProductGrid products={featured} />
-        </section>
+        </div>
+
+        {/* DESCRIPTION */}
+        <div className="mt-16 grid md:grid-cols-2 gap-10">
+          <div>
+            <h2 className="h-serif text-2xl mb-4">Description</h2>
+            <div className="text-ink-muted leading-relaxed whitespace-pre-wrap">
+              {p.long_description}
+            </div>
+          </div>
+          <div>
+            <h2 className="h-serif text-2xl mb-4">In the Box</h2>
+            <ul className="space-y-2 text-ink-muted">
+              {p.package_contents.map((c, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="text-gold">●</span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+            <h3 className="h-serif text-xl mt-8 mb-3">Shipping & Payment</h3>
+            <p className="text-ink-muted text-sm">
+              Worldwide express shipping via DHL / FedEx / UPS — 3–7 business
+              days to most destinations with full tracking.
+              <br /><br />
+              Payment methods finalized via WhatsApp: Bank Transfer (Wise/SWIFT),
+              Crypto (BTC / USDT), Western Union, or RIA.
+            </p>
+          </div>
+        </div>
+
+        {/* RELATED */}
+        {related.length > 0 && (
+          <section className="mt-20">
+            <h2 className="h-serif text-2xl mb-8">You May Also Like</h2>
+            <ProductGrid products={related} />
+          </section>
+        )}
       </div>
 
-      {/* WHY US — dark elevated */}
-      <section className="border-y border-line bg-bg-elev">
-        <div className="container py-16 grid md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-              <svg className="w-6 h-6 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="font-serif text-xl text-gold">Premium Quality</h3>
-            <p className="text-ink-muted text-sm mt-2">Select pieces crafted with the highest attention to detail and precision.</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-              <svg className="w-6 h-6 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-              </svg>
-            </div>
-            <h3 className="font-serif text-xl text-gold">Worldwide Express</h3>
-            <p className="text-ink-muted text-sm mt-2">DHL, FedEx, UPS — tracked shipping to 80+ countries.</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-              <svg className="w-6 h-6 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-              </svg>
-            </div>
-            <h3 className="font-serif text-xl text-gold">Discreet Packaging</h3>
-            <p className="text-ink-muted text-sm mt-2">Plain outer packaging — your order arrives discreetly.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* REVIEWS */}
-      <Reviews />
-
-      {/* CTA */}
-      <section className="container py-20 text-center">
-        <h2 className="font-serif text-3xl md:text-4xl tracking-tight">Questions? Let's Talk.</h2>
-        <p className="text-ink-muted mt-3 max-w-xl mx-auto">Our team responds within 2 hours — WhatsApp is fastest.</p>
-        <a href={`https://wa.me/${SITE_CONFIG.contact.whatsapp}`} target="_blank" rel="noopener" className="btn-gold mt-8 inline-flex">
-          Contact on WhatsApp
-        </a>
-      </section>
+      {/* Sticky Mobile CTA */}
+      <StickyProductCTA waUrl={waUrl} productId={p.id} />
     </>
   );
 }

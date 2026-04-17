@@ -73,11 +73,11 @@
   .gold-shimmer {
     background: linear-gradient(
       90deg,
-      #9b7f3a 0%,
-      #d4b86e 40%,
-      #f0d78c 50%,
-      #d4b86e 60%,
-      #9b7f3a 100%
+      #a08030 0%,
+      #c9a84c 40%,
+      #e0c068 50%,
+      #c9a84c 60%,
+      #a08030 100%
     );
     background-size: 200% 100%;
     -webkit-background-clip: text;
@@ -85,4 +85,44 @@
     color: transparent;
     animation: shimmer 4s linear infinite;
   }
+
+  /* Toast notification */
+  .toast-enter {
+    animation: toastIn 0.3s ease-out;
+  }
+  .toast-exit {
+    animation: toastOut 0.3s ease-in forwards;
+  }
+
+  /* Promo slider */
+  .promo-slider {
+    @apply relative overflow-hidden;
+  }
+  .promo-slider::-webkit-scrollbar { display: none; }
+  .promo-slider { scrollbar-width: none; }
+
+  /* Mobile-specific touch target improvements */
+  @media (max-width: 767px) {
+    .btn-gold {
+      @apply min-h-[48px] text-base;
+    }
+    .btn-outline {
+      @apply min-h-[48px];
+    }
+    .btn-ghost {
+      @apply min-h-[44px];
+    }
+    .card summary {
+      @apply min-h-[48px];
+    }
+  }
+}
+
+@keyframes toastIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes toastOut {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(100%); opacity: 0; }
 }

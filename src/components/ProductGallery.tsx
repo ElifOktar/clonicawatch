@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 
 interface Props {
@@ -12,10 +12,64 @@ export function ProductGallery({ images, videoUrl, modelName }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [zoomedIn, setZoomedIn] = useState(false);
 
+  // Touch tracking for swipe
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
   // Combine images + video indicator
   const hasVideo = !!videoUrl;
   const totalMedia = images.length + (hasVideo ? 1 : 0);
   const isVideoSelected = hasVideo && selectedIndex === images.length;
+
+  // Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.changedTouches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      // Go to next
+      if (selectedIndex < totalMedia - 1) {
+        setSelectedIndex(selectedIndex + 1);
+        setZoomedIn(false);
+      }
+    } else if (isRightSwipe) {
+      // Go to previous
+      if (selectedIndex > 0) {
+        setSelectedIndex(selectedIndex - 1);
+        setZoomedIn(false);
+      }
+    }
+
+    // Reset refs
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  const goToPrevious = () => {
+    if (selectedIndex > 0) {
+      setSelectedIndex(selectedIndex - 1);
+      setZoomedIn(false);
+    }
+  };
+
+  const goToNext = () => {
+    if (selectedIndex < totalMedia - 1) {
+      setSelectedIndex(selectedIndex + 1);
+      setZoomedIn(false);
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -23,6 +77,8 @@ export function ProductGallery({ images, videoUrl, modelName }: Props) {
       <div
         className="relative aspect-square card overflow-hidden cursor-zoom-in"
         onClick={() => !isVideoSelected && setZoomedIn(!zoomedIn)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         {isVideoSelected ? (
           <video
@@ -52,6 +108,41 @@ export function ProductGallery({ images, videoUrl, modelName }: Props) {
         <div className="absolute bottom-3 right-3 bg-bg/70 backdrop-blur-sm text-ink text-xs px-2.5 py-1 rounded-full">
           {selectedIndex + 1} / {totalMedia}
         </div>
+
+        {/* Mobile swipe arrows */}
+        {totalMedia > 1 && !zoomedIn && (
+          <>
+            {selectedIndex > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToPrevious();
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 md:hidden bg-bg/40 hover:bg-bg/60 text-gold p-2 rounded-full backdrop-blur-sm transition-colors"
+                aria-label="Previous image"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+
+            {selectedIndex < totalMedia - 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToNext();
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 md:hidden bg-bg/40 hover:bg-bg/60 text-gold p-2 rounded-full backdrop-blur-sm transition-colors"
+                aria-label="Next image"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+          </>
+        )}
       </div>
 
       {/* Thumbnail strip — scrollable horizontal for 7-8+ images */}
