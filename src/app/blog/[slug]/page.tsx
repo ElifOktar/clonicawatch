@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
+import { BlogCover } from "@/components/BlogCover";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -62,7 +62,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       </header>
 
       <div className="relative aspect-[16/9] card overflow-hidden mb-10">
-        <Image src={p.cover} alt={p.title} fill sizes="100vw" className="object-cover" />
+        <BlogCover slug={p.slug} title={p.title} />
       </div>
 
       <div
