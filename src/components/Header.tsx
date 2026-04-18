@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "@/components/CartProvider";
 import { useWishlist } from "@/components/WishlistProvider";
@@ -47,18 +48,15 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
             </svg>
           </button>
 
-          <Link href="/" className="flex items-center gap-2 group">
-            <svg width="38" height="38" viewBox="0 0 120 120" fill="none" className="flex-shrink-0">
-              <circle cx="60" cy="60" r="58" stroke="#C9A84C" strokeWidth="2.5" />
-              <circle cx="60" cy="60" r="50" stroke="#C9A84C" strokeWidth="1" opacity="0.4" />
-              <path d="M52 40C42.5 42 36 50 36 60C36 70 42.5 78 52 80" stroke="#D4AF37" strokeWidth="5" strokeLinecap="round" fill="none" />
-              <path d="M68 40C77.5 42 84 50 84 60C84 70 77.5 78 68 80" stroke="#D4AF37" strokeWidth="5" strokeLinecap="round" fill="none" />
-              <rect x="56" y="28" width="8" height="8" rx="1" transform="rotate(45 60 32)" fill="#F5D680" />
-              <rect x="56" y="84" width="8" height="8" rx="1" transform="rotate(45 60 88)" fill="#F5D680" />
-            </svg>
-            <span className="font-serif text-xl md:text-2xl tracking-[0.2em] text-gold group-hover:text-gold-bright transition-colors">
-              {SITE_CONFIG.name}
-            </span>
+          <Link href="/" className="flex items-center group flex-shrink-0">
+            <Image
+              src="/images/clonica-logo.jpg"
+              alt="Clonica Luxury Watches"
+              width={155}
+              height={100}
+              priority
+              className="h-11 md:h-12 w-auto object-contain mix-blend-lighten"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-7 text-sm flex-1 justify-center">
