@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { SITE_CONFIG } from "@/lib/config";
 import { CATALOG_BRANDS, LADIES_BRANDS } from "@/lib/catalog";
@@ -79,8 +78,6 @@ function BrandList({
 
 export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [expandedBrand, setExpandedBrand] = useState<string | null>(null);
-  const showBrands = true;
-  const showLadies = true;
 
   const toggleBrand = (slug: string) => {
     setExpandedBrand(expandedBrand === slug ? null : slug);
@@ -109,13 +106,12 @@ export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =
       >
         {/* Header */}
         <div className="flex-shrink-0 border-b border-line flex items-center justify-between h-16 px-5">
-          <Link href="/" onClick={handleClose} className="flex items-center">
-            <Image
-              src="/images/clonica-logo.jpg"
+          <Link href="/" onClick={handleClose} className="flex items-center gap-2">
+            {/* Logo — clonica-logo-horizontal.png ile değiştirilecek */}
+            <img
+              src="/images/clonica-logo-horizontal.png"
               alt="Clonica Luxury Watches"
-              width={130}
-              height={84}
-              className="h-10 w-auto object-contain mix-blend-lighten"
+              className="h-9 w-auto object-contain"
             />
           </Link>
           <button
@@ -131,101 +127,90 @@ export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto overscroll-contain">
-          {/* Browse Brands Section */}
-          <div className="px-2 pt-3 pb-2">
-            <div className="flex items-center gap-3 px-4 py-3 text-sm text-gold">
+
+          {/* ── Brands ── */}
+          <div className="px-2 pt-3 pb-1">
+            <div className="flex items-center gap-3 px-4 py-2">
               <svg className="w-5 h-5 text-gold/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
               </svg>
-              <span className="font-medium tracking-wide text-xs uppercase">Brands</span>
+              <span className="font-semibold tracking-wide text-xs uppercase text-gold">Brands</span>
             </div>
-
-            {showBrands && (
-              <div className="ml-2 mr-1 mt-1 border-l-2 border-gold/20 pl-3">
-                <BrandList
-                  brands={CATALOG_BRANDS}
-                  expandedBrand={expandedBrand}
-                  toggleBrand={toggleBrand}
-                  onClose={handleClose}
-                />
-              </div>
-            )}
+            <div className="ml-2 mr-1 border-l-2 border-gold/20 pl-3">
+              <BrandList
+                brands={CATALOG_BRANDS}
+                expandedBrand={expandedBrand}
+                toggleBrand={toggleBrand}
+                onClose={handleClose}
+              />
+            </div>
           </div>
 
           {/* Divider */}
-          <div className="mx-5 border-t border-line/50" />
+          <div className="mx-5 my-1 border-t border-line/50" />
 
-          {/* Ladies Watches Section */}
-          <div className="px-2 pt-2 pb-2">
-            <div className="flex items-center gap-3 px-4 py-3 text-sm text-pink-400">
+          {/* ── Ladies Brands ── */}
+          <div className="px-2 pt-1 pb-1">
+            <div className="flex items-center gap-3 px-4 py-2">
               <svg className="w-5 h-5 text-pink-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
               </svg>
-              <span className="font-medium tracking-wide text-xs uppercase">Ladies Watches</span>
+              <span className="font-semibold tracking-wide text-xs uppercase text-pink-400">Ladies Brands</span>
             </div>
-
-            {showLadies && (
-              <div className="ml-2 mr-1 mt-1 border-l-2 border-pink-400/20 pl-3">
-                <BrandList
-                  brands={LADIES_BRANDS}
-                  expandedBrand={expandedBrand}
-                  toggleBrand={toggleBrand}
-                  onClose={handleClose}
-                />
-              </div>
-            )}
+            <div className="ml-2 mr-1 border-l-2 border-pink-400/20 pl-3">
+              <BrandList
+                brands={LADIES_BRANDS}
+                expandedBrand={expandedBrand}
+                toggleBrand={toggleBrand}
+                onClose={handleClose}
+              />
+            </div>
           </div>
 
           {/* Divider */}
-          <div className="mx-5 border-t border-line/50" />
+          <div className="mx-5 my-1 border-t border-line/50" />
 
-          {/* Page Links */}
-          <div className="px-2 pt-2 pb-3">
-            <div className="flex items-center gap-3 px-4 py-3 text-sm text-gold">
-              <svg className="w-5 h-5 text-gold/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.15c0 .415.336.75.75.75z" />
-              </svg>
-              <span className="font-medium tracking-wide text-xs uppercase">Pages</span>
-            </div>
-            <div className="ml-2 mr-1 border-l-2 border-gold/20 pl-3 space-y-0.5">
-              <Link href="/new-arrivals" onClick={handleClose} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
-                <svg className="w-4 h-4 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          {/* ── Pages ── */}
+          <div className="px-2 pt-1 pb-3">
+            <nav className="space-y-0.5 px-2">
+              <Link href="/new-arrivals" onClick={handleClose} className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
+                <svg className="w-5 h-5 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                 </svg>
                 New Arrivals
               </Link>
-              <Link href="/on-sale" onClick={handleClose} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
-                <svg className="w-4 h-4 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <Link href="/on-sale" onClick={handleClose} className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
+                <svg className="w-5 h-5 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
                 </svg>
                 Sale
               </Link>
-              <Link href="/blog" onClick={handleClose} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
-                <svg className="w-4 h-4 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <Link href="/blog" onClick={handleClose} className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
+                <svg className="w-5 h-5 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5" />
                 </svg>
                 News
               </Link>
-              <Link href="/faq" onClick={handleClose} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
-                <svg className="w-4 h-4 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <Link href="/faq" onClick={handleClose} className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
+                <svg className="w-5 h-5 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
                 </svg>
                 FAQ
               </Link>
-              <Link href="/about" onClick={handleClose} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
-                <svg className="w-4 h-4 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <Link href="/about" onClick={handleClose} className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
+                <svg className="w-5 h-5 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                 </svg>
                 About
               </Link>
-              <Link href="/contact" onClick={handleClose} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
-                <svg className="w-4 h-4 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <Link href="/contact" onClick={handleClose} className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-ink-muted hover:text-gold hover:bg-gold/5 transition-all">
+                <svg className="w-5 h-5 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                 </svg>
                 Contact
               </Link>
-            </div>
+            </nav>
           </div>
         </div>
 
