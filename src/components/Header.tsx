@@ -50,12 +50,12 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
 
           <Link href="/" className="flex items-center group flex-shrink-0">
             <Image
-              src="/images/clonica-logo.jpg"
+              src="/images/clonica-logo-horizontal.png"
               alt="Clonica Luxury Watches"
-              width={155}
-              height={100}
+              width={180}
+              height={45}
               priority
-              className="h-11 md:h-12 w-auto object-contain mix-blend-lighten"
+              className="h-10 md:h-11 w-auto object-contain"
             />
           </Link>
 
