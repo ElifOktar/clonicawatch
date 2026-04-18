@@ -2,7 +2,9 @@ import type { MetadataRoute } from "next";
 import { getAllProducts, getAllBrands } from "@/lib/products";
 import { SITE_CONFIG } from "@/lib/config";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const revalidate = 3600; // revalidate sitemap every hour
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE_CONFIG.url;
   const now = new Date();
 
@@ -16,14 +18,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === "" ? 1 : 0.7,
   }));
 
-  const brandPages = getAllBrands().map((b) => ({
+  const brands = await getAllBrands();
+  const brandPages = brands.map((b) => ({
     url: `${base}/brand/${b.toLowerCase().replace(/\s+/g, "-")}`,
     lastModified: now,
     changeFrequency: "daily" as const,
     priority: 0.8,
   }));
 
-  const productPages = getAllProducts().map((p) => ({
+  const products = await getAllProducts();
+  const productPages = products.map((p) => ({
     url: `${base}/product/${p.slug}`,
     lastModified: new Date(p.created_at),
     changeFrequency: "weekly" as const,
