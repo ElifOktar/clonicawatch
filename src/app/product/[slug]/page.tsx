@@ -86,14 +86,16 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
         <div className="grid lg:grid-cols-2 gap-6 md:gap-10">
           {/* GALLERY — supports 7-8 images + video */}
-          <ProductGallery
-            images={gallery}
-            videoUrl={p.video_url}
-            modelName={p.model_name}
-          />
+          <div className="min-w-0 w-full overflow-hidden">
+            <ProductGallery
+              images={gallery}
+              videoUrl={p.video_url}
+              modelName={p.model_name}
+            />
+          </div>
 
           {/* INFO */}
-          <div>
+          <div className="min-w-0">
             <div className="flex gap-2 mb-3">
               {p.is_new_arrival && <span className="chip-gold">NEW</span>}
               {p.is_on_sale && <span className="chip bg-danger/20 border-danger/40 text-danger">SALE</span>}
@@ -182,7 +184,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
         {/* DESCRIPTION */}
         <div className="mt-12 md:mt-16 grid md:grid-cols-2 gap-6 md:gap-10">
-          <div>
+          <div className="min-w-0">
             <h2 className="h-serif text-2xl mb-4">Description</h2>
             <div className="text-ink-muted leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere">
               {p.long_description}
