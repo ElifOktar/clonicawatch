@@ -3,6 +3,8 @@ import Link from "next/link";
 import { CATALOG_BRANDS, LADIES_BRANDS } from "@/lib/catalog";
 import { getProductsByBrand } from "@/lib/products";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "All Brands | Clonica Luxury Watches",
   description:
@@ -36,20 +38,25 @@ function BrandCard({ name, slug, count }: { name: string; slug: string; count: n
   );
 }
 
-export default function BrandsPage() {
-  const brandsWithCount = CATALOG_BRANDS.map((b) => ({
-    ...b,
-    count: getProductsByBrand(b.name as any).length,
-  }));
+export default async function BrandsPage() {
+  const brandsWithCount = await Promise.all(
+    CATALOG_BRANDS.map(async (b) => ({
+      ...b,
+      count: (await getProductsByBrand(b.name as any)).length,
+    }))
+  );
 
-  const ladiesWithCount = LADIES_BRANDS.map((b) => ({
-    ...b,
-    count: getProductsByBrand(
-      (b.parentBrand
+  const ladiesWithCount = await Promise.all(
+    LADIES_BRANDS.map(async (b) => {
+      const parentName = b.parentBrand
         ? CATALOG_BRANDS.find((cb) => cb.slug === b.parentBrand)?.name ?? b.name
-        : b.name) as any
-    ).length,
-  }));
+        : b.name;
+      return {
+        ...b,
+        count: (await getProductsByBrand(parentName as any)).length,
+      };
+    })
+  );
 
   return (
     <div className="container py-12">

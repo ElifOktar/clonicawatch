@@ -2,14 +2,29 @@
 
 import Link from "next/link";
 import { useWishlist } from "@/components/WishlistProvider";
-import { getAllProducts } from "@/lib/products";
 import { ProductGrid } from "@/components/ProductGrid";
+import { useState, useEffect } from "react";
+import type { Product } from "@/types/product";
 
 export default function WishlistPage() {
   const { items, clear, isHydrated } = useWishlist();
-  const products = getAllProducts().filter((p) => items.includes(p.id));
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!isHydrated) {
+  // Fetch products from API (client-side)
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        setAllProducts(data.products || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const products = allProducts.filter((p) => items.includes(p.id));
+
+  if (!isHydrated || loading) {
     return <div className="container py-20 text-center text-ink-muted">Loading…</div>;
   }
 

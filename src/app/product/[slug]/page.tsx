@@ -16,16 +16,19 @@ import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductGallery } from "@/components/ProductGallery";
 import { StickyProductCTA } from "@/components/StickyProductCTA";
 
-export function generateStaticParams() {
-  return getAllProducts().map((p) => ({ slug: p.slug }));
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const products = await getAllProducts();
+  return products.map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
-}): Metadata {
-  const p = getProductBySlug(params.slug);
+}): Promise<Metadata> {
+  const p = await getProductBySlug(params.slug);
   if (!p) return {};
   return {
     title: getProductMetaTitle(p),
@@ -38,11 +41,11 @@ export function generateMetadata({
   };
 }
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
-  const p = getProductBySlug(params.slug);
+export default async function ProductPage({ params }: { params: { slug: string } }) {
+  const p = await getProductBySlug(params.slug);
   if (!p) notFound();
 
-  const related = getRelatedProducts(p, 4);
+  const related = await getRelatedProducts(p, 4);
   const waUrl = getProductWhatsAppUrl(p);
   const gallery = p.gallery_images?.length ? p.gallery_images : [p.main_image];
 
@@ -76,11 +79,11 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         {/* Breadcrumb */}
         <nav className="text-xs text-ink-muted mb-6">
           <Link href="/" className="hover:text-gold">Home</Link>
-          <span className="mx-2">›</span>
+          <span className="mx-2">&rsaquo;</span>
           <Link href={`/brand/${p.brand.toLowerCase().replace(/\s+/g, "-")}`} className="hover:text-gold">
             {p.brand}
           </Link>
-          <span className="mx-2">›</span>
+          <span className="mx-2">&rsaquo;</span>
           <span className="text-ink">{p.collection}</span>
         </nav>
 
@@ -102,7 +105,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             </div>
 
             <p className="text-xs text-ink-dim tracking-widest uppercase">
-              {p.brand} · {p.collection}
+              {p.brand} &middot; {p.collection}
             </p>
             <h1 className="h-serif text-3xl md:text-4xl mt-2 break-words">{p.model_name}</h1>
             {p.reference && (
@@ -130,7 +133,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                       : "text-danger"
                 }
               >
-                ● {p.stock_status}
+                &#9679; {p.stock_status}
               </span>
               {p.stock_count !== undefined && p.stock_count > 0 && (
                 <span className="text-ink-muted ml-2">
@@ -195,12 +198,12 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             <ul className="space-y-2 text-ink-muted">
               {p.package_contents.map((c, i) => (
                 <li key={i} className="flex gap-2">
-                  <span className="text-gold">●</span>
+                  <span className="text-gold">&#9679;</span>
                   <span>{c}</span>
                 </li>
               ))}
             </ul>
-            <h3 className="h-serif text-xl mt-8 mb-3">Shipping & Payment</h3>
+            <h3 className="h-serif text-xl mt-8 mb-3">Shipping &amp; Payment</h3>
             <p className="text-ink-muted text-sm">
               Worldwide express shipping via DHL / FedEx / UPS — 3–7 business
               days to most destinations with full tracking.

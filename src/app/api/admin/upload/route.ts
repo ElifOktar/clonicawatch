@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { getAdminClient, getStorageUrl } from "@/lib/supabase";
 
-// POST /api/admin/upload — upload image(s)
+// POST /api/admin/upload — upload image(s) to Supabase Storage
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getAdminClient();
     const formData = await req.formData();
     const files = formData.getAll("files") as File[];
     const folder = (formData.get("folder") as string) || "products/misc";
@@ -13,9 +13,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No files provided" }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), "public/images", folder);
-    await fs.mkdir(uploadDir, { recursive: true });
-
     const uploaded: string[] = [];
 
     for (const file of files) {
@@ -23,9 +20,25 @@ export async function POST(req: NextRequest) {
       const safeName = file.name
         .toLowerCase()
         .replace(/[^a-z0-9._-]/g, "-");
-      const filePath = path.join(uploadDir, safeName);
-      await fs.writeFile(filePath, buffer);
-      uploaded.push(`/images/${folder}/${safeName}`);
+      const storagePath = `${folder}/${safeName}`;
+
+      const { error } = await supabase.storage
+        .from("product-images")
+        .upload(storagePath, buffer, {
+          contentType: file.type || "image/jpeg",
+          upsert: true, // overwrite if exists
+        });
+
+      if (error) {
+        console.error(`Upload error for ${safeName}:`, error.message);
+        continue; // skip failed file, continue with others
+      }
+
+      uploaded.push(getStorageUrl(storagePath));
+    }
+
+    if (!uploaded.length) {
+      return NextResponse.json({ error: "All uploads failed" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, urls: uploaded });

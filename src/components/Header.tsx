@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/components/CartProvider";
 import { useWishlist } from "@/components/WishlistProvider";
 import { useAuth } from "@/components/AuthProvider";
@@ -10,18 +10,26 @@ import { SITE_CONFIG } from "@/lib/config";
 import { CurrencySwitcher } from "@/components/CurrencyProvider";
 import { SearchModal } from "@/components/SearchModal";
 import { AuthModal } from "@/components/AuthModal";
-import { getAllProducts } from "@/lib/products";
 import { MobileMenu } from "@/components/MobileMenu";
+import type { Product } from "@/types/product";
 
 export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) {
   const { itemCount, isHydrated: cartHydrated } = useCart();
   const { items: wishItems, isHydrated: wishHydrated } = useWishlist();
   const { user, signOut } = useAuth();
-  const products = getAllProducts();
+  const [products, setProducts] = useState<Product[]>([]);
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Fetch products for search
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => setProducts(data.products || []))
+      .catch(() => {});
+  }, []);
 
   const openAuth = (tab: "signin" | "signup") => {
     setAuthTab(tab);

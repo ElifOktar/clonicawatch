@@ -1,15 +1,17 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getAllProducts, getProductsByBrand } from "@/lib/products";
+import { getProductsByBrand } from "@/lib/products";
 import { FilteredProductList } from "@/components/FilterSidebar";
 import type { Brand } from "@/types/product";
 import { ALL_CATALOG_BRANDS, getCollections, isLadiesBrand } from "@/lib/catalog";
 import Link from "next/link";
 
+export const revalidate = 60;
+
 /**
- * Build a slug → Brand display-name map from the catalog.
+ * Build a slug -> Brand display-name map from the catalog.
  * Ladies brands that have a parentBrand resolve to the parent's Brand type
- * (e.g. "rolex-ladies" → products filtered by brand "Rolex" + gender "Women").
+ * (e.g. "rolex-ladies" -> products filtered by brand "Rolex" + gender "Women").
  */
 const BRAND_FROM_SLUG: Record<string, Brand> = {
   "rolex": "Rolex",
@@ -52,7 +54,7 @@ export function generateMetadata({ params }: { params: { brand: string } }): Met
   return { title, description };
 }
 
-export default function BrandPage({ params }: { params: { brand: string } }) {
+export default async function BrandPage({ params }: { params: { brand: string } }) {
   const brandKey = BRAND_FROM_SLUG[params.brand];
   if (!brandKey) notFound();
 
@@ -63,7 +65,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
   const collections = getCollections(params.brand);
 
   // Get products — for ladies brands, filter by gender too
-  let products = getProductsByBrand(brandKey);
+  let products = await getProductsByBrand(brandKey);
   if (isLadies) {
     products = products.filter(
       (p) => p.gender === "Women" || p.gender === "Unisex"
@@ -74,14 +76,14 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
     <div className="container py-12">
       <nav className="text-xs text-ink-muted mb-6">
         <Link href="/" className="hover:text-gold transition-colors">Home</Link>
-        <span className="mx-2">›</span>
+        <span className="mx-2">&rsaquo;</span>
         {isLadies && (
           <>
             <Link href="/ladies" className="hover:text-gold transition-colors">Ladies Watches</Link>
-            <span className="mx-2">›</span>
+            <span className="mx-2">&rsaquo;</span>
           </>
         )}
-        {!isLadies && <><span>Brands</span><span className="mx-2">›</span></>}
+        {!isLadies && <><span>Brands</span><span className="mx-2">&rsaquo;</span></>}
         <span className="text-ink">{entry.name}</span>
       </nav>
 
