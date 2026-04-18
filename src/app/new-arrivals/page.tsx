@@ -2,21 +2,19 @@ import Link from "next/link";
 import { getNewArrivals } from "@/lib/products";
 import { FilteredProductList } from "@/components/FilterSidebar";
 
-export const revalidate = 60;
-
 export const metadata = {
   title: "New Arrivals — Latest Super Clone Watches",
   description: "The latest super clone watches. Rolex, Audemars Piguet, Patek Philippe and more. Swiss mechanisms, worldwide shipping.",
 };
 
-export default async function NewArrivalsPage() {
-  const products = await getNewArrivals(100);
+export default function NewArrivalsPage() {
+  const products = getNewArrivals(100);
   return (
     <div className="container py-12">
       {/* Breadcrumb */}
       <nav className="text-xs text-ink-muted mb-6">
         <Link href="/" className="hover:text-gold transition-colors">Home</Link>
-        <span className="mx-2">&rsaquo;</span>
+        <span className="mx-2">›</span>
         <span className="text-ink">New Arrivals</span>
       </nav>
 

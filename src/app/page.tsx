@@ -5,12 +5,10 @@ import { PromoSlider } from "@/components/PromoSlider";
 import { BrandCircles } from "@/components/BrandCircles";
 import { SITE_CONFIG } from "@/lib/config";
 
-export const revalidate = 60; // ISR: revalidate every 60 seconds
-
-export default async function HomePage() {
-  const featured = await getFeaturedProducts(8);
-  const newArrivals = await getNewArrivals(4);
-  const onSale = await getOnSale(4);
+export default function HomePage() {
+  const featured = getFeaturedProducts(8);
+  const newArrivals = getNewArrivals(4);
+  const onSale = getOnSale(4);
 
   return (
     <>

@@ -1,136 +1,73 @@
 import type { Product, Brand } from "@/types/product";
 import { SITE_CONFIG } from "@/lib/config";
-import { supabase } from "@/lib/supabase";
 
 // ──────────────────────────────────────────────
-// Product data loader — Supabase PostgreSQL
-// All functions are async. Server components can await them directly.
+// Product data loader
+// Reads JSON files from /content/products/*.json at build time.
+// For MVP we import a static array; when we move to CMS, swap this
+// single module without touching the rest of the app.
 // ──────────────────────────────────────────────
 
-export async function getAllProducts(): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
+import sampleProducts from "../../content/products/_sample.json";
 
-  if (error) {
-    console.error("getAllProducts error:", error.message);
-    return [];
-  }
-  return (data ?? []) as Product[];
+const allProducts = sampleProducts as unknown as Product[];
+
+export function getAllProducts(): Product[] {
+  return [...allProducts].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | undefined> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-
-  if (error || !data) return undefined;
-  return data as Product;
+export function getProductBySlug(slug: string): Product | undefined {
+  return allProducts.find((p) => p.slug === slug);
 }
 
-export async function getProductById(id: string): Promise<Product | undefined> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !data) return undefined;
-  return data as Product;
+export function getProductById(id: string): Product | undefined {
+  return allProducts.find((p) => p.id === id);
 }
 
-export async function getProductsByBrand(brand: Brand): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("brand", brand)
-    .order("created_at", { ascending: false });
-
-  if (error) return [];
-  return (data ?? []) as Product[];
+export function getProductsByBrand(brand: Brand): Product[] {
+  return getAllProducts().filter((p) => p.brand === brand);
 }
 
-export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("is_featured", true)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (error) return [];
-  return (data ?? []) as Product[];
+export function getFeaturedProducts(limit = 8): Product[] {
+  return getAllProducts()
+    .filter((p) => p.is_featured)
+    .slice(0, limit);
 }
 
-export async function getNewArrivals(limit = 8): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("is_new_arrival", true)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (error) return [];
-  return (data ?? []) as Product[];
+export function getNewArrivals(limit = 8): Product[] {
+  return getAllProducts()
+    .filter((p) => p.is_new_arrival)
+    .slice(0, limit);
 }
 
-export async function getOnSale(limit = 8): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("is_on_sale", true)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (error) return [];
-  return (data ?? []) as Product[];
+export function getOnSale(limit = 8): Product[] {
+  return getAllProducts()
+    .filter((p) => p.is_on_sale)
+    .slice(0, limit);
 }
 
-export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
-  // Get products from same brand (excluding current)
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("brand", product.brand)
-    .neq("id", product.id)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (error) return [];
-
-  // If not enough, fill with other products
-  const results = (data ?? []) as Product[];
-  if (results.length < limit) {
-    const { data: more } = await supabase
-      .from("products")
-      .select("*")
-      .neq("id", product.id)
-      .neq("brand", product.brand)
-      .order("created_at", { ascending: false })
-      .limit(limit - results.length);
-    if (more) results.push(...(more as Product[]));
-  }
-
-  return results.slice(0, limit);
+export function getRelatedProducts(product: Product, limit = 4): Product[] {
+  return getAllProducts()
+    .filter(
+      (p) =>
+        p.id !== product.id &&
+        (p.brand === product.brand ||
+          p.style_tags.some((t) => product.style_tags.includes(t)))
+    )
+    .slice(0, limit);
 }
 
-export async function getAllBrands(): Promise<Brand[]> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("brand")
-    .order("brand");
-
-  if (error) return [];
+export function getAllBrands(): Brand[] {
   const set = new Set<Brand>();
-  for (const row of data ?? []) set.add(row.brand as Brand);
-  return Array.from(set);
+  for (const p of allProducts) set.add(p.brand);
+  return Array.from(set).sort();
 }
 
 // ──────────────────────────────────────────────
-// Formatters (sync — no DB needed)
+// Formatters
 // ──────────────────────────────────────────────
 
 export function formatPrice(amount: number, currency: string = "USD"): string {
@@ -142,7 +79,7 @@ export function formatPrice(amount: number, currency: string = "USD"): string {
 }
 
 // ──────────────────────────────────────────────
-// WhatsApp helpers (sync — no DB needed)
+// WhatsApp helpers
 // ──────────────────────────────────────────────
 
 export function getWhatsAppMessage(p: Product): string {
@@ -189,7 +126,7 @@ export function buildCartWhatsAppMessage(
 }
 
 // ──────────────────────────────────────────────
-// SEO helpers (sync — no DB needed)
+// SEO helpers
 // ──────────────────────────────────────────────
 
 export function getProductMetaTitle(p: Product): string {

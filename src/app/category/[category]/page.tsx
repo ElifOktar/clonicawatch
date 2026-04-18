@@ -4,8 +4,6 @@ import { getAllProducts } from "@/lib/products";
 import { ProductGrid } from "@/components/ProductGrid";
 import type { StyleTag } from "@/types/product";
 
-export const revalidate = 60;
-
 const STYLE_FROM_SLUG: Record<string, StyleTag> = {
   "diver": "Diver",
   "chronograph": "Chronograph",
@@ -31,12 +29,11 @@ export function generateMetadata({ params }: { params: { category: string } }): 
   };
 }
 
-export default async function CategoryPage({ params }: { params: { category: string } }) {
+export default function CategoryPage({ params }: { params: { category: string } }) {
   const style = STYLE_FROM_SLUG[params.category];
   if (!style) notFound();
 
-  const all = await getAllProducts();
-  const products = all.filter((p) => p.style_tags.includes(style));
+  const products = getAllProducts().filter((p) => p.style_tags.includes(style));
 
   return (
     <div className="container py-12">
