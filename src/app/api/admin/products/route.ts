@@ -1,24 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { getAdminClient } from "@/lib/supabase";
 import type { Product } from "@/types/product";
-
-const DATA_PATH = path.join(process.cwd(), "content/products/_sample.json");
-
-async function readProducts(): Promise<Product[]> {
-  const raw = await fs.readFile(DATA_PATH, "utf-8");
-  return JSON.parse(raw);
-}
-
-async function writeProducts(products: Product[]): Promise<void> {
-  await fs.writeFile(DATA_PATH, JSON.stringify(products, null, 2), "utf-8");
-}
 
 // GET /api/admin/products — list all
 export async function GET() {
   try {
-    const products = await readProducts();
-    return NextResponse.json({ products, total: products.length });
+    const supabase = getAdminClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ products: data ?? [], total: data?.length ?? 0 });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
@@ -27,8 +24,8 @@ export async function GET() {
 // POST /api/admin/products — create new product
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getAdminClient();
     const body = await req.json();
-    const products = await readProducts();
 
     // Auto-generate id and slug if missing
     if (!body.id) {
@@ -44,10 +41,17 @@ export async function POST(req: NextRequest) {
     if (!body.created_at) body.created_at = new Date().toISOString();
     if (!body.sku) body.sku = `CLN-${body.id.substring(0, 8).toUpperCase()}`;
 
-    products.push(body as Product);
-    await writeProducts(products);
+    const { data, error } = await supabase
+      .from("products")
+      .insert(body)
+      .select()
+      .single();
 
-    return NextResponse.json({ success: true, product: body });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, product: data });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
@@ -56,14 +60,23 @@ export async function POST(req: NextRequest) {
 // DELETE /api/admin/products — bulk delete
 export async function DELETE(req: NextRequest) {
   try {
+    const supabase = getAdminClient();
     const { ids } = await req.json();
+
     if (!Array.isArray(ids)) {
       return NextResponse.json({ error: "ids array required" }, { status: 400 });
     }
-    let products = await readProducts();
-    products = products.filter((p) => !ids.includes(p.id));
-    await writeProducts(products);
-    return NextResponse.json({ success: true, remaining: products.length });
+
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .in("id", ids);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
@@ -72,28 +85,33 @@ export async function DELETE(req: NextRequest) {
 // PUT /api/admin/products — bulk update (for import)
 export async function PUT(req: NextRequest) {
   try {
+    const supabase = getAdminClient();
     const { products: newProducts, mode } = await req.json();
+
     if (!Array.isArray(newProducts)) {
       return NextResponse.json({ error: "products array required" }, { status: 400 });
     }
 
     if (mode === "replace") {
-      // Replace all products
-      await writeProducts(newProducts);
+      // Delete all existing, then insert new
+      await supabase.from("products").delete().neq("id", "");
+      const { error } = await supabase.from("products").insert(newProducts);
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
       return NextResponse.json({ success: true, total: newProducts.length });
     }
 
-    // Default: merge (add new, update existing by id)
-    const existing = await readProducts();
-    const existingMap = new Map(existing.map((p) => [p.id, p]));
+    // Default: upsert (add new, update existing by id)
+    const { error } = await supabase
+      .from("products")
+      .upsert(newProducts, { onConflict: "id" });
 
-    for (const p of newProducts) {
-      existingMap.set(p.id, p);
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const merged = Array.from(existingMap.values());
-    await writeProducts(merged);
-    return NextResponse.json({ success: true, total: merged.length });
+    return NextResponse.json({ success: true, total: newProducts.length });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
