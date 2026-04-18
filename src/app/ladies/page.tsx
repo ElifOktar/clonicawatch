@@ -4,6 +4,8 @@ import { getAllProducts } from "@/lib/products";
 import { LADIES_BRANDS } from "@/lib/catalog";
 import { FilteredProductList } from "@/components/FilterSidebar";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Ladies Watches — Elegant Timepieces for Women",
   description:
@@ -19,9 +21,10 @@ const LADIES_LOGOS: Record<string, string> = {
   "patek-philippe-ladies": "/images/logos/brands/patek-philippe.png",
 };
 
-export default function LadiesPage() {
+export default async function LadiesPage() {
   // Gather all women/unisex products
-  const allProducts = getAllProducts().filter(
+  const all = await getAllProducts();
+  const allProducts = all.filter(
     (p) => p.gender === "Women" || p.gender === "Unisex"
   );
 
@@ -30,7 +33,7 @@ export default function LadiesPage() {
       {/* Breadcrumb */}
       <nav className="text-xs text-ink-muted mb-6">
         <Link href="/" className="hover:text-gold transition-colors">Home</Link>
-        <span className="mx-2">›</span>
+        <span className="mx-2">&rsaquo;</span>
         <span className="text-ink">Ladies Watches</span>
       </nav>
 
