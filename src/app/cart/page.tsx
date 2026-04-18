@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart, resolveCartItems } from "@/components/CartProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/Toast";
-import { buildCartWhatsAppMessage, formatPrice, getWhatsAppUrl, getAllProducts } from "@/lib/products";
+import { buildCartWhatsAppMessage, formatPrice, getWhatsAppUrl } from "@/lib/products";
+import type { Product } from "@/types/product";
 
 interface ShippingAddress {
   fullName: string;
@@ -23,8 +24,22 @@ export default function CartPage() {
   const { items, updateQty, removeItem, clear, isHydrated } = useCart();
   const { user, updateProfile } = useAuth();
   const { showToast } = useToast();
-  const resolved = resolveCartItems(items, getAllProducts());
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [step, setStep] = useState<"cart" | "address">("cart");
+
+  // Fetch products from API (client-side)
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        setAllProducts(data.products || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const resolved = resolveCartItems(items, allProducts);
 
   const [address, setAddress] = useState<ShippingAddress>({
     fullName: user?.name || "",
@@ -82,7 +97,7 @@ export default function CartPage() {
     }, 1000);
   };
 
-  if (!isHydrated) {
+  if (!isHydrated || loading) {
     return (
       <div className="container py-20 text-center text-ink-muted">
         Loading cart…
