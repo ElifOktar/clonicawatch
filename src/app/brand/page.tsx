@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CATALOG_BRANDS, LADIES_BRANDS } from "@/lib/catalog";
-import { getProductsByBrand, getAllProducts } from "@/lib/products";
+import { getProductsByBrand } from "@/lib/products";
 
 export const metadata: Metadata = {
   title: "All Brands | Clonica Luxury Watches",
@@ -37,11 +37,9 @@ function BrandCard({ name, slug, count }: { name: string; slug: string; count: n
 }
 
 export default function BrandsPage() {
-  const allProducts = getAllProducts();
-
   const brandsWithCount = CATALOG_BRANDS.map((b) => ({
     ...b,
-    count: getProductsByBrand(b.name as any, allProducts).length,
+    count: getProductsByBrand(b.name as any).length,
   }));
 
   const ladiesWithCount = LADIES_BRANDS.map((b) => ({
@@ -49,8 +47,7 @@ export default function BrandsPage() {
     count: getProductsByBrand(
       (b.parentBrand
         ? CATALOG_BRANDS.find((cb) => cb.slug === b.parentBrand)?.name ?? b.name
-        : b.name) as any,
-      allProducts
+        : b.name) as any
     ).length,
   }));
 
