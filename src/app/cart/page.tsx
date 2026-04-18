@@ -125,43 +125,46 @@ export default function CartPage() {
           </Link>
         </div>
       ) : step === "cart" ? (
-        <div className="grid lg:grid-cols-[1fr,360px] gap-8">
+        <div className="grid lg:grid-cols-[1fr,360px] gap-8 min-w-0">
           {/* Items */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             {resolved.map(({ product, qty }) => (
-              <div key={product.id} className="card p-4 flex gap-4 items-center">
-                <Link
-                  href={`/product/${product.slug}`}
-                  className="relative w-24 h-24 shrink-0 overflow-hidden rounded-sm border border-line"
-                >
-                  <Image
-                    src={product.main_image}
-                    alt={product.model_name}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
-                </Link>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-ink-dim uppercase tracking-widest">{product.brand}</p>
-                  <Link href={`/product/${product.slug}`} className="block font-medium truncate hover:text-gold">
-                    {product.collection} {product.reference ?? ""}
+              <div key={product.id} className="card p-4 min-w-0 overflow-hidden">
+                <div className="flex gap-3 items-center min-w-0">
+                  <Link
+                    href={`/product/${product.slug}`}
+                    className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 overflow-hidden rounded-sm border border-line"
+                  >
+                    <Image
+                      src={product.main_image}
+                      alt={product.model_name}
+                      fill
+                      sizes="96px"
+                      className="object-cover"
+                    />
                   </Link>
-                  <p className="text-gold mt-1">{formatPrice(product.price.usd)}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-ink-dim uppercase tracking-widest">{product.brand}</p>
+                    <Link href={`/product/${product.slug}`} className="block font-medium truncate hover:text-gold text-sm sm:text-base">
+                      {product.collection} {product.reference ?? ""}
+                    </Link>
+                    <p className="text-gold mt-1 text-sm">{formatPrice(product.price.usd)}</p>
+                    {/* Qty controls — mobile-friendly inline */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <button onClick={() => updateQty(product.id, qty - 1)} className="w-7 h-7 text-sm border border-line rounded hover:border-gold hover:text-gold flex items-center justify-center">−</button>
+                      <span className="w-6 text-center text-sm">{qty}</span>
+                      <button onClick={() => updateQty(product.id, qty + 1)} className="w-7 h-7 text-sm border border-line rounded hover:border-gold hover:text-gold flex items-center justify-center">+</button>
+                      <button onClick={() => removeItem(product.id)} className="ml-auto text-ink-dim hover:text-danger text-xs" aria-label="Remove">Remove</button>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => updateQty(product.id, qty - 1)} className="w-8 h-8 border border-line hover:border-gold hover:text-gold">−</button>
-                  <span className="w-8 text-center">{qty}</span>
-                  <button onClick={() => updateQty(product.id, qty + 1)} className="w-8 h-8 border border-line hover:border-gold hover:text-gold">+</button>
-                </div>
-                <button onClick={() => removeItem(product.id)} className="text-ink-dim hover:text-danger text-xl px-2" aria-label="Remove">×</button>
               </div>
             ))}
             <button onClick={clear} className="text-sm text-ink-dim hover:text-danger">Clear cart</button>
           </div>
 
           {/* Summary */}
-          <aside className="card p-6 h-fit lg:sticky lg:top-24">
+          <aside className="card p-6 h-fit lg:sticky lg:top-24 min-w-0 overflow-hidden">
             <h3 className="h-serif text-xl mb-4">Order Summary</h3>
             <div className="divide-y divide-line">
               {resolved.map(({ product, qty }) => (
