@@ -1,18 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
-import type { Product } from "@/types/product";
-
-const DATA_PATH = path.join(process.cwd(), "content/products/_sample.json");
-
-async function readProducts(): Promise<Product[]> {
-  const raw = await fs.readFile(DATA_PATH, "utf-8");
-  return JSON.parse(raw);
-}
-
-async function writeProducts(products: Product[]): Promise<void> {
-  await fs.writeFile(DATA_PATH, JSON.stringify(products, null, 2), "utf-8");
-}
+import { getAdminClient } from "@/lib/supabase";
 
 // GET /api/admin/products/[id]
 export async function GET(
@@ -20,12 +7,17 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const products = await readProducts();
-    const product = products.find((p) => p.id === params.id);
-    if (!product) {
+    const supabase = getAdminClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", params.id)
+      .single();
+
+    if (error || !data) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
-    return NextResponse.json({ product });
+    return NextResponse.json({ product: data });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
@@ -37,16 +29,27 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = getAdminClient();
     const body = await req.json();
-    const products = await readProducts();
-    const idx = products.findIndex((p) => p.id === params.id);
-    if (idx === -1) {
+
+    // Remove id from body to prevent conflicts
+    delete body.id;
+
+    const { data, error } = await supabase
+      .from("products")
+      .update(body)
+      .eq("id", params.id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    if (!data) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    products[idx] = { ...products[idx], ...body, id: params.id };
-    await writeProducts(products);
-    return NextResponse.json({ success: true, product: products[idx] });
+    return NextResponse.json({ success: true, product: data });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
@@ -58,13 +61,16 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    let products = await readProducts();
-    const before = products.length;
-    products = products.filter((p) => p.id !== params.id);
-    if (products.length === before) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    const supabase = getAdminClient();
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", params.id);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    await writeProducts(products);
+
     return NextResponse.json({ success: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
