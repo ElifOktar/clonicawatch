@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/types/product";
@@ -9,6 +10,13 @@ const POPULAR_BRANDS = ["Rolex", "Omega", "AP", "Patek", "Hublot", "Cartier"];
 export function SearchModal({ products }: { products: Product[] }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const pathname = usePathname();
+
+  // Close search modal on route change
+  useEffect(() => {
+    setOpen(false);
+    setQ("");
+  }, [pathname]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
