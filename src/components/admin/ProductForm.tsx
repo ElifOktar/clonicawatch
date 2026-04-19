@@ -71,7 +71,6 @@ export default function ProductForm({ initialData, mode }: Props) {
     ...initialData,
   };
 
-  // Override computed fields from nested initialData
   if (initialData) {
     defaults.price_usd = initialData.price?.usd || 1000;
     defaults.original_price_usd = initialData.original_price?.usd || "";
@@ -125,7 +124,6 @@ export default function ProductForm({ initialData, mode }: Props) {
     try {
       const formData = new FormData();
       for (const f of fileArray) formData.append("files", f);
-      // Save to a product-specific folder when possible
       const folder = initialData?.sku
         ? `products/${initialData.sku.toLowerCase()}`
         : form.sku
@@ -139,7 +137,6 @@ export default function ProductForm({ initialData, mode }: Props) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Yukleme basarisiz");
-      // Remove placeholder if it's the only image and we just added real ones
       const cleaned = imageUrls.filter((u) => !u.includes("placeholder"));
       setImageUrls([...cleaned, ...(data.urls || [])]);
     } catch (err: any) {
@@ -240,8 +237,8 @@ export default function ProductForm({ initialData, mode }: Props) {
   };
 
   const labelCls = "block text-xs text-ink-muted mb-1.5 font-medium";
-  const inputCls = "w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm focus:border-gold focus:outline-none transition-colors";
-  const sectionCls = "bg-bg-elev border border-line rounded-xl p-5 space-y-4";
+  const inputCls = "w-full bg-bg border border-line rounded-lg px-3 py-3 text-base sm:text-sm focus:border-gold focus:outline-none transition-colors";
+  const sectionCls = "bg-bg-elev border border-line rounded-xl p-4 sm:p-5 space-y-4";
 
   return (
     <form onSubmit={handleSubmit}>
@@ -251,13 +248,152 @@ export default function ProductForm({ initialData, mode }: Props) {
         </div>
       )}
 
-      <div className="grid lg:grid-cols-[1fr,380px] gap-6">
+      {/* Mobile: Save button at top */}
+      <div className="lg:hidden mb-4">
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full bg-gold hover:bg-gold-bright text-bg font-semibold py-3.5 rounded-lg transition-colors disabled:opacity-50 text-base"
+        >
+          {saving ? "Kaydediliyor..." : mode === "edit" ? "Guncelle" : "Urun Ekle"}
+        </button>
+      </div>
+
+      {/* Images section — mobile first (most important for phone uploads) */}
+      <div className="lg:hidden mb-6">
+        <div className={sectionCls}>
+          <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Gorseller</h2>
+
+          {/* Upload zone */}
+          <div
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onClick={() => fileInputRef.current?.click()}
+            className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all ${
+              dragOver
+                ? "border-gold bg-gold/10"
+                : uploading
+                ? "border-gold/50 bg-bg"
+                : "border-line bg-bg hover:border-gold/60 hover:bg-gold/5 active:bg-gold/10"
+            }`}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files?.length) uploadFiles(e.target.files);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+            />
+            <div className="flex flex-col items-center gap-3 pointer-events-none">
+              {uploading ? (
+                <>
+                  <div className="w-10 h-10 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                  <div className="text-base text-gold font-medium">Yukleniyor...</div>
+                </>
+              ) : (
+                <>
+                  <svg className="w-12 h-12 text-gold/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <div className="text-base font-medium text-ink">
+                    Fotograf Ekle
+                  </div>
+                  <div className="text-xs text-ink-dim">
+                    Tikla veya suruklayip birak
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {uploadError && (
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-lg">
+              {uploadError}
+            </div>
+          )}
+
+          {/* Image thumbnails grid — mobile friendly */}
+          {imageUrls.length > 0 && imageUrls[0] !== "/images/placeholder-watch.svg" && (
+            <div className="grid grid-cols-3 gap-2">
+              {imageUrls.map((url, i) => (
+                <div key={i} className="relative aspect-square bg-bg-soft rounded-lg overflow-hidden border border-line">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder-watch.svg"; }}
+                  />
+                  {i === 0 && (
+                    <div className="absolute top-1 left-1 bg-gold text-bg text-[9px] px-1.5 py-0.5 rounded font-semibold">
+                      ANA
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 bg-red-500/80 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                  >
+                    ×
+                  </button>
+                  <div className="absolute bottom-1 right-1 flex gap-1">
+                    {i > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => moveImage(i, -1)}
+                        className="bg-black/60 text-white w-6 h-6 rounded flex items-center justify-center text-xs"
+                      >
+                        ←
+                      </button>
+                    )}
+                    {i < imageUrls.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => moveImage(i, 1)}
+                        className="bg-black/60 text-white w-6 h-6 rounded flex items-center justify-center text-xs"
+                      >
+                        →
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* URL input */}
+          <details className="text-xs">
+            <summary className="text-ink-muted cursor-pointer hover:text-gold transition-colors py-1">
+              URL ile ekle
+            </summary>
+            <div className="flex gap-2 mt-2">
+              <input
+                value={newImageUrl}
+                onChange={(e) => setNewImageUrl(e.target.value)}
+                placeholder="https://..."
+                className={`${inputCls} flex-1`}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl(); } }}
+              />
+              <button type="button" onClick={addImageUrl} className="bg-gold/20 text-gold px-4 rounded-lg text-sm hover:bg-gold/30 transition-colors">
+                Ekle
+              </button>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-[1fr,380px] gap-4 lg:gap-6">
         {/* Left Column — Main Form */}
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           {/* Basic Info */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Temel Bilgiler</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className={labelCls}>Marka *</label>
                 <select value={form.brand} onChange={set("brand")} className={inputCls}>
@@ -268,9 +404,9 @@ export default function ProductForm({ initialData, mode }: Props) {
                 <label className={labelCls}>Koleksiyon *</label>
                 <input value={form.collection} onChange={set("collection")} placeholder="Submariner" className={inputCls} required />
               </div>
-              <div className="col-span-2">
-                <label className={labelCls}>Model Adi * (site'de gorunur)</label>
-                <input value={form.model_name} onChange={set("model_name")} placeholder="Rolex Submariner Date Black Dial 126610LN" className={inputCls} required />
+              <div className="sm:col-span-2">
+                <label className={labelCls}>Model Adi *</label>
+                <input value={form.model_name} onChange={set("model_name")} placeholder="Rolex Submariner Date Black 126610LN" className={inputCls} required />
               </div>
               <div>
                 <label className={labelCls}>Referans No</label>
@@ -286,7 +422,7 @@ export default function ProductForm({ initialData, mode }: Props) {
           {/* Quality & Factory */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Kalite & Uretim</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className={labelCls}>Kalite Seviyesi</label>
                 <select value={form.quality_tier} onChange={set("quality_tier")} className={inputCls}>
@@ -305,7 +441,7 @@ export default function ProductForm({ initialData, mode }: Props) {
           {/* Case & Design */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Kasa & Tasarim</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <div>
                 <label className={labelCls}>Kasa Capi (mm)</label>
                 <input type="number" value={form.case_diameter_mm} onChange={set("case_diameter_mm")} className={inputCls} />
@@ -352,7 +488,7 @@ export default function ProductForm({ initialData, mode }: Props) {
           {/* Movement */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Mekanizma</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <div>
                 <label className={labelCls}>Mekanizma Tipi</label>
                 <select value={form.movement_type} onChange={set("movement_type")} className={inputCls}>
@@ -376,8 +512,8 @@ export default function ProductForm({ initialData, mode }: Props) {
                 <input type="number" value={form.beat_rate_vph} onChange={set("beat_rate_vph")} placeholder="28800" className={inputCls} />
               </div>
               <div className="flex items-end">
-                <label className="flex items-center gap-2 pb-2.5">
-                  <input type="checkbox" checked={form.is_swiss_movement} onChange={set("is_swiss_movement")} className="accent-gold w-4 h-4" />
+                <label className="flex items-center gap-3 py-3">
+                  <input type="checkbox" checked={form.is_swiss_movement} onChange={set("is_swiss_movement")} className="accent-gold w-5 h-5" />
                   <span className="text-sm">Swiss Mekanizma</span>
                 </label>
               </div>
@@ -388,28 +524,28 @@ export default function ProductForm({ initialData, mode }: Props) {
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Aciklamalar</h2>
             <div>
-              <label className={labelCls}>Kisa Aciklama (kart uzerinde gorunur)</label>
+              <label className={labelCls}>Kisa Aciklama</label>
               <textarea value={form.short_description} onChange={set("short_description")} rows={2} placeholder="Clean Factory Super Clone — 1:1 replica..." className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Detayli Aciklama (urun sayfasi, markdown destekli)</label>
-              <textarea value={form.long_description} onChange={set("long_description")} rows={6} placeholder="## Clean Factory Super Clone&#10;&#10;Detayli aciklama..." className={inputCls} />
+              <label className={labelCls}>Detayli Aciklama</label>
+              <textarea value={form.long_description} onChange={set("long_description")} rows={5} placeholder="Detayli aciklama..." className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Ozellikler (virgul ile ayirin)</label>
-              <textarea value={form.features} onChange={set("features")} rows={3} placeholder="Clean Factory production, Clone 3235 automatic, 904L steel..." className={inputCls} />
+              <label className={labelCls}>Ozellikler (virgul ile)</label>
+              <textarea value={form.features} onChange={set("features")} rows={3} placeholder="Clean Factory production, Clone 3235 automatic..." className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Paket Icerigi (virgul ile ayirin)</label>
+              <label className={labelCls}>Paket Icerigi (virgul ile)</label>
               <input value={form.package_contents} onChange={set("package_contents")} placeholder="Watch, Box, Warranty card, Tool" className={inputCls} />
             </div>
           </div>
         </div>
 
-        {/* Right Column — Sidebar */}
-        <div className="space-y-6">
-          {/* Save Button */}
-          <div className={sectionCls}>
+        {/* Right Column — Sidebar (desktop: right column, mobile: after main form) */}
+        <div className="space-y-4 lg:space-y-6">
+          {/* Save Button — desktop only (mobile version is at top) */}
+          <div className={`${sectionCls} hidden lg:block`}>
             <button
               type="submit"
               disabled={saving}
@@ -422,23 +558,27 @@ export default function ProductForm({ initialData, mode }: Props) {
           {/* Pricing */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Fiyat & Stok</h2>
-            <div>
-              <label className={labelCls}>Fiyat (USD) *</label>
-              <input type="number" value={form.price_usd} onChange={set("price_usd")} className={inputCls} required />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Fiyat (USD) *</label>
+                <input type="number" value={form.price_usd} onChange={set("price_usd")} className={inputCls} required />
+              </div>
+              <div>
+                <label className={labelCls}>Orijinal Fiyat</label>
+                <input type="number" value={form.original_price_usd} onChange={set("original_price_usd")} placeholder="Indirim" className={inputCls} />
+              </div>
             </div>
-            <div>
-              <label className={labelCls}>Orijinal Fiyat (indirim varsa)</label>
-              <input type="number" value={form.original_price_usd} onChange={set("original_price_usd")} placeholder="Bos birakin" className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Stok Durumu</label>
-              <select value={form.stock_status} onChange={set("stock_status")} className={inputCls}>
-                {STOCK_STATUSES.map((s) => <option key={s}>{s}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Stok Sayisi</label>
-              <input type="number" value={form.stock_count} onChange={set("stock_count")} className={inputCls} />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Stok Durumu</label>
+                <select value={form.stock_status} onChange={set("stock_status")} className={inputCls}>
+                  {STOCK_STATUSES.map((s) => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>Stok Sayisi</label>
+                <input type="number" value={form.stock_count} onChange={set("stock_count")} className={inputCls} />
+              </div>
             </div>
             <div>
               <label className={labelCls}>Cinsiyet</label>
@@ -452,16 +592,16 @@ export default function ProductForm({ initialData, mode }: Props) {
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Etiketler</h2>
             <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={form.is_featured} onChange={set("is_featured")} className="accent-gold w-4 h-4" />
+              <label className="flex items-center gap-3 cursor-pointer py-1">
+                <input type="checkbox" checked={form.is_featured} onChange={set("is_featured")} className="accent-gold w-5 h-5" />
                 <span className="text-sm">One Cikan Urun</span>
               </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={form.is_new_arrival} onChange={set("is_new_arrival")} className="accent-gold w-4 h-4" />
+              <label className="flex items-center gap-3 cursor-pointer py-1">
+                <input type="checkbox" checked={form.is_new_arrival} onChange={set("is_new_arrival")} className="accent-gold w-5 h-5" />
                 <span className="text-sm">Yeni Gelen</span>
               </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={form.is_on_sale} onChange={set("is_on_sale")} className="accent-gold w-4 h-4" />
+              <label className="flex items-center gap-3 cursor-pointer py-1">
+                <input type="checkbox" checked={form.is_on_sale} onChange={set("is_on_sale")} className="accent-gold w-5 h-5" />
                 <span className="text-sm">Indirimde</span>
               </label>
             </div>
@@ -473,10 +613,10 @@ export default function ProductForm({ initialData, mode }: Props) {
                     key={tag}
                     type="button"
                     onClick={() => toggleStyleTag(tag)}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                    className={`text-xs px-3 py-2 rounded-full border transition-colors ${
                       form.style_tags.includes(tag)
                         ? "bg-gold/20 text-gold border-gold/30"
-                        : "bg-bg border-line text-ink-muted hover:border-gold/30"
+                        : "bg-bg border-line text-ink-muted hover:border-gold/30 active:bg-gold/10"
                     }`}
                   >
                     {tag}
@@ -486,11 +626,10 @@ export default function ProductForm({ initialData, mode }: Props) {
             </div>
           </div>
 
-          {/* Images */}
-          <div className={sectionCls}>
+          {/* Images — desktop only (mobile version is at top) */}
+          <div className={`${sectionCls} hidden lg:block`}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Gorseller</h2>
 
-            {/* Drag & Drop zone */}
             <div
               onDrop={onDrop}
               onDragOver={onDragOver}
@@ -504,17 +643,6 @@ export default function ProductForm({ initialData, mode }: Props) {
                   : "border-line bg-bg hover:border-gold/60 hover:bg-gold/5"
               }`}
             >
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files?.length) uploadFiles(e.target.files);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
-                }}
-              />
               <div className="flex flex-col items-center gap-2 pointer-events-none">
                 {uploading ? (
                   <>
@@ -526,12 +654,8 @@ export default function ProductForm({ initialData, mode }: Props) {
                     <svg className="w-10 h-10 text-gold/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <div className="text-sm font-medium text-ink">
-                      {dragOver ? "Birak, yukleyecegim!" : "Suruklayip birak veya tikla"}
-                    </div>
-                    <div className="text-[11px] text-ink-dim">
-                      Birden fazla gorsel secebilirsin (JPG, PNG, WEBP)
-                    </div>
+                    <div className="text-sm font-medium text-ink">Suruklayip birak veya tikla</div>
+                    <div className="text-[11px] text-ink-dim">JPG, PNG, WEBP</div>
                   </>
                 )}
               </div>
@@ -543,84 +667,39 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             )}
 
-            {/* Image list with preview, reorder, delete */}
             {imageUrls.length > 0 && (
               <div className="space-y-2">
                 {imageUrls.map((url, i) => (
                   <div key={i} className="flex items-center gap-2 bg-bg rounded-lg p-2 border border-line">
                     <div className="w-14 h-14 bg-bg-soft rounded overflow-hidden flex-shrink-0 relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={url}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder-watch.svg"; }}
-                      />
-                      {i === 0 && (
-                        <div className="absolute top-0.5 left-0.5 bg-gold text-bg text-[9px] px-1 rounded font-semibold">
-                          ANA
-                        </div>
-                      )}
+                      <img src={url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder-watch.svg"; }} />
+                      {i === 0 && <div className="absolute top-0.5 left-0.5 bg-gold text-bg text-[9px] px-1 rounded font-semibold">ANA</div>}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs text-ink truncate font-medium">
-                        {url.split("/").pop()}
-                      </div>
+                      <div className="text-xs text-ink truncate font-medium">{url.split("/").pop()}</div>
                       <div className="text-[10px] text-ink-dim truncate">{url}</div>
                     </div>
                     <div className="flex flex-col gap-0.5 flex-shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => moveImage(i, -1)}
-                        disabled={i === 0}
-                        className="text-ink-muted hover:text-gold disabled:opacity-20 text-xs leading-none p-0.5"
-                        title="Yukari tasi"
-                      >
-                        ▲
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => moveImage(i, 1)}
-                        disabled={i === imageUrls.length - 1}
-                        className="text-ink-muted hover:text-gold disabled:opacity-20 text-xs leading-none p-0.5"
-                        title="Asagi tasi"
-                      >
-                        ▼
-                      </button>
+                      <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} className="text-ink-muted hover:text-gold disabled:opacity-20 text-xs leading-none p-0.5" title="Yukari">▲</button>
+                      <button type="button" onClick={() => moveImage(i, 1)} disabled={i === imageUrls.length - 1} className="text-ink-muted hover:text-gold disabled:opacity-20 text-xs leading-none p-0.5" title="Asagi">▼</button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i)}
-                      className="text-red-400 text-xs hover:bg-red-500/10 px-2 py-1 rounded transition-colors flex-shrink-0"
-                    >
-                      Sil
-                    </button>
+                    <button type="button" onClick={() => removeImage(i)} className="text-red-400 text-xs hover:bg-red-500/10 px-2 py-1 rounded transition-colors flex-shrink-0">Sil</button>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Optional: paste URL */}
             <details className="text-xs">
-              <summary className="text-ink-muted cursor-pointer hover:text-gold transition-colors py-1">
-                Veya URL ile ekle
-              </summary>
+              <summary className="text-ink-muted cursor-pointer hover:text-gold transition-colors py-1">URL ile ekle</summary>
               <div className="flex gap-2 mt-2">
-                <input
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder="https://... veya /images/..."
-                  className={`${inputCls} flex-1`}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl(); } }}
-                />
-                <button type="button" onClick={addImageUrl} className="bg-gold/20 text-gold px-3 rounded-lg text-sm hover:bg-gold/30 transition-colors">
-                  Ekle
-                </button>
+                <input value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} placeholder="https://..." className={`${inputCls} flex-1`} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl(); } }} />
+                <button type="button" onClick={addImageUrl} className="bg-gold/20 text-gold px-3 rounded-lg text-sm hover:bg-gold/30 transition-colors">Ekle</button>
               </div>
             </details>
 
             <p className="text-[11px] text-ink-dim leading-relaxed">
-              Ilk gorsel <strong className="text-gold">ana gorsel</strong> olarak kullanilir. Ok tuslariyla sirayi degistirebilirsin.
+              Ilk gorsel <strong className="text-gold">ana gorsel</strong> olarak kullanilir.
             </p>
           </div>
 
@@ -628,18 +707,20 @@ export default function ProductForm({ initialData, mode }: Props) {
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Video</h2>
             <div>
-              <label className={labelCls}>Video URL (MP4 dosya linki)</label>
-              <input
-                value={form.video_url}
-                onChange={set("video_url")}
-                placeholder="https://... veya /videos/urun-video.mp4"
-                className={inputCls}
-              />
+              <label className={labelCls}>Video URL (MP4)</label>
+              <input value={form.video_url} onChange={set("video_url")} placeholder="https://..." className={inputCls} />
             </div>
-            <p className="text-[11px] text-ink-dim leading-relaxed">
-              Video, urun sayfasinda fotograflardan sonra ayri bir sekmede gosterilir.
-              Bos birakirsan video sekmesi gorunmez.
-            </p>
+          </div>
+
+          {/* Mobile: bottom save button */}
+          <div className="lg:hidden">
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full bg-gold hover:bg-gold-bright text-bg font-semibold py-3.5 rounded-lg transition-colors disabled:opacity-50 text-base"
+            >
+              {saving ? "Kaydediliyor..." : mode === "edit" ? "Guncelle" : "Urun Ekle"}
+            </button>
           </div>
         </div>
       </div>
