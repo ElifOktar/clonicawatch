@@ -132,27 +132,27 @@ export function PromoSlider() {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gold/5 blur-[120px]" />
                 </div>
 
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center pb-10 md:pb-0">
                   <div className="text-center max-w-2xl px-6">
                     {/* Diamond icon */}
-                    <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full border border-gold/30 bg-gold/5 mb-3 md:mb-6">
-                      <svg className="w-5 h-5 md:w-7 md:h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <div className="inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 rounded-full border border-gold/30 bg-gold/5 mb-2 md:mb-6">
+                      <svg className="w-4 h-4 md:w-7 md:h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                       </svg>
                     </div>
-                    <p className="text-gold text-xs tracking-[0.3em] uppercase mb-2 md:mb-4 font-medium">
+                    <p className="text-gold text-[10px] md:text-xs tracking-[0.3em] uppercase mb-1.5 md:mb-4 font-medium">
                       Special Request
                     </p>
-                    <h2 className="font-serif text-2xl md:text-5xl text-ink tracking-tight leading-tight mb-2 md:mb-4">
+                    <h2 className="font-serif text-xl md:text-5xl text-ink tracking-tight leading-tight mb-1.5 md:mb-4">
                       {slide.title}
                     </h2>
-                    <p className="text-ink-muted text-sm md:text-lg mb-5 md:mb-8 max-w-md mx-auto leading-relaxed">
+                    <p className="text-ink-muted text-xs md:text-lg mb-4 md:mb-8 max-w-md mx-auto leading-relaxed">
                       {slide.subtitle}
                     </p>
                     {slide.link && slide.ctaButton && (
                       <a
                         href={slide.link}
-                        className="inline-flex items-center gap-2.5 bg-gold hover:bg-gold-bright text-bg font-semibold px-8 py-3.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="inline-flex items-center gap-2 md:gap-2.5 bg-gold hover:bg-gold-bright text-bg font-semibold px-5 py-2.5 md:px-8 md:py-3.5 text-sm md:text-base rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
                         {slide.ctaIcon === "whatsapp" && (
                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
