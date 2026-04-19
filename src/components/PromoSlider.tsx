@@ -236,7 +236,7 @@ export function PromoSlider() {
 
       {/* Dots */}
       {slides.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden md:flex gap-2">
           {slides.map((_, i) => (
             <button
               key={i}
