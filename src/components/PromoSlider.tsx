@@ -112,7 +112,7 @@ export function PromoSlider() {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      <div className="relative h-[440px] md:h-[420px] lg:h-[480px]">
+      <div className="relative h-[360px] md:h-[420px] lg:h-[480px]">
         {slides.map((slide, i) => (
           <div
             key={slide.id}
@@ -132,21 +132,21 @@ export function PromoSlider() {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gold/5 blur-[120px]" />
                 </div>
 
-                <div className="absolute inset-0 flex items-start md:items-center justify-center pt-10 md:pt-0 pb-14 md:pb-0">
+                <div className="absolute top-0 left-0 right-0 bottom-[50px] md:bottom-[40px] flex items-center justify-center overflow-hidden">
                   <div className="text-center max-w-2xl px-6">
-                    {/* Diamond icon */}
-                    <div className="inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 rounded-full border border-gold/30 bg-gold/5 mb-2 md:mb-6">
-                      <svg className="w-4 h-4 md:w-7 md:h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    {/* Diamond icon — hidden on mobile to save space */}
+                    <div className="hidden md:inline-flex items-center justify-center w-16 h-16 rounded-full border border-gold/30 bg-gold/5 mb-6">
+                      <svg className="w-7 h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                       </svg>
                     </div>
-                    <p className="text-gold text-[10px] md:text-xs tracking-[0.3em] uppercase mb-1.5 md:mb-4 font-medium">
+                    <p className="text-gold text-[10px] md:text-xs tracking-[0.3em] uppercase mb-2 md:mb-4 font-medium">
                       Special Request
                     </p>
-                    <h2 className="font-serif text-xl md:text-5xl text-ink tracking-tight leading-tight mb-1.5 md:mb-4">
+                    <h2 className="font-serif text-2xl md:text-5xl text-ink tracking-tight leading-tight mb-2 md:mb-4">
                       {slide.title}
                     </h2>
-                    <p className="text-ink-muted text-xs md:text-lg mb-4 md:mb-8 max-w-md mx-auto leading-relaxed">
+                    <p className="text-ink-muted text-sm md:text-lg mb-5 md:mb-8 max-w-md mx-auto leading-relaxed">
                       {slide.subtitle}
                     </p>
                     {slide.link && slide.ctaButton && (
