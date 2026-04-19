@@ -110,7 +110,7 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
                       <Link href="/account" className="block px-4 py-2 text-sm text-ink-muted hover:text-gold hover:bg-bg-soft transition-colors" onClick={() => setUserMenuOpen(false)}>
                         My Account
                       </Link>
-                      <Link href="/account/orders" className="block px-4 py-2 text-sm text-ink-muted hover:text-gold hover:bg-bg-soft transition-colors" onClick={() => setUserMenuOpen(false)}>
+                      <Link href="/account?tab=orders" className="block px-4 py-2 text-sm text-ink-muted hover:text-gold hover:bg-bg-soft transition-colors" onClick={() => setUserMenuOpen(false)}>
                         Orders
                       </Link>
                       <button
