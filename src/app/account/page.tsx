@@ -2,6 +2,7 @@
 import { useAuth } from "@/components/AuthProvider";
 import type { Address } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -30,7 +31,9 @@ function getOrders(): OrderInquiry[] {
 
 export default function AccountPage() {
   const { user, signOut, updateProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"profile" | "orders" | "addresses">("profile");
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as "profile" | "orders" | "addresses") || "profile";
+  const [activeTab, setActiveTab] = useState<"profile" | "orders" | "addresses">(initialTab);
   const [editing, setEditing] = useState(false);
   const [orders, setOrders] = useState<OrderInquiry[]>([]);
 
