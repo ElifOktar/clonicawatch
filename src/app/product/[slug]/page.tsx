@@ -15,6 +15,7 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductGallery } from "@/components/ProductGallery";
 import { StickyProductCTA } from "@/components/StickyProductCTA";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export const revalidate = 60;
 
@@ -148,14 +149,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
             {/* CTAs */}
             <div className="mt-8 space-y-3">
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noopener"
-                className="btn-gold w-full text-base"
-              >
-                Contact Seller on WhatsApp
-              </a>
+              <WhatsAppButton
+                waUrl={waUrl}
+                product={{ id: p.id, model_name: p.model_name, main_image: p.main_image, price: p.price }}
+                className="btn-gold w-full text-base flex items-center justify-center gap-2"
+              />
               <AddToCartButton productId={p.id} />
             </div>
 
@@ -224,7 +222,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       </div>
 
       {/* Sticky Mobile CTA */}
-      <StickyProductCTA waUrl={waUrl} productId={p.id} />
+      <StickyProductCTA waUrl={waUrl} productId={p.id} product={{ id: p.id, model_name: p.model_name, main_image: p.main_image, price: p.price }} />
     </>
   );
 }
