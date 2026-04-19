@@ -94,14 +94,19 @@ export default function CartPage() {
   const [step, setStep] = useState<"cart" | "address">("cart");
 
   useEffect(() => {
-    fetch("/api/products")
+    if (items.length === 0) {
+      setLoading(false);
+      return;
+    }
+    const ids = items.map((i) => i.productId).join(",");
+    fetch(`/api/products?ids=${encodeURIComponent(ids)}`)
       .then((r) => r.json())
       .then((data) => {
         setAllProducts(data.products || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [items]);
 
   const resolved = resolveCartItems(items, allProducts);
 
@@ -218,6 +223,9 @@ export default function CartPage() {
     );
   }
 
+  // Items in cart but products not resolved (API error or still loading)
+  const hasUnresolvedItems = items.length > 0 && resolved.length === 0 && allProducts.length === 0;
+
   return (
     <div className="container py-8 sm:py-12">
       {/* Steps indicator */}
@@ -245,7 +253,12 @@ export default function CartPage() {
         {step === "cart" ? "Your Cart" : "Shipping Address"}
       </h1>
 
-      {resolved.length === 0 ? (
+      {hasUnresolvedItems ? (
+        <div className="card p-12 text-center">
+          <p className="text-ink-muted text-lg">Loading your cart items…</p>
+          <p className="text-ink-dim text-sm mt-2">If this takes too long, try refreshing the page.</p>
+        </div>
+      ) : resolved.length === 0 ? (
         <div className="card p-12 text-center">
           <p className="text-ink-muted text-lg">Your cart is empty.</p>
           <Link href="/" className="btn-gold mt-6 inline-flex">
