@@ -55,10 +55,10 @@ export function SearchModal({ products }: { products: Product[] }) {
             className="w-full md:max-w-2xl md:rounded-sm bg-bg-elev border border-line md:border shadow-2xl animate-fade-in fixed inset-0 md:inset-auto md:static flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button for mobile */}
+            {/* Close button — visible on all screens */}
             <button
               onClick={() => setOpen(false)}
-              className="md:hidden absolute top-4 right-4 text-ink-muted hover:text-gold transition-colors z-10"
+              className="absolute top-4 right-4 text-ink-muted hover:text-gold transition-colors z-10 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-bg-soft"
               aria-label="Close search"
             >
               ✕
