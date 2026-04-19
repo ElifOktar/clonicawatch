@@ -226,6 +226,11 @@ export default function CartPage() {
   // Items in cart but products not resolved (API error or still loading)
   const hasUnresolvedItems = items.length > 0 && resolved.length === 0 && allProducts.length === 0;
 
+  // Orphaned items — in cart but product not found in database
+  const orphanedItems = items.filter(
+    (i) => !resolved.some((r) => r.product.id === i.productId)
+  );
+
   return (
     <div className="container py-8 sm:py-12">
       {/* Steps indicator */}
@@ -294,6 +299,25 @@ export default function CartPage() {
                 </div>
               </div>
             ))}
+            {/* Orphaned items — product no longer in database */}
+            {orphanedItems.length > 0 && (
+              <div className="card p-3 sm:p-4 border-dashed border-yellow-400/30 bg-yellow-400/5">
+                <p className="text-xs text-yellow-400 mb-2">
+                  {orphanedItems.length} item(s) no longer available:
+                </p>
+                {orphanedItems.map((item) => (
+                  <div key={item.productId} className="flex items-center justify-between py-1.5">
+                    <span className="text-xs text-ink-muted truncate">ID: {item.productId.slice(0, 12)}…</span>
+                    <button
+                      onClick={() => removeItem(item.productId)}
+                      className="text-xs text-red-400 hover:text-red-300 ml-2"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             <button onClick={clear} className="text-sm text-ink-dim hover:text-danger">Clear cart</button>
           </div>
 
