@@ -1,561 +1,382 @@
 "use client";
 import { useAuth } from "@/components/AuthProvider";
-import type { Address } from "@/components/AuthProvider";
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect } from "react";
+
+type Tab = "profile" | "orders" | "addresses";
 
 interface OrderInquiry {
   id: string;
-  productId: string;
-  productName: string;
-  productImage: string;
-  productPrice: number;
+  products: { name: string; qty: number; price: number }[];
+  total: number;
   date: string;
-  status: "inquired" | "confirmed" | "shipped" | "delivered";
+  status: string;
 }
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  inquired: { label: "Inquiry Sent", color: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20" },
-  confirmed: { label: "Confirmed", color: "text-blue-400 bg-blue-400/10 border-blue-400/20" },
-  shipped: { label: "Shipped", color: "text-purple-400 bg-purple-400/10 border-purple-400/20" },
-  delivered: { label: "Delivered", color: "text-green-400 bg-green-400/10 border-green-400/20" },
-};
-
-function getOrders(): OrderInquiry[] {
-  try {
-    return JSON.parse(localStorage.getItem("clonica_orders") || "[]");
-  } catch { return []; }
+interface SavedAddress {
+  id: string;
+  label: string;
+  fullName: string;
+  phone: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state?: string;
+  zip: string;
+  country: string;
+  isDefault?: boolean;
 }
 
-function getInitialTab(): "profile" | "orders" | "addresses" {
-  if (typeof window === "undefined") return "profile";
-  const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab");
-  if (tab === "orders" || tab === "addresses") return tab;
-  return "profile";
+const ADDR_KEY = "clonica_addresses";
+
+function getAddresses(): SavedAddress[] {
+  try { return JSON.parse(localStorage.getItem(ADDR_KEY) || "[]"); } catch { return []; }
+}
+function saveAddresses(a: SavedAddress[]) {
+  localStorage.setItem(ADDR_KEY, JSON.stringify(a));
 }
 
 export default function AccountPage() {
   const { user, signOut, updateProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"profile" | "orders" | "addresses">(getInitialTab);
-  const [editing, setEditing] = useState(false);
+  const [tab, setTab] = useState<Tab>("profile");
   const [orders, setOrders] = useState<OrderInquiry[]>([]);
+  const [addresses, setAddresses] = useState<SavedAddress[]>([]);
+  const [editingAddr, setEditingAddr] = useState<SavedAddress | null>(null);
+  const [showAddrForm, setShowAddrForm] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
 
-  // Profile fields
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [saved, setSaved] = useState(false);
-
-  // Address management
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [showAddressForm, setShowAddressForm] = useState(false);
-  const [addrLabel, setAddrLabel] = useState("");
-  const [addrLine1, setAddrLine1] = useState("");
-  const [addrLine2, setAddrLine2] = useState("");
-  const [addrCity, setAddrCity] = useState("");
-  const [addrState, setAddrState] = useState("");
-  const [addrZip, setAddrZip] = useState("");
-  const [addrCountry, setAddrCountry] = useState("");
-  const [addrDefault, setAddrDefault] = useState(false);
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("clonica_orders") || "[]");
+      setOrders(stored);
+    } catch {}
+    setAddresses(getAddresses());
+  }, []);
 
   useEffect(() => {
     if (user) {
-      setName(user.name || "");
-      setPhone(user.phone || "");
-      // Migrate old single address to addresses array
-      const existingAddresses = user.addresses || [];
-      if (existingAddresses.length === 0 && user.address?.line1) {
-        const migrated: Address = {
-          id: `addr_${Date.now().toString(36)}`,
-          label: "Primary",
-          line1: user.address.line1,
-          line2: user.address.line2 || "",
-          city: user.address.city,
-          state: user.address.state || "",
-          zip: user.address.zip,
-          country: user.address.country,
-          isDefault: true,
-        };
-        setAddresses([migrated]);
-      } else {
-        setAddresses(existingAddresses);
-      }
+      setEditName(user.name);
+      setEditPhone(user.phone || "");
     }
-    setOrders(getOrders());
   }, [user]);
 
   if (!user) {
     return (
       <div className="container py-20 text-center">
-        <div className="max-w-sm mx-auto">
-          <div className="text-5xl mb-4">👤</div>
-          <h1 className="h-serif text-3xl mb-3">My Account</h1>
-          <p className="text-ink-muted mb-6">Sign in to view your profile, orders, and addresses.</p>
-          <p className="text-ink-muted text-sm">Click the profile icon in the header to sign in or create an account.</p>
-        </div>
+        <h1 className="h-serif text-3xl mb-4">My Account</h1>
+        <p className="text-ink-muted">Please sign in to view your account.</p>
       </div>
     );
   }
 
   const handleSaveProfile = () => {
-    updateProfile({ name, phone: phone || undefined });
-    setEditing(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    updateProfile({ name: editName.trim(), phone: editPhone.trim() || undefined });
+    setEditingProfile(false);
   };
 
-  const resetAddressForm = () => {
-    setAddrLabel("");
-    setAddrLine1("");
-    setAddrLine2("");
-    setAddrCity("");
-    setAddrState("");
-    setAddrZip("");
-    setAddrCountry("");
-    setAddrDefault(false);
-    setEditingAddress(null);
-    setShowAddressForm(false);
-  };
-
-  const openAddressForm = (addr?: Address) => {
-    if (addr) {
-      setEditingAddress(addr);
-      setAddrLabel(addr.label);
-      setAddrLine1(addr.line1);
-      setAddrLine2(addr.line2 || "");
-      setAddrCity(addr.city);
-      setAddrState(addr.state || "");
-      setAddrZip(addr.zip);
-      setAddrCountry(addr.country);
-      setAddrDefault(addr.isDefault || false);
+  const handleSaveAddress = (addr: SavedAddress) => {
+    let updated: SavedAddress[];
+    if (addr.isDefault) {
+      updated = addresses.map((a) => ({ ...a, isDefault: false }));
     } else {
-      resetAddressForm();
-      setAddrDefault(addresses.length === 0);
+      updated = [...addresses];
     }
-    setShowAddressForm(true);
-  };
-
-  const handleSaveAddress = () => {
-    if (!addrLine1 || !addrCity || !addrCountry) return;
-
-    const newAddr: Address = {
-      id: editingAddress?.id || `addr_${Date.now().toString(36)}`,
-      label: addrLabel || (addresses.length === 0 ? "Primary" : `Address ${addresses.length + 1}`),
-      line1: addrLine1,
-      line2: addrLine2,
-      city: addrCity,
-      state: addrState,
-      zip: addrZip,
-      country: addrCountry,
-      isDefault: addrDefault || addresses.length === 0,
-    };
-
-    let updated: Address[];
-    if (editingAddress) {
-      updated = addresses.map((a) => a.id === editingAddress.id ? newAddr : a);
-    } else {
-      updated = [...addresses, newAddr];
-    }
-
-    // If this is default, remove default from others
-    if (newAddr.isDefault) {
-      updated = updated.map((a) => a.id === newAddr.id ? a : { ...a, isDefault: false });
-    }
-
-    // Also update the legacy single address field with the default
-    const defaultAddr = updated.find((a) => a.isDefault) || updated[0];
-
+    const idx = updated.findIndex((a) => a.id === addr.id);
+    if (idx >= 0) updated[idx] = addr;
+    else updated.push(addr);
     setAddresses(updated);
-    updateProfile({
-      addresses: updated,
-      address: defaultAddr ? {
-        line1: defaultAddr.line1,
-        line2: defaultAddr.line2,
-        city: defaultAddr.city,
-        state: defaultAddr.state,
-        zip: defaultAddr.zip,
-        country: defaultAddr.country,
-      } : undefined,
-    });
-
-    resetAddressForm();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    saveAddresses(updated);
+    setShowAddrForm(false);
+    setEditingAddr(null);
   };
 
   const handleDeleteAddress = (id: string) => {
-    let updated = addresses.filter((a) => a.id !== id);
-    if (updated.length > 0 && !updated.some((a) => a.isDefault)) {
-      updated[0] = { ...updated[0], isDefault: true };
-    }
-    const defaultAddr = updated.find((a) => a.isDefault);
+    const updated = addresses.filter((a) => a.id !== id);
     setAddresses(updated);
-    updateProfile({
-      addresses: updated,
-      address: defaultAddr ? {
-        line1: defaultAddr.line1,
-        line2: defaultAddr.line2,
-        city: defaultAddr.city,
-        state: defaultAddr.state,
-        zip: defaultAddr.zip,
-        country: defaultAddr.country,
-      } : undefined,
-    });
+    saveAddresses(updated);
   };
 
   const handleSetDefault = (id: string) => {
     const updated = addresses.map((a) => ({ ...a, isDefault: a.id === id }));
-    const defaultAddr = updated.find((a) => a.isDefault);
     setAddresses(updated);
-    updateProfile({
-      addresses: updated,
-      address: defaultAddr ? {
-        line1: defaultAddr.line1,
-        line2: defaultAddr.line2,
-        city: defaultAddr.city,
-        state: defaultAddr.state,
-        zip: defaultAddr.zip,
-        country: defaultAddr.country,
-      } : undefined,
-    });
+    saveAddresses(updated);
   };
 
-  const tabs = [
-    { id: "profile" as const, label: "Profile", icon: "👤" },
-    { id: "orders" as const, label: "Orders", icon: "📦", count: orders.length },
-    { id: "addresses" as const, label: "Addresses", icon: "📍", count: addresses.length },
+  const tabs: { key: Tab; label: string; icon: string; badge?: number }[] = [
+    { key: "profile", label: "Profile", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
+    { key: "orders", label: "Orders", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4", badge: orders.length },
+    { key: "addresses", label: "Addresses", icon: "M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" },
   ];
 
-  const inputCls = "w-full bg-bg border border-line rounded-lg px-4 py-3 text-base sm:text-sm focus:border-gold focus:outline-none transition-colors";
-  const labelCls = "block text-xs text-ink-muted font-medium mb-1.5";
+  const inputCls = "w-full bg-bg border border-line rounded-lg px-4 py-3 text-sm focus:border-gold focus:outline-none transition-colors placeholder:text-ink-dim";
 
   return (
-    <div className="container py-8 sm:py-12 max-w-3xl">
+    <div className="container py-8 md:py-12 max-w-3xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 sm:mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="h-serif text-2xl sm:text-3xl">My Account</h1>
-          <p className="text-ink-muted text-sm mt-1">{user.email}</p>
+          <h1 className="h-serif text-2xl md:text-3xl">My Account</h1>
+          <p className="text-sm text-ink-muted mt-1">{user.email}</p>
         </div>
         <button
           onClick={signOut}
-          className="text-xs text-ink-muted hover:text-red-400 transition-colors px-3 py-2 rounded-lg border border-line hover:border-red-400/30"
+          className="text-sm text-ink-muted hover:text-red-400 transition-colors border border-line rounded-lg px-4 py-2 hover:border-red-400/30"
         >
           Sign Out
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-bg-elev rounded-xl p-1 border border-line">
-        {tabs.map((tab) => (
+      {/* Tabs — icons + labels always visible */}
+      <div className="flex border border-line rounded-xl overflow-hidden mb-6">
+        {tabs.map((t) => (
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-colors ${
-              activeTab === tab.id
-                ? "bg-gold/10 text-gold"
-                : "text-ink-muted hover:text-ink"
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium transition-colors ${
+              tab === t.key
+                ? "bg-gold/10 text-gold border-b-2 border-gold"
+                : "text-ink-muted hover:text-ink hover:bg-bg-soft"
             }`}
           >
-            <span>{tab.icon}</span>
-            <span className="hidden sm:inline">{tab.label}</span>
-            {tab.count !== undefined && tab.count > 0 && (
-              <span className="bg-gold text-bg text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                {tab.count}
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d={t.icon} />
+            </svg>
+            <span>{t.label}</span>
+            {t.badge !== undefined && t.badge > 0 && (
+              <span className="bg-gold text-bg text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                {t.badge}
               </span>
             )}
           </button>
         ))}
       </div>
 
-      {saved && (
-        <div className="bg-green-400/10 border border-green-400/20 text-green-400 text-sm px-4 py-2.5 rounded-lg mb-4">
-          Saved successfully!
-        </div>
-      )}
-
-      {/* Profile Tab */}
-      {activeTab === "profile" && (
-        <div className="space-y-4">
-          <div className="card p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Personal Information</h2>
-              {!editing && (
-                <button
-                  onClick={() => setEditing(true)}
-                  className="text-xs text-gold hover:text-gold-bright transition-colors px-3 py-1.5 rounded-lg border border-gold/20 hover:border-gold/40"
-                >
-                  Edit
-                </button>
-              )}
+      {/* TAB: Profile */}
+      {tab === "profile" && (
+        <div className="card p-6 space-y-5">
+          {editingProfile ? (
+            <>
+              <div>
+                <label className="text-xs text-ink-muted font-medium mb-1.5 block">Name</label>
+                <input value={editName} onChange={(e) => setEditName(e.target.value)} className={inputCls} />
+              </div>
+              <div>
+                <label className="text-xs text-ink-muted font-medium mb-1.5 block">Phone</label>
+                <input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="+1 234 567 8900" className={inputCls} />
+              </div>
+              <div className="flex gap-3">
+                <button onClick={handleSaveProfile} className="btn-gold text-sm px-6">Save</button>
+                <button onClick={() => setEditingProfile(false)} className="text-sm text-ink-muted hover:text-ink">Cancel</button>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-start justify-between">
+              <div className="space-y-4 flex-1">
+                <div>
+                  <label className="text-xs text-ink-muted font-medium">Name</label>
+                  <p className="text-sm mt-1">{user.name}</p>
+                </div>
+                <div>
+                  <label className="text-xs text-ink-muted font-medium">Email</label>
+                  <p className="text-sm mt-1">{user.email}</p>
+                </div>
+                {user.phone && (
+                  <div>
+                    <label className="text-xs text-ink-muted font-medium">Phone</label>
+                    <p className="text-sm mt-1">{user.phone}</p>
+                  </div>
+                )}
+                <div>
+                  <label className="text-xs text-ink-muted font-medium">Member Since</label>
+                  <p className="text-sm mt-1">{new Date(user.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+                </div>
+              </div>
+              <button onClick={() => setEditingProfile(true)} className="text-xs text-gold hover:text-gold-bright transition-colors border border-gold/30 rounded-lg px-3 py-1.5">
+                Edit
+              </button>
             </div>
+          )}
 
-            {editing ? (
-              <div className="space-y-3">
-                <div>
-                  <label className={labelCls}>Full Name</label>
-                  <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} autoComplete="name" />
-                </div>
-                <div>
-                  <label className={labelCls}>Phone (WhatsApp)</label>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+90 5xx xxx xx xx" className={inputCls} type="tel" autoComplete="tel" />
-                </div>
-                <div className="flex gap-3 pt-2">
-                  <button onClick={handleSaveProfile} className="bg-gold hover:bg-gold-bright text-bg font-semibold px-6 py-2.5 rounded-lg transition-colors text-sm">
-                    Save
-                  </button>
-                  <button onClick={() => setEditing(false)} className="text-ink-muted hover:text-ink px-4 py-2.5 rounded-lg transition-colors text-sm border border-line">
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-line/50">
-                  <span className="text-xs text-ink-muted">Name</span>
-                  <span className="text-sm">{user.name}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-line/50">
-                  <span className="text-xs text-ink-muted">Email</span>
-                  <span className="text-sm">{user.email}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-line/50">
-                  <span className="text-xs text-ink-muted">Phone</span>
-                  <span className="text-sm">{user.phone || "—"}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-xs text-ink-muted">Member Since</span>
-                  <span className="text-sm">{new Date(user.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Quick Links */}
-          <div className="grid grid-cols-2 gap-3">
-            <Link href="/wishlist" className="card p-4 sm:p-5 text-center hover:border-gold/40 transition-colors group">
-              <div className="text-2xl mb-2">♡</div>
-              <div className="text-sm font-medium group-hover:text-gold transition-colors">Wishlist</div>
+          <div className="border-t border-line pt-5 grid grid-cols-2 gap-3">
+            <Link href="/wishlist" className="card p-4 text-center hover:border-gold transition-colors">
+              <div className="text-xl mb-1">♡</div>
+              <div className="text-xs font-medium">My Wishlist</div>
             </Link>
-            <Link href="/cart" className="card p-4 sm:p-5 text-center hover:border-gold/40 transition-colors group">
-              <div className="text-2xl mb-2">🛒</div>
-              <div className="text-sm font-medium group-hover:text-gold transition-colors">Cart</div>
+            <Link href="/cart" className="card p-4 text-center hover:border-gold transition-colors">
+              <div className="text-xl mb-1">🛒</div>
+              <div className="text-xs font-medium">My Cart</div>
             </Link>
           </div>
         </div>
       )}
 
-      {/* Orders Tab */}
-      {activeTab === "orders" && (
+      {/* TAB: Orders */}
+      {tab === "orders" && (
         <div className="space-y-4">
           {orders.length === 0 ? (
-            <div className="card p-8 sm:p-12 text-center">
+            <div className="card p-10 text-center">
               <div className="text-5xl mb-4">📦</div>
-              <h2 className="font-semibold text-lg mb-2">No Orders Yet</h2>
-              <p className="text-ink-muted text-sm mb-6 max-w-sm mx-auto">
-                When you contact us via WhatsApp about a product, your inquiry will appear here.
-              </p>
-              <Link href="/" className="inline-flex items-center gap-2 bg-gold hover:bg-gold-bright text-bg font-semibold px-6 py-3 rounded-lg transition-colors text-sm">
-                Browse Watches
-              </Link>
+              <h3 className="text-lg font-semibold mb-2">No Orders Yet</h3>
+              <p className="text-sm text-ink-muted mb-6">When you contact us via WhatsApp about a product, your inquiry will appear here.</p>
+              <Link href="/" className="btn-gold inline-flex">Browse Watches</Link>
             </div>
           ) : (
             orders.map((order) => (
-              <div key={order.id} className="card p-4 sm:p-5">
-                <div className="flex gap-4">
-                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 overflow-hidden rounded-lg border border-line">
-                    <Image src={order.productImage} alt="" fill sizes="80px" className="object-cover" />
+              <div key={order.id} className="card p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <span className="text-xs text-ink-muted">Order #{order.id.slice(-6).toUpperCase()}</span>
+                    <span className="mx-2 text-line">|</span>
+                    <span className="text-xs text-ink-muted">{new Date(order.date).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-sm font-medium truncate">{order.productName}</p>
-                        <p className="text-xs text-ink-muted mt-0.5">
-                          {new Date(order.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                        </p>
-                      </div>
-                      <span className="text-gold text-sm font-medium shrink-0">${order.productPrice.toLocaleString()}</span>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                    order.status === "completed" ? "bg-green-500/10 text-green-400" :
+                    order.status === "pending" ? "bg-gold/10 text-gold" :
+                    "bg-blue-500/10 text-blue-400"
+                  }`}>
+                    {order.status === "pending" ? "Inquiry Sent" : order.status === "confirmed" ? "Confirmed" : "Completed"}
+                  </span>
+                </div>
+                <div className="divide-y divide-line">
+                  {order.products.map((p, i) => (
+                    <div key={i} className="flex justify-between py-2 text-sm">
+                      <span className="text-ink-muted">{p.name} x {p.qty}</span>
+                      <span>${p.price.toLocaleString()}</span>
                     </div>
-                    <div className="mt-2">
-                      <span className={`inline-flex items-center text-[11px] px-2.5 py-1 rounded-full border font-medium ${STATUS_LABELS[order.status]?.color || ""}`}>
-                        {STATUS_LABELS[order.status]?.label || order.status}
-                      </span>
-                    </div>
-                  </div>
+                  ))}
+                </div>
+                <div className="flex justify-between mt-3 pt-3 border-t border-line text-sm font-medium">
+                  <span>Total</span>
+                  <span className="text-gold">${order.total.toLocaleString()}</span>
                 </div>
               </div>
             ))
           )}
-
-          <div className="card p-4 sm:p-5 bg-bg-elev/50">
-            <p className="text-xs text-ink-muted leading-relaxed">
-              <strong className="text-ink">How ordering works:</strong> Browse our collection, find a watch you love, and contact us via WhatsApp. We&apos;ll confirm availability, discuss payment options, and arrange express shipping to your door.
+          <div className="card p-5 bg-bg-elev">
+            <p className="text-sm">
+              <strong className="text-gold">How ordering works:</strong>{" "}
+              Browse our collection, find a watch you love, and contact us via WhatsApp. We&apos;ll confirm availability, discuss payment options, and arrange express shipping to your door.
             </p>
           </div>
         </div>
       )}
 
-      {/* Addresses Tab */}
-      {activeTab === "addresses" && (
+      {/* TAB: Addresses */}
+      {tab === "addresses" && (
         <div className="space-y-4">
-          {/* Existing addresses */}
           {addresses.map((addr) => (
-            <div key={addr.id} className="card p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium text-sm">{addr.label}</span>
-                    {addr.isDefault && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/20 font-medium">
-                        DEFAULT
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-ink-muted">{addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}</p>
-                  <p className="text-sm text-ink-muted">{addr.city}{addr.state ? `, ${addr.state}` : ""} {addr.zip}</p>
-                  <p className="text-sm text-ink-muted">{addr.country}</p>
-                </div>
-                <div className="flex flex-col gap-1.5 shrink-0">
-                  <button
-                    onClick={() => openAddressForm(addr)}
-                    className="text-xs text-gold hover:text-gold-bright transition-colors px-3 py-1.5 rounded-lg border border-gold/20"
-                  >
-                    Edit
-                  </button>
-                  {!addr.isDefault && (
-                    <button
-                      onClick={() => handleSetDefault(addr.id)}
-                      className="text-xs text-ink-muted hover:text-gold transition-colors px-3 py-1.5 rounded-lg border border-line"
-                    >
-                      Set Default
-                    </button>
+            <div key={addr.id} className={`card p-5 ${addr.isDefault ? "border-gold/40" : ""}`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  {addr.isDefault && (
+                    <span className="text-[10px] bg-gold/10 text-gold px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider mb-2 inline-block">Default</span>
                   )}
-                  <button
-                    onClick={() => handleDeleteAddress(addr.id)}
-                    className="text-xs text-ink-dim hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg border border-line hover:border-red-400/30"
-                  >
-                    Delete
-                  </button>
+                  {addr.label && <p className="text-sm font-medium mb-1">{addr.label}</p>}
+                  <p className="text-sm">{addr.fullName}</p>
+                  <p className="text-sm text-ink-muted">{addr.phone}</p>
+                  <p className="text-sm text-ink-muted mt-1">
+                    {addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}<br />
+                    {addr.city}{addr.state ? `, ${addr.state}` : ""} {addr.zip}<br />
+                    {addr.country}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  {!addr.isDefault && (
+                    <button onClick={() => handleSetDefault(addr.id)} className="text-[11px] text-ink-muted hover:text-gold transition-colors">Set Default</button>
+                  )}
+                  <button onClick={() => { setEditingAddr(addr); setShowAddrForm(true); }} className="text-[11px] text-gold hover:text-gold-bright transition-colors">Edit</button>
+                  <button onClick={() => handleDeleteAddress(addr.id)} className="text-[11px] text-ink-muted hover:text-red-400 transition-colors">Delete</button>
                 </div>
               </div>
             </div>
           ))}
 
-          {/* Add address button */}
-          {!showAddressForm && (
+          {!showAddrForm && (
             <button
-              onClick={() => openAddressForm()}
-              className="card p-4 sm:p-5 w-full text-center border-dashed hover:border-gold/40 transition-colors group"
+              onClick={() => { setEditingAddr(null); setShowAddrForm(true); }}
+              className="card p-5 w-full text-center border-dashed hover:border-gold transition-colors group"
             >
-              <span className="text-2xl block mb-1">+</span>
-              <span className="text-sm font-medium text-ink-muted group-hover:text-gold transition-colors">
-                Add New Address
-              </span>
+              <span className="text-2xl text-ink-muted group-hover:text-gold transition-colors">+</span>
+              <p className="text-sm text-ink-muted group-hover:text-gold mt-1">Add New Address</p>
             </button>
           )}
 
-          {/* Address form */}
-          {showAddressForm && (
-            <div className="card p-4 sm:p-6 space-y-4">
-              <h3 className="font-semibold text-sm">
-                {editingAddress ? "Edit Address" : "New Address"}
-              </h3>
-
-              <div>
-                <label className={labelCls}>Label</label>
-                <input
-                  value={addrLabel}
-                  onChange={(e) => setAddrLabel(e.target.value)}
-                  placeholder="e.g. Home, Office, Dubai Villa"
-                  className={inputCls}
-                />
-              </div>
-
-              <div>
-                <label className={labelCls}>Address Line 1 *</label>
-                <input
-                  value={addrLine1}
-                  onChange={(e) => setAddrLine1(e.target.value)}
-                  placeholder="Street address"
-                  className={inputCls}
-                  autoComplete="address-line1"
-                />
-              </div>
-
-              <div>
-                <label className={labelCls}>Address Line 2</label>
-                <input
-                  value={addrLine2}
-                  onChange={(e) => setAddrLine2(e.target.value)}
-                  placeholder="Apartment, suite, etc."
-                  className={inputCls}
-                  autoComplete="address-line2"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>City *</label>
-                  <input value={addrCity} onChange={(e) => setAddrCity(e.target.value)} className={inputCls} autoComplete="address-level2" />
-                </div>
-                <div>
-                  <label className={labelCls}>State / Province</label>
-                  <input value={addrState} onChange={(e) => setAddrState(e.target.value)} className={inputCls} autoComplete="address-level1" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>ZIP / Postal Code</label>
-                  <input value={addrZip} onChange={(e) => setAddrZip(e.target.value)} className={inputCls} autoComplete="postal-code" inputMode="numeric" />
-                </div>
-                <div>
-                  <label className={labelCls}>Country *</label>
-                  <input value={addrCountry} onChange={(e) => setAddrCountry(e.target.value)} placeholder="e.g. Turkey" className={inputCls} autoComplete="country-name" />
-                </div>
-              </div>
-
-              <label className="flex items-center gap-3 cursor-pointer py-1">
-                <input
-                  type="checkbox"
-                  checked={addrDefault}
-                  onChange={(e) => setAddrDefault(e.target.checked)}
-                  className="w-5 h-5 rounded border-line accent-gold"
-                />
-                <span className="text-sm text-ink-muted">Set as default shipping address</span>
-              </label>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={handleSaveAddress}
-                  disabled={!addrLine1 || !addrCity || !addrCountry}
-                  className="bg-gold hover:bg-gold-bright text-bg font-semibold px-6 py-2.5 rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {editingAddress ? "Update Address" : "Save Address"}
-                </button>
-                <button
-                  onClick={resetAddressForm}
-                  className="text-ink-muted hover:text-ink px-4 py-2.5 rounded-lg transition-colors text-sm border border-line"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          {addresses.length === 0 && !showAddressForm && (
-            <div className="card p-8 sm:p-12 text-center">
-              <div className="text-5xl mb-4">📍</div>
-              <h2 className="font-semibold text-lg mb-2">No Addresses Yet</h2>
-              <p className="text-ink-muted text-sm max-w-sm mx-auto">
-                Add your shipping addresses to make checkout faster.
-              </p>
-            </div>
+          {showAddrForm && (
+            <AddressForm
+              initial={editingAddr}
+              onSave={handleSaveAddress}
+              onCancel={() => { setShowAddrForm(false); setEditingAddr(null); }}
+            />
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function AddressForm({ initial, onSave, onCancel }: { initial: SavedAddress | null; onSave: (a: SavedAddress) => void; onCancel: () => void }) {
+  const [form, setForm] = useState<SavedAddress>(
+    initial || { id: `addr_${Date.now().toString(36)}`, label: "", fullName: "", phone: "", line1: "", line2: "", city: "", state: "", zip: "", country: "", isDefault: false }
+  );
+  const inputCls = "w-full bg-bg border border-line rounded-lg px-4 py-3 text-sm focus:border-gold focus:outline-none transition-colors placeholder:text-ink-dim";
+
+  return (
+    <div className="card p-5 space-y-4">
+      <h3 className="text-gold text-sm font-semibold tracking-wider uppercase">{initial ? "Edit Address" : "New Address"}</h3>
+      <div>
+        <label className="block text-xs text-ink-muted mb-1.5 font-medium">Label (e.g. Home, Office)</label>
+        <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Home" className={inputCls} />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="col-span-2 sm:col-span-1">
+          <label className="block text-xs text-ink-muted mb-1.5 font-medium">Full Name *</label>
+          <input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className={inputCls} required />
+        </div>
+        <div className="col-span-2 sm:col-span-1">
+          <label className="block text-xs text-ink-muted mb-1.5 font-medium">Phone *</label>
+          <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+1 234 567 8900" className={inputCls} required />
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs text-ink-muted mb-1.5 font-medium">Address *</label>
+        <input value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} placeholder="123 Main Street" className={inputCls} required />
+      </div>
+      <div>
+        <label className="block text-xs text-ink-muted mb-1.5 font-medium">Address Line 2</label>
+        <input value={form.line2 || ""} onChange={(e) => setForm({ ...form, line2: e.target.value })} placeholder="Apt, Floor (optional)" className={inputCls} />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs text-ink-muted mb-1.5 font-medium">City *</label>
+          <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} required />
+        </div>
+        <div>
+          <label className="block text-xs text-ink-muted mb-1.5 font-medium">State / Province</label>
+          <input value={form.state || ""} onChange={(e) => setForm({ ...form, state: e.target.value })} className={inputCls} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs text-ink-muted mb-1.5 font-medium">Postal Code</label>
+          <input value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-xs text-ink-muted mb-1.5 font-medium">Country *</label>
+          <input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} placeholder="United States" className={inputCls} required />
+        </div>
+      </div>
+      <label className="flex items-center gap-2">
+        <input type="checkbox" checked={form.isDefault || false} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} className="accent-gold w-4 h-4" />
+        <span className="text-sm">Set as default address</span>
+      </label>
+      <div className="flex gap-3 pt-2">
+        <button type="button" onClick={() => { if (!form.fullName || !form.line1 || !form.city || !form.country) return; onSave(form); }} className="btn-gold text-sm px-6">
+          {initial ? "Update" : "Save Address"}
+        </button>
+        <button type="button" onClick={onCancel} className="text-sm text-ink-muted hover:text-ink">Cancel</button>
+      </div>
     </div>
   );
 }
