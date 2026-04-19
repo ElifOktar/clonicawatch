@@ -165,4 +165,3 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
     </>
   );
 }
-Displaying Header_tsx.txt.
