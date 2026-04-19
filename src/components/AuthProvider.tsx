@@ -34,7 +34,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<{ ok: boolean; error?: string }>;
-  signIn: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ ok: boolean; error?: string }>;
   signOut: () => void;
   updateProfile: (updates: Partial<User>) => void;
   error: string;
@@ -56,6 +56,7 @@ export function useAuth() {
 
 const STORAGE_KEY = "clonica_users";
 const SESSION_KEY = "clonica_session";
+const PERSIST_KEY = "clonica_persist"; // localStorage-based "remember me"
 
 function getUsers(): Record<string, { user: User; passwordHash: string }> {
   try {
@@ -80,14 +81,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Restore session
+  // Restore session — check both sessionStorage and localStorage (remember me)
   useEffect(() => {
     try {
-      const sessionEmail = sessionStorage.getItem(SESSION_KEY);
+      const sessionEmail = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(PERSIST_KEY);
       if (sessionEmail) {
         const users = getUsers();
         if (users[sessionEmail]) {
           setUser(users[sessionEmail].user);
+          // Keep session active
+          sessionStorage.setItem(SESSION_KEY, sessionEmail);
         }
       }
     } catch {}
@@ -131,11 +134,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
     sessionStorage.setItem(SESSION_KEY, normalEmail);
+    localStorage.setItem(PERSIST_KEY, normalEmail); // new users auto-remembered
     setUser(newUser);
     return { ok: true };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
+  const signIn = useCallback(async (email: string, password: string, rememberMe?: boolean): Promise<{ ok: boolean; error?: string }> => {
     setError("");
     const normalEmail = email.toLowerCase().trim();
 
@@ -155,12 +159,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     sessionStorage.setItem(SESSION_KEY, normalEmail);
+    if (rememberMe) {
+      localStorage.setItem(PERSIST_KEY, normalEmail);
+    } else {
+      localStorage.removeItem(PERSIST_KEY);
+    }
     setUser(record.user);
     return { ok: true };
   }, []);
 
   const signOut = useCallback(() => {
     sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(PERSIST_KEY);
     setUser(null);
   }, []);
 
