@@ -112,7 +112,7 @@ export function PromoSlider() {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      <div className="relative h-[320px] md:h-[420px] lg:h-[480px]">
+      <div className="relative h-[380px] md:h-[420px] lg:h-[480px]">
         {slides.map((slide, i) => (
           <div
             key={slide.id}
@@ -135,18 +135,18 @@ export function PromoSlider() {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center max-w-2xl px-6">
                     {/* Diamond icon */}
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-gold/30 bg-gold/5 mb-6">
-                      <svg className="w-7 h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full border border-gold/30 bg-gold/5 mb-3 md:mb-6">
+                      <svg className="w-5 h-5 md:w-7 md:h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                       </svg>
                     </div>
-                    <p className="text-gold text-xs tracking-[0.3em] uppercase mb-4 font-medium">
+                    <p className="text-gold text-xs tracking-[0.3em] uppercase mb-2 md:mb-4 font-medium">
                       Special Request
                     </p>
-                    <h2 className="font-serif text-3xl md:text-5xl text-ink tracking-tight leading-tight mb-4">
+                    <h2 className="font-serif text-2xl md:text-5xl text-ink tracking-tight leading-tight mb-2 md:mb-4">
                       {slide.title}
                     </h2>
-                    <p className="text-ink-muted text-base md:text-lg mb-8 max-w-md mx-auto leading-relaxed">
+                    <p className="text-ink-muted text-sm md:text-lg mb-5 md:mb-8 max-w-md mx-auto leading-relaxed">
                       {slide.subtitle}
                     </p>
                     {slide.link && slide.ctaButton && (
@@ -167,6 +167,8 @@ export function PromoSlider() {
                         {slide.ctaButton}
                       </a>
                     )}
+                    {/* Spacer for dots */}
+                    <div className="h-6 md:h-0" />
                   </div>
                 </div>
               </>
