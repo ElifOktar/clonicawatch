@@ -1,6 +1,18 @@
 "use client";
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 
+export interface Address {
+  id: string;
+  label: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state?: string;
+  zip: string;
+  country: string;
+  isDefault?: boolean;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -14,14 +26,15 @@ export interface User {
     zip: string;
     country: string;
   };
+  addresses?: Address[];
   createdAt: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  signUp: (email: string, password: string, name: string) => Promise<boolean>;
-  signIn: (email: string, password: string) => Promise<boolean>;
+  signUp: (email: string, password: string, name: string) => Promise<{ ok: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   signOut: () => void;
   updateProfile: (updates: Partial<User>) => void;
   error: string;
@@ -30,8 +43,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
-  signUp: async () => false,
-  signIn: async () => false,
+  signUp: async () => ({ ok: false }),
+  signIn: async () => ({ ok: false }),
   signOut: () => {},
   updateProfile: () => {},
   error: "",
@@ -81,23 +94,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, name: string): Promise<boolean> => {
+  const signUp = useCallback(async (email: string, password: string, name: string): Promise<{ ok: boolean; error?: string }> => {
     setError("");
     const normalEmail = email.toLowerCase().trim();
 
     if (!normalEmail || !password || !name.trim()) {
-      setError("Please fill in all fields");
-      return false;
+      const msg = "Please fill in all fields";
+      setError(msg);
+      return { ok: false, error: msg };
     }
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return false;
+      const msg = "Password must be at least 6 characters";
+      setError(msg);
+      return { ok: false, error: msg };
     }
 
     const users = getUsers();
     if (users[normalEmail]) {
-      setError("An account with this email already exists");
-      return false;
+      const msg = "An account with this email already exists";
+      setError(msg);
+      return { ok: false, error: msg };
     }
 
     const newUser: User = {
@@ -105,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: normalEmail,
       name: name.trim(),
       createdAt: new Date().toISOString(),
+      addresses: [],
     };
 
     users[normalEmail] = {
@@ -115,10 +132,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
     sessionStorage.setItem(SESSION_KEY, normalEmail);
     setUser(newUser);
-    return true;
+    return { ok: true };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
+  const signIn = useCallback(async (email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
     setError("");
     const normalEmail = email.toLowerCase().trim();
 
@@ -126,18 +143,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const record = users[normalEmail];
 
     if (!record) {
-      setError("No account found with this email");
-      return false;
+      const msg = "No account found with this email. Please sign up first.";
+      setError(msg);
+      return { ok: false, error: msg };
     }
 
     if (record.passwordHash !== simpleHash(password)) {
-      setError("Incorrect password");
-      return false;
+      const msg = "Incorrect password. Please try again.";
+      setError(msg);
+      return { ok: false, error: msg };
     }
 
     sessionStorage.setItem(SESSION_KEY, normalEmail);
     setUser(record.user);
-    return true;
+    return { ok: true };
   }, []);
 
   const signOut = useCallback(() => {
