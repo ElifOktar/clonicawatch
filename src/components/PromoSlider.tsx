@@ -132,7 +132,7 @@ export function PromoSlider() {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gold/5 blur-[120px]" />
                 </div>
 
-                <div className="absolute inset-0 flex items-center justify-center pb-10 md:pb-0">
+                <div className="absolute inset-0 flex items-start md:items-center justify-center pt-6 md:pt-0">
                   <div className="text-center max-w-2xl px-6">
                     {/* Diamond icon */}
                     <div className="inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 rounded-full border border-gold/30 bg-gold/5 mb-2 md:mb-6">
