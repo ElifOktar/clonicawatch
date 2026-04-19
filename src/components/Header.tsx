@@ -1,3 +1,11 @@
+
+Header_tsx.txt
+
+Page
+1
+/
+1
+100%
 "use client";
 
 import Link from "next/link";
@@ -52,19 +60,15 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
             </svg>
           </button>
 
-          <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+          <Link href="/" className="flex items-center group flex-shrink-0">
             <Image
-              src="/images/clonica-icon.png"
-              alt="Clonica"
-              width={205}
-              height={143}
+              src="/images/clonica-logo-horizontal.png"
+              alt="Clonica — Luxury Watches"
+              width={600}
+              height={108}
               priority
-              className="h-10 md:h-12 w-auto object-contain"
+              className="h-10 md:h-14 w-auto object-contain"
             />
-            <div className="hidden sm:flex flex-col items-start justify-center leading-none">
-              <span className="text-gold font-light tracking-[0.25em] text-lg md:text-xl">CLONICA</span>
-              <span className="text-gold/60 text-[8px] md:text-[9px] tracking-[0.2em] mt-0.5">LUXURY WATCHES</span>
-            </div>
           </Link>
 
           <nav className="hidden md:flex items-center gap-7 text-sm flex-1 justify-center">
@@ -161,3 +165,4 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
     </>
   );
 }
+Displaying Header_tsx.txt.
