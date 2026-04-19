@@ -1,3 +1,11 @@
+
+Header.txt
+
+Page
+1
+/
+1
+100%
 "use client";
 
 import Link from "next/link";
@@ -60,10 +68,10 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
             <Image
               src="/images/clonica-logo-horizontal.png"
               alt="Clonica Luxury Watches"
-              width={180}
-              height={45}
+              width={240}
+              height={75}
               priority
-              className="h-10 md:h-11 w-auto object-contain"
+              className="h-12 sm:h-14 md:h-16 w-auto object-contain"
             />
           </Link>
 
@@ -161,3 +169,4 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
     </>
   );
 }
+Displaying Header.txt.
