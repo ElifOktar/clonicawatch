@@ -16,6 +16,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [displayError, setDisplayError] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [showReset, setShowReset] = useState(false);
   const [resetDone, setResetDone] = useState(false);
 
@@ -27,7 +28,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
     setDisplayError("");
 
     const result = tab === "signin"
-      ? await signIn(email, password)
+      ? await signIn(email, password, rememberMe)
       : await signUp(email, password, name);
 
     setLoading(false);
@@ -180,6 +181,18 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
                 autoComplete={tab === "signin" ? "current-password" : "new-password"}
               />
             </div>
+          )}
+
+          {tab === "signin" && !showReset && (
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-line accent-gold"
+              />
+              <span className="text-sm text-ink-muted">Remember me</span>
+            </label>
           )}
 
           {showReset ? (
