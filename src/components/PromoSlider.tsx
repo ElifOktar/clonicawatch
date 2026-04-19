@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 
 export interface PromoSlide {
@@ -49,6 +49,9 @@ export function PromoSlider() {
   const [slides, setSlides] = useState<PromoSlide[]>(DEFAULT_SLIDES);
   const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const isSwiping = useRef(false);
 
   // Load custom promo slides from localStorage if admin uploaded them
   useEffect(() => {
@@ -76,13 +79,38 @@ export function PromoSlider() {
     return () => clearInterval(timer);
   }, [next, isHovered]);
 
+  // Touch swipe handlers
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    isSwiping.current = true;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    if (!isSwiping.current) return;
+    isSwiping.current = false;
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50; // minimum swipe distance
+    if (diff > threshold) {
+      next(); // swipe left → next slide
+    } else if (diff < -threshold) {
+      prev(); // swipe right → previous slide
+    }
+  }, [next, prev]);
+
   if (slides.length === 0) return null;
 
   return (
     <section
-      className="relative w-full overflow-hidden bg-bg"
+      className="relative w-full overflow-hidden bg-bg touch-pan-y"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       <div className="relative h-[320px] md:h-[420px] lg:h-[480px]">
         {slides.map((slide, i) => (
