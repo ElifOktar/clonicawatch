@@ -25,7 +25,12 @@ function SvgIcon({ d }: { d: string }) {
   );
 }
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const { logout } = useAdminAuth();
   const [pendingCount, setPendingCount] = useState(0);
@@ -38,61 +43,95 @@ export default function AdminSidebar() {
     } catch {}
   }, []);
 
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    onClose();
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <aside className="w-60 bg-bg-elev border-r border-line min-h-screen flex flex-col">
-      {/* Logo */}
-      <div className="p-5 border-b border-line">
-        <Link href="/" className="text-gold text-xl font-bold tracking-widest">
-          CLONICA
-        </Link>
-        <div className="text-ink-dim text-[10px] tracking-[0.2em] mt-0.5">ADMIN PANEL</div>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      {/* Nav */}
-      <nav className="flex-1 py-4 space-y-1 px-3">
-        {NAV.map((item) => {
-          const active = item.href === "/admin"
-            ? pathname === "/admin"
-            : pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors relative ${
-                active
-                  ? "bg-gold/10 text-gold"
-                  : "text-ink-muted hover:text-ink hover:bg-bg-soft"
-              }`}
-            >
-              <SvgIcon d={item.icon} />
-              {item.label}
-              {item.href === "/admin/reviews" && pendingCount > 0 && (
-                <span className="ml-auto inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-gold text-bg rounded-full">
-                  {pendingCount}
-                </span>
-              )}
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 z-50 h-full w-64 bg-bg-elev border-r border-line flex flex-col
+          transform transition-transform duration-300 ease-in-out
+          lg:relative lg:translate-x-0 lg:z-auto
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        {/* Logo + close button */}
+        <div className="p-4 border-b border-line flex items-center justify-between">
+          <div>
+            <Link href="/" className="text-gold text-lg font-bold tracking-widest">
+              CLONICA
             </Link>
-          );
-        })}
-      </nav>
+            <div className="text-ink-dim text-[10px] tracking-[0.2em] mt-0.5">ADMIN PANEL</div>
+          </div>
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 text-ink-muted hover:text-gold transition-colors rounded-lg hover:bg-bg-soft"
+            aria-label="Menuyu kapat"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-line space-y-2">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs text-ink-dim hover:text-gold transition-colors"
-        >
-          <SvgIcon d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          Siteyi Gor
-        </Link>
-        <button
-          onClick={logout}
-          className="flex items-center gap-2 text-xs text-ink-dim hover:text-red-400 transition-colors"
-        >
-          <SvgIcon d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          Cikis Yap
-        </button>
-      </div>
-    </aside>
+        {/* Nav */}
+        <nav className="flex-1 py-3 space-y-0.5 px-2 overflow-y-auto">
+          {NAV.map((item) => {
+            const active = item.href === "/admin"
+              ? pathname === "/admin"
+              : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors relative ${
+                  active
+                    ? "bg-gold/10 text-gold"
+                    : "text-ink-muted hover:text-ink hover:bg-bg-soft active:bg-bg-soft"
+                }`}
+              >
+                <SvgIcon d={item.icon} />
+                {item.label}
+                {item.href === "/admin/reviews" && pendingCount > 0 && (
+                  <span className="ml-auto inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-gold text-bg rounded-full">
+                    {pendingCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-3 border-t border-line space-y-1">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-xs text-ink-dim hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-bg-soft"
+          >
+            <SvgIcon d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            Siteyi Gor
+          </Link>
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 text-xs text-ink-dim hover:text-red-400 transition-colors w-full px-3 py-2 rounded-lg hover:bg-bg-soft"
+          >
+            <SvgIcon d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            Cikis Yap
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
