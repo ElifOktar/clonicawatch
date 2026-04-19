@@ -1,11 +1,3 @@
-
-Header.txt
-
-Page
-1
-/
-1
-100%
 "use client";
 
 import Link from "next/link";
@@ -169,4 +161,3 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
     </>
   );
 }
-Displaying Header.txt.
