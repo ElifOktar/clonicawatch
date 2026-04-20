@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Product } from "@/types/product";
 import { ProductGrid } from "@/components/ProductGrid";
 import { CATALOG_BRANDS, LADIES_BRANDS } from "@/lib/catalog";
@@ -18,6 +19,8 @@ const PRICE_RANGES: Array<[string, number, number]> = [
 ];
 
 export function FilteredProductList({ products }: { products: Product[] }) {
+  const searchParams = useSearchParams();
+
   const [filters, setFilters] = useState<Filters>({
     brands: new Set(),
     collections: new Set(),
@@ -25,6 +28,27 @@ export function FilteredProductList({ products }: { products: Product[] }) {
   });
   const [showFilters, setShowFilters] = useState(false);
   const [expandedBrand, setExpandedBrand] = useState<string | null>(null);
+
+  // Read collection from URL query parameter on mount and when URL changes
+  useEffect(() => {
+    const collectionSlug = searchParams.get("collection");
+    if (!collectionSlug) return;
+
+    // Find the matching collection name from catalog
+    const all = [...CATALOG_BRANDS, ...LADIES_BRANDS];
+    for (const brand of all) {
+      const match = brand.collections?.find((c) => c.slug === collectionSlug);
+      if (match) {
+        setFilters((prev) => ({
+          ...prev,
+          brands: new Set([brand.name]),
+          collections: new Set([match.name]),
+        }));
+        setExpandedBrand(brand.slug);
+        break;
+      }
+    }
+  }, [searchParams]);
 
   // Build available brands from products and match to catalog
   const availableBrands = useMemo(() => {
