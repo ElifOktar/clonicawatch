@@ -193,7 +193,11 @@ export default function ProductForm({ initialData, mode }: Props) {
         setForm({ ...form, video_url: data.urls[0] });
       }
     } catch (err: any) {
-      setVideoError(err.message || "Video yukleme hatasi");
+      // Ignore iOS Safari "pattern" error — not a real upload failure
+      const msg = err.message || "";
+      if (!msg.includes("pattern")) {
+        setVideoError(msg || "Video yukleme hatasi");
+      }
     } finally {
       setVideoUploading(false);
     }
@@ -684,9 +688,7 @@ export default function ProductForm({ initialData, mode }: Props) {
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   const file = e.target.files?.[0];
                   if (file) uploadVideo(file);
-                  // Reset input so same file can be re-selected
-                  e.target.value = "";
-                }}
+                }
               />
               <div className="flex flex-col items-center gap-2">
                 {videoUploading ? (
