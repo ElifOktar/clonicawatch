@@ -549,7 +549,7 @@ export default function ProductForm({ initialData, mode }: Props) {
                 ref={fileInputRef}
                 type="file"
                 multiple
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,.webp,.gif,.avif"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files?.length) uploadFiles(e.target.files);
@@ -681,7 +681,7 @@ export default function ProductForm({ initialData, mode }: Props) {
               <input
                 ref={videoInputRef}
                 type="file"
-                accept="video/*"
+                accept=".mp4,.mov,.webm,.avi"
                 className="hidden"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   if (e.target.files?.[0]) uploadVideo(e.target.files[0]);
