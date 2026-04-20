@@ -679,7 +679,6 @@ export default function ProductForm({ initialData, mode }: Props) {
               <input
                 ref={videoInputRef}
                 type="file"
-                accept="video/mp4,video/quicktime,video/webm,video/*"
                 className="hidden"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   if (e.target.files?.[0]) uploadVideo(e.target.files[0]);
