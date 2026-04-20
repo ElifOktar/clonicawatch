@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllProducts } from "@/lib/products";
@@ -88,7 +89,9 @@ export default async function LadiesPage() {
       </div>
 
       {/* All Ladies Products */}
-      <FilteredProductList products={allProducts} />
+      <Suspense fallback={<div className="text-ink-muted text-sm">Loading...</div>}>
+        <FilteredProductList products={allProducts} />
+      </Suspense>
     </div>
   );
 }
