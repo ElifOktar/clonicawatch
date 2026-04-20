@@ -97,17 +97,52 @@ export function ProductGallery({ images, videoUrl, modelName }: Props) {
             onClick={() => setZoomedIn(!zoomedIn)}
           />
         ))}
-        {/* Video — only mounts when selected */}
+        {/* Video — only mounts when selected, with watermark overlay */}
         {hasVideo && isVideoSelected && (
-          <video
-            src={videoUrl}
-            controls
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
-          />
+          <>
+            <video
+              src={videoUrl}
+              controls
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            {/* Diagonal repeating CLONICA watermark over video */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden select-none" style={{ zIndex: 1 }}>
+              <div
+                className="absolute"
+                style={{
+                  inset: "-100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "50px",
+                  transform: "rotate(-30deg)",
+                  transformOrigin: "center center",
+                }}
+              >
+                {Array.from({ length: 20 }).map((_, row) => (
+                  <div key={row} style={{ display: "flex", gap: "30px", whiteSpace: "nowrap" }}>
+                    {Array.from({ length: 12 }).map((_, col) => (
+                      <span
+                        key={col}
+                        style={{
+                          fontFamily: "Georgia, serif",
+                          fontSize: "18px",
+                          letterSpacing: "6px",
+                          color: "rgba(255,255,255,0.35)",
+                          flexShrink: 0,
+                        }}
+                      >
+                        CLONICA
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
         {/* Image counter badge */}
