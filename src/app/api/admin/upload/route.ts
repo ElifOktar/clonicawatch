@@ -71,8 +71,11 @@ export async function POST(req: NextRequest) {
 
     for (const file of files) {
       let buffer = Buffer.from(await file.arrayBuffer());
-      const isImage = file.type.startsWith("image/");
-      const isVideo = file.type.startsWith("video/");
+      const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
+      const videoExts = [".mp4", ".mov", ".webm", ".avi", ".mkv"];
+      const imageExts = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
+      const isImage = file.type.startsWith("image/") || imageExts.includes(ext);
+      const isVideo = file.type.startsWith("video/") || videoExts.includes(ext);
 
       // Apply watermark to images (not videos, not SVGs)
       if (isImage && !skipWatermark && !file.type.includes("svg")) {
