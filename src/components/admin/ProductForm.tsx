@@ -672,31 +672,21 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             </details>
 
-            <p className="text-[11px] text-ink-dim leading-relaxed">
-              Ilk gorsel <strong className="text-gold">ana gorsel</strong> olarak kullanilir. Ok tuslariyla sirayi degistirebilirsin.
-              Video secersen otomatik olarak video alanina eklenir.
-            </p>
-          </div>
-
-          {/* Video Status */}
-          <div className={sectionCls}>
-            <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Video</h2>
-
+            {/* Video info — shown inline when a video is uploaded */}
             {videoError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-lg">
                 {videoError}
               </div>
             )}
 
-            {/* Show current video */}
-            {form.video_url ? (
-              <div className="flex items-center gap-2 bg-bg rounded-lg p-3 border border-line">
+            {form.video_url && (
+              <div className="flex items-center gap-2 bg-bg rounded-lg p-3 border border-gold/30">
                 <svg className="w-5 h-5 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
                 </svg>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-ink truncate">{form.video_url.split("/").pop()}</div>
-                  <div className="text-[10px] text-ink-dim truncate">{form.video_url}</div>
+                  <div className="text-xs text-gold font-medium">Video yuklendi</div>
+                  <div className="text-[10px] text-ink-dim truncate">{form.video_url.split("/").pop()}</div>
                 </div>
                 <button
                   type="button"
@@ -706,30 +696,11 @@ export default function ProductForm({ initialData, mode }: Props) {
                   Kaldir
                 </button>
               </div>
-            ) : (
-              <p className="text-sm text-ink-muted">
-                Yukaridaki medya butonundan video da yukleyebilirsin.
-              </p>
             )}
 
-            {/* Optional: paste URL as fallback */}
-            <details className="text-xs">
-              <summary className="text-ink-muted cursor-pointer hover:text-gold transition-colors py-1">
-                Veya URL ile ekle
-              </summary>
-              <div className="mt-2">
-                <input
-                  value={form.video_url}
-                  onChange={set("video_url")}
-                  placeholder="https://... veya /videos/urun-video.mp4"
-                  className={inputCls}
-                />
-              </div>
-            </details>
-
             <p className="text-[11px] text-ink-dim leading-relaxed">
-              Video, urun sayfasinda fotograflardan sonra ayri bir sekmede gosterilir.
-              Bos birakirsan video sekmesi gorunmez.
+              Ilk gorsel <strong className="text-gold">ana gorsel</strong> olarak kullanilir. Ok tuslariyla sirayi degistirebilirsin.
+              Video secersen otomatik olarak eklenir.
             </p>
           </div>
         </div>
