@@ -118,7 +118,12 @@ export default function ProductForm({ initialData, mode }: Props) {
   };
 
   const uploadFiles = async (files: FileList | File[]) => {
-    const fileArray = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    // Check by extension too — mobile browsers sometimes leave file.type empty
+    const imgExts = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
+    const fileArray = Array.from(files).filter((f) => {
+      const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
+      return f.type.startsWith("image/") || imgExts.includes(ext);
+    });
     if (!fileArray.length) {
       setUploadError("Sadece gorsel dosyalari yuklenebilir");
       return;
@@ -153,7 +158,11 @@ export default function ProductForm({ initialData, mode }: Props) {
   };
 
   const uploadVideo = async (file: File) => {
-    if (!file.type.startsWith("video/")) {
+    // Check by extension too — mobile browsers sometimes leave file.type empty
+    const videoExts = [".mp4", ".mov", ".webm", ".avi"];
+    const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
+    const isVideo = file.type.startsWith("video/") || videoExts.includes(ext);
+    if (!isVideo) {
       setVideoError("Sadece video dosyalari yuklenebilir (MP4, MOV, WEBM)");
       return;
     }
@@ -282,19 +291,19 @@ export default function ProductForm({ initialData, mode }: Props) {
 
   const labelCls = "block text-xs text-ink-muted mb-1.5 font-medium";
   const inputCls = "w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm focus:border-gold focus:outline-none transition-colors";
-  const sectionCls = "bg-bg-elev border border-line rounded-xl p-5 space-y-4";
+  const sectionCls = "bg-bg-elev border border-line rounded-xl p-5 space-y-4 min-w-0 overflow-hidden";
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="w-full max-w-full overflow-hidden">
       {error && (
         <div className="mb-4 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
           {error}
         </div>
       )}
 
-      <div className="grid lg:grid-cols-[1fr,380px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-6 min-w-0 overflow-hidden">
         {/* Left Column — Main Form */}
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0">
           {/* Basic Info */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Temel Bilgiler</h2>
@@ -448,18 +457,7 @@ export default function ProductForm({ initialData, mode }: Props) {
         </div>
 
         {/* Right Column — Sidebar */}
-        <div className="space-y-6">
-          {/* Save Button */}
-          <div className={sectionCls}>
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full bg-gold hover:bg-gold-bright text-bg font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
-            >
-              {saving ? "Kaydediliyor..." : mode === "edit" ? "Guncelle" : "Urun Ekle"}
-            </button>
-          </div>
-
+        <div className="space-y-6 min-w-0">
           {/* Pricing */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Fiyat & Stok</h2>
@@ -570,8 +568,8 @@ export default function ProductForm({ initialData, mode }: Props) {
                     <div className="text-sm font-medium text-ink">
                       {dragOver ? "Birak, yukleyecegim!" : "Suruklayip birak veya tikla"}
                     </div>
-                    <div className="text-[11px] text-ink-dim">
-                      Birden fazla gorsel secebilirsin (JPG, PNG, WEBP)
+                    <div className="text-[11px] text-ink-dim break-words">
+                      Birden fazla gorsel secebilirsin
                     </div>
                   </>
                 )}
@@ -588,7 +586,7 @@ export default function ProductForm({ initialData, mode }: Props) {
             {imageUrls.length > 0 && (
               <div className="space-y-2">
                 {imageUrls.map((url, i) => (
-                  <div key={i} className="flex items-center gap-2 bg-bg rounded-lg p-2 border border-line">
+                  <div key={i} className="flex items-center gap-2 bg-bg rounded-lg p-2 border border-line min-w-0 overflow-hidden">
                     <div className="w-14 h-14 bg-bg-soft rounded overflow-hidden flex-shrink-0 relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -753,6 +751,17 @@ export default function ProductForm({ initialData, mode }: Props) {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Save Button — always at the bottom */}
+      <div className="mt-6">
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full bg-gold hover:bg-gold-bright text-bg font-semibold py-4 rounded-lg transition-colors disabled:opacity-50 text-lg"
+        >
+          {saving ? "Kaydediliyor..." : mode === "edit" ? "Guncelle" : "Urun Ekle"}
+        </button>
       </div>
     </form>
   );
