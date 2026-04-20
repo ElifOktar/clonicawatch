@@ -44,6 +44,18 @@ export const CATALOG_BRANDS: CatalogBrand[] = [
   { name: "Franck Muller", slug: "franck-muller" },
   { name: "Hublot", slug: "hublot" },
   { name: "IWC", slug: "iwc" },
+  {
+    name: "Omega",
+    slug: "omega",
+    collections: [
+      { name: "Seamaster", slug: "seamaster" },
+      { name: "Speedmaster", slug: "speedmaster" },
+      { name: "Constellation", slug: "constellation" },
+      { name: "De Ville", slug: "de-ville" },
+      { name: "Aqua Terra", slug: "aqua-terra" },
+      { name: "Planet Ocean", slug: "planet-ocean" },
+    ],
+  },
   { name: "Panerai", slug: "panerai" },
   {
     name: "Patek Philippe",
