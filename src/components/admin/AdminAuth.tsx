@@ -17,7 +17,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(AUTH_KEY);
+    const stored = localStorage.getItem(AUTH_KEY);
     if (stored === "1") setAuthed(true);
     setHydrated(true);
   }, []);
@@ -25,7 +25,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const login = (pin: string) => {
     if (pin === ADMIN_PIN) {
       setAuthed(true);
-      sessionStorage.setItem(AUTH_KEY, "1");
+      localStorage.setItem(AUTH_KEY, "1");
       return true;
     }
     return false;
@@ -33,7 +33,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setAuthed(false);
-    sessionStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_KEY);
   };
 
   if (!hydrated) {
