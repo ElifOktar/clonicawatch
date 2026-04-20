@@ -1,28 +1,63 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// Lazy initialization — prevents "supabaseUrl is required" error during Vercel build
-// Environment variables are only available at runtime, not build time
+// ──────────────────────────────────────────────
+// Build-safe Supabase clients
+// Environment variables are NOT available during Vercel build ("Collecting page data" phase).
+// All clients use lazy initialization to prevent build-time crashes.
+// ──────────────────────────────────────────────
+
+function getEnv() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return { url, anonKey };
+}
+
+// Returns true if Supabase env vars are available (runtime), false during build
+export function isSupabaseConfigured(): boolean {
+  const { url, anonKey } = getEnv();
+  return Boolean(url && anonKey);
+}
 
 let _publicClient: SupabaseClient | null = null;
 
-// Public client — read-only (RLS enforced)
-export function getPublicClient(): SupabaseClient {
-  if (!_publicClient) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) {
-      throw new Error("NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set");
-    }
-    _publicClient = createClient(url, key);
-  }
+// Public client — read-only (RLS enforced). Returns null if env vars missing (build time).
+export function getPublicClient(): SupabaseClient | null {
+  if (_publicClient) return _publicClient;
+  const { url, anonKey } = getEnv();
+  if (!url || !anonKey) return null;
+  _publicClient = createClient(url, anonKey);
   return _publicClient;
 }
 
-// Keep backward compat — some files import `supabase` directly
-// This getter delays creation until first use (runtime, not build time)
+// Backward compat: `import { supabase } from "@/lib/supabase"`
+// Proxy delays client creation until first property access (runtime).
+// During build, property access returns a dummy that makes queries return empty results.
 export const supabase = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
-    return (getPublicClient() as any)[prop];
+    const client = getPublicClient();
+    if (!client) {
+      // Build time — return a chainable dummy so queries resolve to empty arrays
+      // instead of throwing errors
+      if (prop === "from") {
+        return () => {
+          const chain: any = {
+            select: () => chain,
+            eq: () => chain,
+            neq: () => chain,
+            in: () => chain,
+            order: () => chain,
+            limit: () => chain,
+            single: () => Promise.resolve({ data: null, error: { message: "Supabase not configured (build time)" } }),
+            then: (resolve: any) => resolve({ data: [], error: null }),
+          };
+          // Make chain thenable for direct await
+          chain[Symbol.toStringTag] = "SupabaseBuildDummy";
+          return chain;
+        };
+      }
+      return undefined;
+    }
+    return (client as any)[prop];
   },
 });
 
