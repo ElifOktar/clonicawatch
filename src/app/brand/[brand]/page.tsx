@@ -7,6 +7,8 @@ import type { Brand } from "@/types/product";
 import { ALL_CATALOG_BRANDS, getCollections, isLadiesBrand } from "@/lib/catalog";
 import Link from "next/link";
 
+export const revalidate = 60; // ISR: revalidate every 60 seconds
+
 /**
  * Build a slug → Brand display-name map from the catalog.
  * Ladies brands that have a parentBrand resolve to the parent's Brand type
