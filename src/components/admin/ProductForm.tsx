@@ -147,7 +147,7 @@ export default function ProductForm({ initialData, mode }: Props) {
         ctx.translate(w / 2, h / 2);
         ctx.rotate(angle);
         ctx.font = `${fontSize}px Georgia, serif`;
-        ctx.fillStyle = "rgba(255,255,255,0.18)";
+        ctx.fillStyle = "rgba(255,255,255,0.35)";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
