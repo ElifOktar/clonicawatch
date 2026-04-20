@@ -1,6 +1,7 @@
 "use client";
 import { useState, FormEvent, useRef, DragEvent } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 const BRANDS = ["Rolex","Audemars Piguet","Patek Philippe","Omega","Hublot","Breitling","Cartier","TAG Heuer","Panerai","IWC","Richard Mille","Vacheron Constantin","Jaeger-LeCoultre","Tudor","Bell & Ross","Zenith","Chopard","Longines","Ulysse Nardin","Franck Muller","Piaget"];
 const QUALITY = ["Super Clone","1:1","AAA+","Top Quality"];
@@ -117,6 +118,12 @@ export default function ProductForm({ initialData, mode }: Props) {
     setImageUrls(next);
   };
 
+  const getFolder = () => {
+    if (initialData?.sku) return `products/${initialData.sku.toLowerCase()}`;
+    if (form.sku) return `products/${form.sku.toLowerCase()}`;
+    return `products/${(form.brand || "misc").toLowerCase()}-${Date.now()}`;
+  };
+
   const uploadFiles = async (files: FileList | File[]) => {
     const imgExts = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
     const imageFiles = Array.from(files).filter((f) => {
@@ -130,25 +137,28 @@ export default function ProductForm({ initialData, mode }: Props) {
     setUploading(true);
     setUploadError("");
     try {
-      const formData = new FormData();
-      for (const f of imageFiles) formData.append("files", f);
-      // Save to a product-specific folder when possible
-      const folder = initialData?.sku
-        ? `products/${initialData.sku.toLowerCase()}`
-        : form.sku
-          ? `products/${form.sku.toLowerCase()}`
-          : `products/${(form.brand || "misc").toLowerCase()}-${Date.now()}`;
-      formData.append("folder", folder);
+      const folder = getFolder();
+      const uploadedUrls: string[] = [];
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Yukleme basarisiz");
-      // Remove placeholder if it's the only image and we just added real ones
+      for (const file of imageFiles) {
+        const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
+        const filePath = `${folder}/${Date.now()}-${safeName}`;
+
+        const { data, error } = await supabase.storage
+          .from("product-images")
+          .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+        if (error) throw new Error(error.message);
+
+        const { data: urlData } = supabase.storage
+          .from("product-images")
+          .getPublicUrl(data.path);
+
+        uploadedUrls.push(urlData.publicUrl);
+      }
+
       const cleaned = imageUrls.filter((u) => !u.includes("placeholder"));
-      setImageUrls([...cleaned, ...(data.urls || [])]);
+      setImageUrls([...cleaned, ...uploadedUrls]);
     } catch (err: any) {
       setUploadError(err.message || "Yukleme hatasi");
     } finally {
@@ -157,7 +167,6 @@ export default function ProductForm({ initialData, mode }: Props) {
   };
 
   const uploadVideo = async (file: File) => {
-    // Check by extension too — mobile browsers sometimes leave file.type empty
     const videoExts = [".mp4", ".mov", ".webm", ".avi"];
     const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
     const isVideo = file.type.startsWith("video/") || videoExts.includes(ext);
@@ -172,25 +181,21 @@ export default function ProductForm({ initialData, mode }: Props) {
     setVideoUploading(true);
     setVideoError("");
     try {
-      const formData = new FormData();
-      formData.append("files", file);
-      const folder = initialData?.sku
-        ? `products/${initialData.sku.toLowerCase()}`
-        : form.sku
-          ? `products/${form.sku.toLowerCase()}`
-          : `products/${(form.brand || "misc").toLowerCase()}-${Date.now()}`;
-      formData.append("folder", folder);
-      formData.append("skipWatermark", "true");
+      const folder = getFolder();
+      const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
+      const filePath = `${folder}/${Date.now()}-${safeName}`;
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Video yukleme basarisiz");
-      if (data.urls?.[0]) {
-        setForm({ ...form, video_url: data.urls[0] });
-      }
+      const { data, error } = await supabase.storage
+        .from("product-images")
+        .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+      if (error) throw new Error(error.message);
+
+      const { data: urlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(data.path);
+
+      setForm({ ...form, video_url: urlData.publicUrl });
     } catch (err: any) {
       setVideoError(err.message || "Video yukleme hatasi");
     } finally {
