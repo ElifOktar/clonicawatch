@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase";
-import type { Product } from "@/types/product";
+
+// Prevent static pre-rendering — this route needs runtime env vars
+export const dynamic = "force-dynamic";
 
 // GET /api/admin/products — list all
 export async function GET() {
