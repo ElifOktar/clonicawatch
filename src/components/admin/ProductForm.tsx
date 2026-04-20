@@ -27,6 +27,7 @@ export default function ProductForm({ initialData, mode }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const [videoUploading, setVideoUploading] = useState(false);
   const [videoError, setVideoError] = useState("");
 
@@ -574,46 +575,7 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             </div>
 
-            {/* Video upload — separate input, no value reset, no capture */}
-            <label
-              htmlFor="video-gallery-input"
-              className={`block cursor-pointer rounded-xl border-2 border-dashed p-4 text-center transition-all ${
-                videoUploading
-                  ? "border-gold/50 bg-bg"
-                  : "border-line bg-bg hover:border-gold/60 hover:bg-gold/5"
-              }`}
-            >
-              <input
-                id="video-gallery-input"
-                type="file"
-                accept="video/*"
-                className="sr-only"
-                onChange={(e) => {
-                  try {
-                    const file = e.target.files?.[0];
-                    if (file) uploadVideo(file);
-                  } catch (_) { /* iOS Safari compat */ }
-                }}
-              />
-              <div className="flex items-center justify-center gap-3">
-                {videoUploading ? (
-                  <>
-                    <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-                    <span className="text-sm text-gold font-medium">Video yukleniyor...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-7 h-7 text-gold/70 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
-                    </svg>
-                    <div>
-                      <div className="text-sm font-medium text-ink">Video yukle</div>
-                      <div className="text-[11px] text-ink-dim">Galeriden veya dosyalardan sec</div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </label>
+            {/* Video — URL only (iOS Safari file input video bug workaround) */}
 
             {uploadError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-lg">
@@ -704,6 +666,17 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             )}
 
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files?.[0]) uploadVideo(e.target.files[0]);
+                try { if (videoInputRef.current) videoInputRef.current.value = ""; } catch (_) {}
+              }}
+            />
+
             {form.video_url ? (
               <div className="flex items-center gap-2 bg-bg rounded-lg p-3 border border-gold/30">
                 <svg className="w-5 h-5 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -722,18 +695,41 @@ export default function ProductForm({ initialData, mode }: Props) {
                 </button>
               </div>
             ) : (
-              <div className="bg-bg rounded-lg p-3 border border-line">
-                <div className="text-xs text-ink-muted mb-2">Video URL yapistir:</div>
-                <div className="flex gap-2">
-                  <input
-                    value={form.video_url}
-                    onChange={set("video_url")}
-                    placeholder="https://... video linki"
-                    className={`${inputCls} flex-1`}
-                  />
+              <div className="bg-bg rounded-lg p-3 border border-line space-y-3">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-gold/70 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+                  </svg>
+                  <div className="text-sm font-medium text-ink">Video Ekle</div>
                 </div>
-                <p className="text-[10px] text-ink-dim mt-1.5">
-                  Mobilden video yuklemek icin: videoyu Dosyalar uygulamasina kaydet, yukaridaki Video yukle butonuna bas, Dosyalar&apos;dan sec.
+                <button
+                  type="button"
+                  onClick={() => videoInputRef.current?.click()}
+                  disabled={videoUploading}
+                  className="w-full bg-gold/10 hover:bg-gold/20 border border-gold/30 text-gold font-medium py-3 rounded-lg transition-colors disabled:opacity-50 text-sm"
+                >
+                  {videoUploading ? "Video yukleniyor..." : "Bilgisayardan Video Sec"}
+                </button>
+                {videoUploading && (
+                  <div className="w-full bg-bg-soft rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-gold h-full rounded-full animate-pulse" style={{ width: "60%" }} />
+                  </div>
+                )}
+                <details className="text-xs">
+                  <summary className="text-ink-muted cursor-pointer hover:text-gold transition-colors py-1">
+                    Veya URL ile ekle
+                  </summary>
+                  <div className="mt-2 space-y-1">
+                    <input
+                      value={form.video_url}
+                      onChange={set("video_url")}
+                      placeholder="Video URL yapistir"
+                      className={inputCls}
+                    />
+                  </div>
+                </details>
+                <p className="text-[10px] text-ink-dim leading-relaxed">
+                  MP4, MOV, WEBM desteklenir (maks 100MB). Desktoptan yukle — iOS Safari&apos;de video secimi calismaz.
                 </p>
               </div>
             )}
