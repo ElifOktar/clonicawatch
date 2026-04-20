@@ -13,6 +13,7 @@ const BRANDS = [
   { name: "Breitling", slug: "breitling", logo: "/images/logos/brands/breitling.png", abbr: "BL" },
   { name: "Franck Muller", slug: "franck-muller", logo: "/images/logos/brands/franck-muller.png", abbr: "FM" },
   { name: "IWC", slug: "iwc", logo: "/images/logos/brands/iwc.png", abbr: "IWC" },
+  { name: "Omega", slug: "omega", logo: "/images/logos/brands/omega.png", abbr: "OM" },
   { name: "Panerai", slug: "panerai", logo: "/images/logos/brands/panerai.png", abbr: "PN" },
   { name: "Tudor", slug: "tudor", logo: "/images/logos/brands/tudor.png", abbr: "TD" },
   { name: "Vacheron Constantin", slug: "vacheron-constantin", logo: "/images/logos/brands/vacheron-constantin.png", abbr: "VC" },
