@@ -123,68 +123,58 @@ export default function ProductForm({ initialData, mode }: Props) {
   };
 
   const addWatermark = (file: File): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const img = new window.Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) { resolve(file); return; }
 
-        canvas.width = img.width;
-        canvas.height = img.height;
+        const w = img.width;
+        const h = img.height;
+        canvas.width = w;
+        canvas.height = h;
+
+        // Draw original image
         ctx.drawImage(img, 0, 0);
 
-        // Watermark sizing relative to image
-        const w = img.width;
-        const fontSize = Math.max(Math.round(w * 0.035), 14);
-        const padding = Math.round(fontSize * 0.8);
-        const circleR = Math.round(fontSize * 0.7);
-        const pillH = Math.round(fontSize * 2.2);
-        const pillW = Math.round(circleR * 2 + fontSize * 5.5);
-        const margin = Math.round(w * 0.03);
-        const x = w - pillW - margin;
-        const y = img.height - pillH - margin;
+        // Diagonal repeating CLONICA watermark across entire image
+        const fontSize = Math.max(Math.round(w * 0.04), 16);
+        const gap = Math.round(fontSize * 3.5);
+        const angle = -30 * (Math.PI / 180);
 
-        // Pill background
-        ctx.beginPath();
-        const r = pillH / 2;
-        ctx.moveTo(x + r, y);
-        ctx.lineTo(x + pillW - r, y);
-        ctx.arc(x + pillW - r, y + r, r, -Math.PI / 2, Math.PI / 2);
-        ctx.lineTo(x + r, y + pillH);
-        ctx.arc(x + r, y + r, r, Math.PI / 2, -Math.PI / 2);
-        ctx.closePath();
-        ctx.fillStyle = "rgba(0,0,0,0.4)";
-        ctx.fill();
-
-        // Circle with C
-        const cx = x + r;
-        const cy = y + pillH / 2;
-        ctx.beginPath();
-        ctx.arc(cx, cy, circleR, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(196,164,105,0.85)";
-        ctx.lineWidth = Math.max(1.5, w * 0.002);
-        ctx.stroke();
-
-        ctx.font = `bold ${Math.round(circleR * 1.1)}px Georgia, serif`;
-        ctx.fillStyle = "rgba(196,164,105,0.9)";
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate(angle);
+        ctx.font = `${fontSize}px Georgia, serif`;
+        ctx.fillStyle = "rgba(255,255,255,0.09)";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("C", cx, cy + 1);
 
-        // CLONICA text
-        ctx.font = `${fontSize}px Georgia, 'Times New Roman', serif`;
-        ctx.fillStyle = "rgba(255,255,255,0.8)";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
-        ctx.letterSpacing = `${fontSize * 0.15}px`;
-        ctx.fillText("CLONICA", x + circleR * 2 + padding * 0.8, y + pillH / 2 + 1);
+        // Cover area larger than image to account for rotation
+        const diagonal = Math.sqrt(w * w + h * h);
+        const startX = -diagonal;
+        const endX = diagonal;
+        const startY = -diagonal;
+        const endY = diagonal;
+        const text = "CLONICA";
+        const textW = ctx.measureText(text).width + fontSize * 2;
+
+        for (let y = startY; y < endY; y += gap) {
+          for (let x = startX; x < endX; x += textW) {
+            ctx.fillText(text, x, y);
+          }
+        }
+
+        ctx.restore();
 
         canvas.toBlob(
           (blob) => blob ? resolve(blob) : resolve(file),
           "image/jpeg",
           0.92
         );
+
+        URL.revokeObjectURL(img.src);
       };
       img.onerror = () => resolve(file);
       img.src = URL.createObjectURL(file);
