@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getAdminClient } from "@/lib/supabase";
+
+/** Revalidate all public pages that show product data */
+function revalidateProductPages() {
+  revalidatePath("/", "page");
+  revalidatePath("/ladies", "page");
+  revalidatePath("/new-arrivals", "page");
+  revalidatePath("/on-sale", "page");
+  revalidatePath("/brand/[brand]", "page");
+  revalidatePath("/product/[slug]", "page");
+  revalidatePath("/category/[category]", "page");
+}
 
 // Prevent static pre-rendering — this route needs runtime env vars
 export const dynamic = "force-dynamic";
@@ -52,6 +64,7 @@ export async function PUT(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
+    revalidateProductPages();
     return NextResponse.json({ success: true, product: data });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -74,6 +87,7 @@ export async function DELETE(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    revalidateProductPages();
     return NextResponse.json({ success: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
