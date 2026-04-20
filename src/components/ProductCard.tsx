@@ -36,7 +36,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         </div>
         <div className="p-4 md:p-4 flex flex-col min-h-[120px] md:min-h-auto">
           <p className="text-xs md:text-xs text-ink-dim tracking-widest uppercase">{p.brand}</p>
-          <h3 className="mt-1 text-sm md:text-sm font-medium line-clamp-2 min-h-[2.5rem] md:min-h-[2.5rem]">
+          <h3 className="mt-1 text-[11px] md:text-xs font-medium leading-snug">
             {p.model_name}
           </h3>
           <div className="mt-3 flex items-baseline gap-2 min-h-[44px] md:min-h-auto flex items-center">
