@@ -667,25 +667,28 @@ export default function ProductForm({ initialData, mode }: Props) {
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Video</h2>
 
-            {/* Video file upload */}
-            <div
-              onClick={() => videoInputRef.current?.click()}
-              className={`cursor-pointer rounded-xl border-2 border-dashed p-5 text-center transition-all ${
+            {/* Video file upload — uses <label> instead of onClick for iOS Safari compat */}
+            <label
+              htmlFor="video-upload-input"
+              className={`block cursor-pointer rounded-xl border-2 border-dashed p-5 text-center transition-all ${
                 videoUploading
                   ? "border-gold/50 bg-bg"
                   : "border-line bg-bg hover:border-gold/60 hover:bg-gold/5"
               }`}
             >
               <input
+                id="video-upload-input"
                 ref={videoInputRef}
                 type="file"
-                className="hidden"
+                className="sr-only"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  if (e.target.files?.[0]) uploadVideo(e.target.files[0]);
-                  if (videoInputRef.current) videoInputRef.current.value = "";
+                  const file = e.target.files?.[0];
+                  if (file) uploadVideo(file);
+                  // Reset input so same file can be re-selected
+                  e.target.value = "";
                 }}
               />
-              <div className="flex flex-col items-center gap-2 pointer-events-none">
+              <div className="flex flex-col items-center gap-2">
                 {videoUploading ? (
                   <>
                     <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
@@ -701,7 +704,7 @@ export default function ProductForm({ initialData, mode }: Props) {
                   </>
                 )}
               </div>
-            </div>
+            </label>
 
             {videoError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-lg">
