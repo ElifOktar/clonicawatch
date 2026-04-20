@@ -193,11 +193,7 @@ export default function ProductForm({ initialData, mode }: Props) {
         setForm({ ...form, video_url: data.urls[0] });
       }
     } catch (err: any) {
-      // Ignore iOS Safari "pattern" error — not a real upload failure
-      const msg = err.message || "";
-      if (!msg.includes("pattern")) {
-        setVideoError(msg || "Video yukleme hatasi");
-      }
+      setVideoError(err.message || "Video yukleme hatasi");
     } finally {
       setVideoUploading(false);
     }
