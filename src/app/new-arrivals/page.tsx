@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { getNewArrivals } from "@/lib/products";
 import { FilteredProductList } from "@/components/FilterSidebar";
@@ -28,7 +29,9 @@ export default async function NewArrivalsPage() {
         </p>
       </header>
 
-      <FilteredProductList products={products} />
+      <Suspense fallback={<div className="text-ink-muted text-sm">Loading...</div>}>
+        <FilteredProductList products={products} />
+      </Suspense>
     </div>
   );
 }
