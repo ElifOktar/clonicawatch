@@ -688,7 +688,7 @@ export default function ProductForm({ initialData, mode }: Props) {
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   const file = e.target.files?.[0];
                   if (file) uploadVideo(file);
-                }
+                }}
               />
               <div className="flex flex-col items-center gap-2">
                 {videoUploading ? (
