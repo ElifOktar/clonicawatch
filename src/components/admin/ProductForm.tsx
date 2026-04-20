@@ -44,8 +44,6 @@ export default function ProductForm({ initialData, mode }: Props) {
     crystal: "Sapphire",
     water_resistance: "",
     dial_color: "Black",
-    dial_markers: "",
-    bezel_type: "",
     bezel_color: "",
     strap_type: "Oyster",
     strap_color: "",
@@ -56,18 +54,13 @@ export default function ProductForm({ initialData, mode }: Props) {
     jewels: "",
     beat_rate_vph: "",
     price_usd: 1000,
-    original_price_usd: "",
     stock_status: "In Stock",
-    stock_count: 1,
     is_featured: true,
     is_new_arrival: true,
     is_on_sale: false,
     gender: "Men",
     style_tags: ["Diver", "Sport"],
-    short_description: "",
     long_description: "",
-    features: "",
-    package_contents: "Watch, Box, Warranty card, Adjustment tool",
     main_image: "/images/placeholder-watch.svg",
     video_url: "",
     ...initialData,
@@ -76,9 +69,6 @@ export default function ProductForm({ initialData, mode }: Props) {
   // Override computed fields from nested initialData
   if (initialData) {
     defaults.price_usd = initialData.price?.usd || 1000;
-    defaults.original_price_usd = initialData.original_price?.usd || "";
-    defaults.features = initialData.features_bullets?.join(", ") || "";
-    defaults.package_contents = initialData.package_contents?.join(", ") || "Watch, Box, Warranty card, Adjustment tool";
     defaults.style_tags = initialData.style_tags || ["Diver", "Sport"];
   }
 
@@ -300,8 +290,6 @@ export default function ProductForm({ initialData, mode }: Props) {
       crystal: form.crystal || "Sapphire",
       water_resistance: form.water_resistance || undefined,
       dial_color: form.dial_color,
-      dial_markers: form.dial_markers || undefined,
-      bezel_type: form.bezel_type || undefined,
       bezel_color: form.bezel_color || undefined,
       strap_type: form.strap_type,
       strap_color: form.strap_color || undefined,
@@ -312,18 +300,16 @@ export default function ProductForm({ initialData, mode }: Props) {
       jewels: form.jewels ? Number(form.jewels) : undefined,
       beat_rate_vph: form.beat_rate_vph ? Number(form.beat_rate_vph) : undefined,
       price: { usd: Number(form.price_usd) },
-      original_price: form.original_price_usd ? { usd: Number(form.original_price_usd) } : undefined,
       stock_status: form.stock_status,
-      stock_count: Number(form.stock_count),
       is_featured: form.is_featured,
       is_new_arrival: form.is_new_arrival,
       is_on_sale: form.is_on_sale,
       gender: form.gender,
       style_tags: form.style_tags,
-      short_description: form.short_description,
+      short_description: form.long_description?.substring(0, 160) || "",
       long_description: form.long_description,
-      features_bullets: form.features.split(",").map((s: string) => s.trim()).filter(Boolean),
-      package_contents: form.package_contents.split(",").map((s: string) => s.trim()).filter(Boolean),
+      features_bullets: [],
+      package_contents: ["Watch", "Box", "Warranty card", "Adjustment tool"],
       main_image: imageUrls[0] || "/images/placeholder-watch.svg",
       gallery_images: imageUrls.length ? imageUrls : ["/images/placeholder-watch.svg"],
       video_url: form.video_url || undefined,
@@ -424,16 +410,8 @@ export default function ProductForm({ initialData, mode }: Props) {
                 <input value={form.dial_color} onChange={set("dial_color")} placeholder="Black" className={inputCls} />
               </div>
               <div>
-                <label className={labelCls}>Kadran Isaretleri</label>
-                <input value={form.dial_markers} onChange={set("dial_markers")} placeholder="Applied indices" className={inputCls} />
-              </div>
-              <div>
                 <label className={labelCls}>Bezel Rengi</label>
                 <input value={form.bezel_color} onChange={set("bezel_color")} placeholder="Black Ceramic" className={inputCls} />
-              </div>
-              <div>
-                <label className={labelCls}>Bezel Tipi</label>
-                <input value={form.bezel_type} onChange={set("bezel_type")} placeholder="Unidirectional Dive" className={inputCls} />
               </div>
               <div>
                 <label className={labelCls}>Kordon</label>
@@ -475,22 +453,10 @@ export default function ProductForm({ initialData, mode }: Props) {
 
           {/* Descriptions */}
           <div className={sectionCls}>
-            <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Aciklamalar</h2>
-            <div>
-              <label className={labelCls}>Kisa Aciklama (kart uzerinde gorunur)</label>
-              <textarea value={form.short_description} onChange={set("short_description")} rows={2} placeholder="Clean Factory Super Clone — 1:1 replica..." className={inputCls} />
-            </div>
+            <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Aciklama</h2>
             <div>
               <label className={labelCls}>Detayli Aciklama (urun sayfasi, markdown destekli)</label>
               <textarea value={form.long_description} onChange={set("long_description")} rows={6} placeholder="## Clean Factory Super Clone&#10;&#10;Detayli aciklama..." className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Ozellikler (virgul ile ayirin)</label>
-              <textarea value={form.features} onChange={set("features")} rows={3} placeholder="Clean Factory production, Clone 3235 automatic, 904L steel..." className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Paket Icerigi (virgul ile ayirin)</label>
-              <input value={form.package_contents} onChange={set("package_contents")} placeholder="Watch, Box, Warranty card, Tool" className={inputCls} />
             </div>
           </div>
         </div>
@@ -505,18 +471,10 @@ export default function ProductForm({ initialData, mode }: Props) {
               <input type="number" value={form.price_usd} onChange={set("price_usd")} className={inputCls} required />
             </div>
             <div>
-              <label className={labelCls}>Orijinal Fiyat (indirim varsa)</label>
-              <input type="number" value={form.original_price_usd} onChange={set("original_price_usd")} placeholder="Bos birakin" className={inputCls} />
-            </div>
-            <div>
               <label className={labelCls}>Stok Durumu</label>
               <select value={form.stock_status} onChange={set("stock_status")} className={inputCls}>
                 {STOCK_STATUSES.map((s) => <option key={s}>{s}</option>)}
               </select>
-            </div>
-            <div>
-              <label className={labelCls}>Stok Sayisi</label>
-              <input type="number" value={form.stock_count} onChange={set("stock_count")} className={inputCls} />
             </div>
             <div>
               <label className={labelCls}>Cinsiyet</label>
