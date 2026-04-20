@@ -80,7 +80,25 @@ export function ProductGallery({ images, videoUrl, modelName }: Props) {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {isVideoSelected ? (
+        {/* Prerender ALL images so swipe transitions are instant */}
+        {images.map((img, i) => (
+          <Image
+            key={i}
+            src={img || "/images/placeholder-watch.svg"}
+            alt={`${modelName} — view ${i + 1}`}
+            fill
+            sizes="(max-width:768px) 100vw, 50vw"
+            className={`object-cover transition-transform duration-500 ${
+              selectedIndex === i && !isVideoSelected ? "opacity-100" : "opacity-0 pointer-events-none"
+            } ${
+              selectedIndex === i && zoomedIn ? "scale-150 cursor-zoom-out" : "scale-100 cursor-zoom-in"
+            }`}
+            priority={i < 3}
+            onClick={() => setZoomedIn(!zoomedIn)}
+          />
+        ))}
+        {/* Video — only mounts when selected */}
+        {hasVideo && isVideoSelected && (
           <video
             src={videoUrl}
             controls
@@ -89,18 +107,6 @@ export function ProductGallery({ images, videoUrl, modelName }: Props) {
             loop
             playsInline
             className="w-full h-full object-cover"
-          />
-        ) : (
-          <Image
-            src={images[selectedIndex] || "/images/placeholder-watch.svg"}
-            alt={`${modelName} — view ${selectedIndex + 1}`}
-            fill
-            sizes="(max-width:768px) 100vw, 50vw"
-            className={`object-cover transition-transform duration-500 ${
-              zoomedIn ? "scale-150 cursor-zoom-out" : "scale-100 cursor-zoom-in"
-            }`}
-            priority={selectedIndex === 0}
-            onClick={() => setZoomedIn(!zoomedIn)}
           />
         )}
 
