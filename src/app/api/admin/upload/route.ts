@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient, getStorageUrl } from "@/lib/supabase";
 import sharp from "sharp";
 
+// Prevent static pre-rendering — this route needs runtime env vars
+export const dynamic = "force-dynamic";
+
 // Watermark: CLONICA text + logo overlay, bottom-right corner, semi-transparent
 async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
   try {
