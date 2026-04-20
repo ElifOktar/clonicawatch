@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { getAdminClient, getStorageUrl } from "@/lib/supabase";
 import sharp from "sharp";
 
 // Watermark: CLONICA text + logo overlay, bottom-right corner, semi-transparent
@@ -15,17 +14,12 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
     const wmWidth = Math.max(Math.round(w * 0.25), 120); // 25% of image width, min 120px
     const fontSize = Math.max(Math.round(wmWidth * 0.18), 14);
     const logoSize = Math.max(Math.round(wmWidth * 0.22), 18);
-    const padding = Math.round(w * 0.03);
     const wmHeight = Math.round(fontSize * 2.5);
 
     // Create SVG watermark with logo circle + text
+    // NOTE: No url(#id) references — direct colors only (Next.js SSR compat)
     const svgWatermark = Buffer.from(`
       <svg width="${wmWidth}" height="${wmHeight}" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="1" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.5"/>
-          </filter>
-        </defs>
         <!-- Background pill -->
         <rect x="0" y="0" width="${wmWidth}" height="${wmHeight}" rx="${wmHeight / 2}" fill="rgba(0,0,0,0.35)"/>
         <!-- Logo circle with C -->
@@ -35,7 +29,7 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
         <!-- CLONICA text -->
         <text x="${wmHeight + 4}" y="${wmHeight / 2 + fontSize * 0.15}" dominant-baseline="middle"
               font-family="Georgia, 'Times New Roman', serif" font-size="${fontSize}" fill="rgba(255,255,255,0.75)"
-              letter-spacing="${fontSize * 0.2}" filter="url(#shadow)">CLONICA</text>
+              letter-spacing="${fontSize * 0.2}">CLONICA</text>
       </svg>
     `);
 
@@ -56,9 +50,10 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
   }
 }
 
-// POST /api/admin/upload — upload image(s) with automatic watermark
+// POST /api/admin/upload — upload image(s) to Supabase Storage with automatic watermark
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getAdminClient();
     const formData = await req.formData();
     const files = formData.getAll("files") as File[];
     const folder = (formData.get("folder") as string) || "products/misc";
@@ -68,10 +63,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No files provided" }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), "public/images", folder);
-    await fs.mkdir(uploadDir, { recursive: true });
-
     const uploaded: string[] = [];
+    const errors: string[] = [];
 
     for (const file of files) {
       let buffer = Buffer.from(await file.arrayBuffer());
@@ -87,21 +80,39 @@ export async function POST(req: NextRequest) {
         .toLowerCase()
         .replace(/[^a-z0-9._-]/g, "-");
 
-      // Videos go to a separate folder
-      if (isVideo) {
-        const videoDir = path.join(process.cwd(), "public/videos", folder);
-        await fs.mkdir(videoDir, { recursive: true });
-        const filePath = path.join(videoDir, safeName);
-        await fs.writeFile(filePath, buffer);
-        uploaded.push(`/videos/${folder}/${safeName}`);
-      } else {
-        const filePath = path.join(uploadDir, safeName);
-        await fs.writeFile(filePath, buffer);
-        uploaded.push(`/images/${folder}/${safeName}`);
+      // Videos go to a separate path prefix
+      const storagePath = isVideo
+        ? `videos/${folder}/${safeName}`
+        : `${folder}/${safeName}`;
+
+      const { error } = await supabase.storage
+        .from("product-images")
+        .upload(storagePath, buffer, {
+          contentType: file.type || (isVideo ? "video/mp4" : "image/jpeg"),
+          upsert: true, // overwrite if exists
+        });
+
+      if (error) {
+        console.error(`Upload error for ${safeName}:`, error.message);
+        errors.push(`${safeName}: ${error.message}`);
+        continue; // skip failed file, continue with others
       }
+
+      uploaded.push(getStorageUrl(storagePath));
     }
 
-    return NextResponse.json({ success: true, urls: uploaded });
+    if (!uploaded.length) {
+      return NextResponse.json(
+        { error: "All uploads failed", details: errors },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      urls: uploaded,
+      ...(errors.length ? { partialErrors: errors } : {}),
+    });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
