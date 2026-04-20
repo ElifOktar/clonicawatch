@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getAllProducts, getProductsByBrand } from "@/lib/products";
+import { getProductsByBrand } from "@/lib/products";
 import { FilteredProductList } from "@/components/FilterSidebar";
 import type { Brand } from "@/types/product";
 import { ALL_CATALOG_BRANDS, getCollections, isLadiesBrand } from "@/lib/catalog";
@@ -40,7 +40,7 @@ export function generateStaticParams() {
   return ALL_CATALOG_BRANDS.map((b) => ({ brand: b.slug }));
 }
 
-export function generateMetadata({ params }: { params: { brand: string } }): Metadata {
+export async function generateMetadata({ params }: { params: { brand: string } }): Promise<Metadata> {
   const entry = ALL_CATALOG_BRANDS.find((b) => b.slug === params.brand);
   if (!entry) return {};
   const isLadies = isLadiesBrand(params.brand);
@@ -53,7 +53,7 @@ export function generateMetadata({ params }: { params: { brand: string } }): Met
   return { title, description };
 }
 
-export default function BrandPage({ params }: { params: { brand: string } }) {
+export default async function BrandPage({ params }: { params: { brand: string } }) {
   const brandKey = BRAND_FROM_SLUG[params.brand];
   if (!brandKey) notFound();
 
@@ -64,7 +64,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
   const collections = getCollections(params.brand);
 
   // Get products — for ladies brands, filter by gender too
-  let products = getProductsByBrand(brandKey);
+  let products = await getProductsByBrand(brandKey);
   if (isLadies) {
     products = products.filter(
       (p) => p.gender === "Women" || p.gender === "Unisex"
