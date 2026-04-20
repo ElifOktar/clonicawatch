@@ -1,4 +1,5 @@
 {
+  "@supabase/supabase-js": "^2.49.1",
   "name": "hanic-watch",
   "version": "0.1.0",
   "private": true,
