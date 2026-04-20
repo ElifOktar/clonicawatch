@@ -1,5 +1,5 @@
 "use client";
-import { useState, FormEvent, useRef, DragEvent, ChangeEvent } from "react";
+import { useState, FormEvent, useRef, DragEvent } from "react";
 import { useRouter } from "next/navigation";
 
 const BRANDS = ["Rolex","Audemars Piguet","Patek Philippe","Omega","Hublot","Breitling","Cartier","TAG Heuer","Panerai","IWC","Richard Mille","Vacheron Constantin","Jaeger-LeCoultre","Tudor","Bell & Ross","Zenith","Chopard","Longines","Ulysse Nardin","Franck Muller","Piaget"];
@@ -27,7 +27,6 @@ export default function ProductForm({ initialData, mode }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
   const [videoUploading, setVideoUploading] = useState(false);
   const [videoError, setVideoError] = useState("");
 
@@ -118,21 +117,35 @@ export default function ProductForm({ initialData, mode }: Props) {
   };
 
   const uploadFiles = async (files: FileList | File[]) => {
-    // Check by extension too — mobile browsers sometimes leave file.type empty
+    // Split files into images and videos by extension + MIME (mobile may leave type empty)
     const imgExts = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
-    const fileArray = Array.from(files).filter((f) => {
+    const vidExts = [".mp4", ".mov", ".webm", ".avi", ".mkv"];
+    const imageFiles: File[] = [];
+    const videoFiles: File[] = [];
+    for (const f of Array.from(files)) {
       const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
-      return f.type.startsWith("image/") || imgExts.includes(ext);
-    });
-    if (!fileArray.length) {
-      setUploadError("Sadece gorsel dosyalari yuklenebilir");
+      if (f.type.startsWith("video/") || vidExts.includes(ext)) {
+        videoFiles.push(f);
+      } else if (f.type.startsWith("image/") || imgExts.includes(ext)) {
+        imageFiles.push(f);
+      }
+    }
+    // Upload first video found (only one video per product)
+    if (videoFiles.length > 0) {
+      uploadVideo(videoFiles[0]);
+    }
+    // If no images and no videos were recognized
+    if (!imageFiles.length && !videoFiles.length) {
+      setUploadError("Desteklenmeyen dosya formati. Gorsel veya video secin.");
       return;
     }
+    // If only video(s) were selected, skip image upload logic
+    if (!imageFiles.length) return;
     setUploading(true);
     setUploadError("");
     try {
       const formData = new FormData();
-      for (const f of fileArray) formData.append("files", f);
+      for (const f of imageFiles) formData.append("files", f);
       // Save to a product-specific folder when possible
       const folder = initialData?.sku
         ? `products/${initialData.sku.toLowerCase()}`
@@ -527,7 +540,7 @@ export default function ProductForm({ initialData, mode }: Props) {
 
           {/* Images */}
           <div className={sectionCls}>
-            <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Gorseller</h2>
+            <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Medya (Foto & Video)</h2>
 
             {/* Drag & Drop zone */}
             <div
@@ -547,7 +560,6 @@ export default function ProductForm({ initialData, mode }: Props) {
                 ref={fileInputRef}
                 type="file"
                 multiple
-                accept=".jpg,.jpeg,.png,.webp,.gif,.avif"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files?.length) uploadFiles(e.target.files);
@@ -555,10 +567,12 @@ export default function ProductForm({ initialData, mode }: Props) {
                 }}
               />
               <div className="flex flex-col items-center gap-2 pointer-events-none">
-                {uploading ? (
+                {uploading || videoUploading ? (
                   <>
                     <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-                    <div className="text-sm text-gold font-medium">Yukleniyor...</div>
+                    <div className="text-sm text-gold font-medium">
+                      {videoUploading ? "Video yukleniyor..." : "Yukleniyor..."}
+                    </div>
                   </>
                 ) : (
                   <>
@@ -566,10 +580,10 @@ export default function ProductForm({ initialData, mode }: Props) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <div className="text-sm font-medium text-ink">
-                      {dragOver ? "Birak, yukleyecegim!" : "Suruklayip birak veya tikla"}
+                      {dragOver ? "Birak, yukleyecegim!" : "Foto veya Video yukle"}
                     </div>
                     <div className="text-[11px] text-ink-dim break-words">
-                      Birden fazla gorsel secebilirsin
+                      Gorsel ve video dosyalarini secebilirsin
                     </div>
                   </>
                 )}
@@ -660,49 +674,13 @@ export default function ProductForm({ initialData, mode }: Props) {
 
             <p className="text-[11px] text-ink-dim leading-relaxed">
               Ilk gorsel <strong className="text-gold">ana gorsel</strong> olarak kullanilir. Ok tuslariyla sirayi degistirebilirsin.
+              Video secersen otomatik olarak video alanina eklenir.
             </p>
           </div>
 
-          {/* Video */}
+          {/* Video Status */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Video</h2>
-
-            {/* Video file upload — uses <label> instead of onClick for iOS Safari compat */}
-            <label
-              htmlFor="video-upload-input"
-              className={`block cursor-pointer rounded-xl border-2 border-dashed p-5 text-center transition-all ${
-                videoUploading
-                  ? "border-gold/50 bg-bg"
-                  : "border-line bg-bg hover:border-gold/60 hover:bg-gold/5"
-              }`}
-            >
-              <input
-                id="video-upload-input"
-                ref={videoInputRef}
-                type="file"
-                className="sr-only"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  const file = e.target.files?.[0];
-                  if (file) uploadVideo(file);
-                }}
-              />
-              <div className="flex flex-col items-center gap-2">
-                {videoUploading ? (
-                  <>
-                    <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-                    <div className="text-sm text-gold font-medium">Video yukleniyor...</div>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-8 h-8 text-gold/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
-                    </svg>
-                    <div className="text-sm font-medium text-ink">Video yukle (tikla)</div>
-                    <div className="text-[11px] text-ink-dim">MP4, MOV, WEBM — max 100MB</div>
-                  </>
-                )}
-              </div>
-            </label>
 
             {videoError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-lg">
@@ -711,7 +689,7 @@ export default function ProductForm({ initialData, mode }: Props) {
             )}
 
             {/* Show current video */}
-            {form.video_url && (
+            {form.video_url ? (
               <div className="flex items-center gap-2 bg-bg rounded-lg p-3 border border-line">
                 <svg className="w-5 h-5 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
@@ -728,6 +706,10 @@ export default function ProductForm({ initialData, mode }: Props) {
                   Kaldir
                 </button>
               </div>
+            ) : (
+              <p className="text-sm text-ink-muted">
+                Yukaridaki medya butonundan video da yukleyebilirsin.
+              </p>
             )}
 
             {/* Optional: paste URL as fallback */}
