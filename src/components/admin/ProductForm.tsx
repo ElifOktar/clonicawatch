@@ -37,12 +37,12 @@ export default function ProductForm({ initialData, mode }: Props) {
     model_name: "",
     sku: "",
     quality_tier: "Super Clone",
-    factory: "Clean",
+    factory: "",
     case_diameter_mm: 41,
     case_material: "Stainless Steel 904L",
     case_thickness_mm: "",
     crystal: "Sapphire",
-    water_resistance: "100m",
+    water_resistance: "",
     dial_color: "Black",
     dial_markers: "",
     bezel_type: "",
@@ -122,6 +122,75 @@ export default function ProductForm({ initialData, mode }: Props) {
     return `products/${(form.brand || "misc").toLowerCase()}-${Date.now()}`;
   };
 
+  const addWatermark = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(file); return; }
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        // Watermark sizing relative to image
+        const w = img.width;
+        const fontSize = Math.max(Math.round(w * 0.035), 14);
+        const padding = Math.round(fontSize * 0.8);
+        const circleR = Math.round(fontSize * 0.7);
+        const pillH = Math.round(fontSize * 2.2);
+        const pillW = Math.round(circleR * 2 + fontSize * 5.5);
+        const margin = Math.round(w * 0.03);
+        const x = w - pillW - margin;
+        const y = img.height - pillH - margin;
+
+        // Pill background
+        ctx.beginPath();
+        const r = pillH / 2;
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + pillW - r, y);
+        ctx.arc(x + pillW - r, y + r, r, -Math.PI / 2, Math.PI / 2);
+        ctx.lineTo(x + r, y + pillH);
+        ctx.arc(x + r, y + r, r, Math.PI / 2, -Math.PI / 2);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(0,0,0,0.4)";
+        ctx.fill();
+
+        // Circle with C
+        const cx = x + r;
+        const cy = y + pillH / 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, circleR, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(196,164,105,0.85)";
+        ctx.lineWidth = Math.max(1.5, w * 0.002);
+        ctx.stroke();
+
+        ctx.font = `bold ${Math.round(circleR * 1.1)}px Georgia, serif`;
+        ctx.fillStyle = "rgba(196,164,105,0.9)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("C", cx, cy + 1);
+
+        // CLONICA text
+        ctx.font = `${fontSize}px Georgia, 'Times New Roman', serif`;
+        ctx.fillStyle = "rgba(255,255,255,0.8)";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.letterSpacing = `${fontSize * 0.15}px`;
+        ctx.fillText("CLONICA", x + circleR * 2 + padding * 0.8, y + pillH / 2 + 1);
+
+        canvas.toBlob(
+          (blob) => blob ? resolve(blob) : resolve(file),
+          "image/jpeg",
+          0.92
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const uploadFiles = async (files: FileList | File[]) => {
     const imgExts = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
     const imageFiles = Array.from(files).filter((f) => {
@@ -142,9 +211,12 @@ export default function ProductForm({ initialData, mode }: Props) {
         const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
         const filePath = `${folder}/${Date.now()}-${safeName}`;
 
+        // Add watermark before uploading
+        const watermarked = await addWatermark(file);
+
         const { data, error } = await supabase.storage
           .from("product-images")
-          .upload(filePath, file, { cacheControl: "3600", upsert: true });
+          .upload(filePath, watermarked, { cacheControl: "3600", upsert: true, contentType: "image/jpeg" });
 
         if (error) throw new Error(error.message);
 
