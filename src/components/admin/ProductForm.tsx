@@ -5,9 +5,7 @@ import { supabase } from "@/lib/supabase";
 
 const BRANDS = ["Rolex","Audemars Piguet","Patek Philippe","Omega","Hublot","Breitling","Cartier","TAG Heuer","Panerai","IWC","Richard Mille","Vacheron Constantin","Jaeger-LeCoultre","Tudor","Bell & Ross","Zenith","Chopard","Longines","Ulysse Nardin","Franck Muller","Piaget"];
 const QUALITY = ["Super Clone","1:1","AAA+","Top Quality"];
-const FACTORIES = ["","Clean","ZF","Noob","VS","BP","ARF","APF","N Factory","BT","Other"];
 const MATERIALS = ["Stainless Steel 904L","Stainless Steel 316L","Yellow Gold Plated","Rose Gold Plated","Two-Tone (Gold/Steel)","Ceramic","Titanium","PVD Black","Carbon Fiber"];
-const STRAPS = ["Oyster","Jubilee","President","Leather","Rubber","NATO","Mesh/Milanese","Integrated Bracelet"];
 const MOVEMENTS = ["Automatic","Quartz","Manual Wind"];
 const STOCK_STATUSES = ["In Stock","Limited Stock","Sold Out","Pre-Order"];
 const GENDERS = ["Men","Women","Unisex"];
@@ -231,7 +229,7 @@ export default function ProductForm({ initialData, mode }: Props) {
       collection: form.collection,
       reference: form.reference || undefined,
       model_name: form.model_name,
-      sku: form.sku || undefined,
+      sku: form.sku || `CLN-${form.brand.substring(0, 3).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`,
       quality_tier: form.quality_tier,
       factory: form.factory || undefined,
       case_diameter_mm: Number(form.case_diameter_mm),
@@ -326,33 +324,18 @@ export default function ProductForm({ initialData, mode }: Props) {
                 <label className={labelCls}>Model Adi * (site'de gorunur)</label>
                 <input value={form.model_name} onChange={set("model_name")} placeholder="Rolex Submariner Date Black Dial 126610LN" className={inputCls} required />
               </div>
-              <div>
-                <label className={labelCls}>Referans No</label>
-                <input value={form.reference} onChange={set("reference")} placeholder="126610LN" className={inputCls} />
-              </div>
-              <div>
-                <label className={labelCls}>SKU</label>
-                <input value={form.sku} onChange={set("sku")} placeholder="CLN-RLX-0001" className={inputCls} />
-              </div>
+              {/* Referans No ve SKU otomatik olusturulur */}
             </div>
           </div>
 
-          {/* Quality & Factory */}
+          {/* Quality */}
           <div className={sectionCls}>
-            <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Kalite & Uretim</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>Kalite Seviyesi</label>
-                <select value={form.quality_tier} onChange={set("quality_tier")} className={inputCls}>
-                  {QUALITY.map((q) => <option key={q}>{q}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Factory</label>
-                <select value={form.factory} onChange={set("factory")} className={inputCls}>
-                  {FACTORIES.map((f) => <option key={f} value={f}>{f || "— Secilmedi —"}</option>)}
-                </select>
-              </div>
+            <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Kalite</h2>
+            <div>
+              <label className={labelCls}>Kalite Seviyesi</label>
+              <select value={form.quality_tier} onChange={set("quality_tier")} className={inputCls}>
+                {QUALITY.map((q) => <option key={q}>{q}</option>)}
+              </select>
             </div>
           </div>
 
@@ -392,13 +375,7 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
               <div>
                 <label className={labelCls}>Kordon</label>
-                <select value={form.strap_type} onChange={set("strap_type")} className={inputCls}>
-                  {STRAPS.map((s) => <option key={s}>{s}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Su Gecirmezlik</label>
-                <input value={form.water_resistance} onChange={set("water_resistance")} placeholder="300m" className={inputCls} />
+                <input value={form.strap_type} onChange={set("strap_type")} placeholder="Oyster, Jubilee, Leather..." className={inputCls} />
               </div>
             </div>
           </div>
@@ -420,10 +397,6 @@ export default function ProductForm({ initialData, mode }: Props) {
               <div>
                 <label className={labelCls}>Guc Rezervi (saat)</label>
                 <input type="number" value={form.power_reserve_hours} onChange={set("power_reserve_hours")} className={inputCls} />
-              </div>
-              <div>
-                <label className={labelCls}>Jewels</label>
-                <input type="number" value={form.jewels} onChange={set("jewels")} placeholder="31" className={inputCls} />
               </div>
               <div>
                 <label className={labelCls}>Beat Rate (vph)</label>
@@ -683,21 +656,44 @@ export default function ProductForm({ initialData, mode }: Props) {
             />
 
             {form.video_url ? (
-              <div className="flex items-center gap-2 bg-bg rounded-lg p-3 border border-gold/30">
-                <svg className="w-5 h-5 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
-                </svg>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-gold font-medium">Video yuklendi</div>
-                  <div className="text-[10px] text-ink-dim truncate">{form.video_url.split("/").pop()}</div>
+              <div className="bg-bg rounded-lg border border-gold/30 overflow-hidden">
+                {/* Video thumbnail with play overlay */}
+                <div className="relative aspect-video bg-black">
+                  <video
+                    src={form.video_url}
+                    className="w-full h-full object-contain"
+                    preload="metadata"
+                    muted
+                    playsInline
+                    onLoadedMetadata={(e) => {
+                      const vid = e.target as HTMLVideoElement;
+                      vid.currentTime = 1;
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-12 h-12 bg-gold/80 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-bg ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, video_url: "" })}
-                  className="text-red-400 text-xs hover:bg-red-500/10 px-2 py-1 rounded transition-colors flex-shrink-0"
-                >
-                  Kaldir
-                </button>
+                <div className="flex items-center gap-2 p-3">
+                  <svg className="w-4 h-4 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-gold font-medium">Video yuklendi</div>
+                    <div className="text-[10px] text-ink-dim truncate">{form.video_url.split("/").pop()}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, video_url: "" })}
+                    className="text-red-400 text-xs hover:bg-red-500/10 px-2 py-1 rounded transition-colors flex-shrink-0"
+                  >
+                    Kaldir
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="bg-bg rounded-lg p-3 border border-line space-y-3">
