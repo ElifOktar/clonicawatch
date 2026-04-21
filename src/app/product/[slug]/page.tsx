@@ -169,7 +169,13 @@ export default async function ProductPage({ params }: { params: { slug: string }
               >
                 Contact Seller on WhatsApp
               </TrackedWhatsAppLink>
-              <AddToCartButton productId={p.id} />
+              <AddToCartButton
+                productId={p.id}
+                productName={p.model_name}
+                brand={p.brand}
+                collection={p.collection}
+                priceUsd={p.price.usd}
+              />
             </div>
 
             {/* Specs */}
