@@ -74,7 +74,7 @@ export default async function HomePage() {
               <h2 className="h-serif text-3xl md:text-4xl">Featured Pieces</h2>
             </div>
             <Link
-              href="/brand/rolex"
+              href="/brand"
               className="text-sm text-ink-muted hover:text-gold transition-colors hidden md:block"
             >
               View All &rarr;
