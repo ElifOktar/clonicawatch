@@ -66,7 +66,7 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
           </Link>
 
           <nav className="hidden md:flex items-center gap-7 text-sm flex-1 justify-center">
-            <Link href="/" className="hover:text-gold transition-colors">Shop</Link>
+            <Link href="/shop" className="hover:text-gold transition-colors">Shop</Link>
             <Link href="/new-arrivals" className="hover:text-gold transition-colors">New Arrivals</Link>
             <Link href="/ladies" className="hover:text-gold transition-colors">Ladies</Link>
             <Link href="/on-sale" className="text-gold/90 hover:text-gold transition-colors">Sale</Link>
