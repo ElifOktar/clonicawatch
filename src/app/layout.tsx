@@ -4,8 +4,6 @@ import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import { WishlistProvider } from "@/components/WishlistProvider";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
-import { AuthProvider } from "@/components/AuthProvider";
-import { ToastProvider } from "@/components/Toast";
 import LayoutShell from "@/components/LayoutShell";
 import Analytics from "@/components/Analytics";
 import { SITE_CONFIG } from "@/lib/config";
@@ -30,24 +28,23 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: SITE_CONFIG.fullName, description: SITE_CONFIG.description },
   robots: { index: true, follow: true },
+  verification: {
+    google: "_SMYZ1Yx5wetOCoA6qrD_KE76mOQzyXDaxj6oADHjvw",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body>
+        <CurrencyProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <LayoutShell>{children}</LayoutShell>
+            </CartProvider>
+          </WishlistProvider>
+        </CurrencyProvider>
         <Analytics />
-        <AuthProvider>
-          <CurrencyProvider>
-            <WishlistProvider>
-              <CartProvider>
-                <ToastProvider>
-                  <LayoutShell>{children}</LayoutShell>
-                </ToastProvider>
-              </CartProvider>
-            </WishlistProvider>
-          </CurrencyProvider>
-        </AuthProvider>
       </body>
     </html>
   );
