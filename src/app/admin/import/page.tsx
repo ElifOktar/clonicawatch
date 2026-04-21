@@ -61,7 +61,6 @@ export default function ImportPage() {
         short_description: p.short_description || "",
         long_description: p.long_description || "",
         features_bullets: p.features_bullets || [],
-        package_contents: p.package_contents || ["Watch", "Box"],
         case_diameter_mm: p.case_diameter_mm || 41,
         case_material: p.case_material || "Stainless Steel 904L",
         movement_type: p.movement_type || "Automatic",
