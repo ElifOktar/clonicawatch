@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
 import { SITE_CONFIG } from "@/lib/config";
 
-export const metadata = {
-  title: "FAQ",
-  description: "Common questions about our super clone watches, shipping, payments, and authenticity.",
+export const metadata: Metadata = {
+  title: "FAQ — Frequently Asked Questions | Clonicawatch",
+  description:
+    "Common questions about super clone watches, shipping, payments, quality tiers, and how to order from Clonicawatch.",
+  openGraph: {
+    title: "FAQ — Clonicawatch",
+    description:
+      "Everything you need to know about super clone watches, shipping, payments, and ordering.",
+    url: "https://clonica.online/faq",
+  },
+  alternates: {
+    canonical: "https://clonica.online/faq",
+  },
 };
 
 const FAQS = [
@@ -49,8 +60,27 @@ const FAQS = [
 ];
 
 export default function FAQPage() {
+  /* FAQ Schema (FAQPage structured data for Google rich results) */
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.a,
+      },
+    })),
+  };
+
   return (
     <div className="container py-12 max-w-3xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       <h1 className="h-serif text-4xl mb-3">Frequently Asked Questions</h1>
       <p className="text-ink-muted mb-10">Can't find what you're looking for? Message us on WhatsApp.</p>
 
