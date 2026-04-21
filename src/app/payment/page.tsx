@@ -1,6 +1,20 @@
+import type { Metadata } from "next";
 import { SITE_CONFIG } from "@/lib/config";
 
-export const metadata = { title: "Payment" };
+export const metadata: Metadata = {
+  title: "Payment Methods — Bank, Crypto, WU, RIA | Clonicawatch",
+  description:
+    "Flexible payment options for your watch order. Bank Transfer (Wise/SWIFT), Crypto (BTC/USDT), Western Union, and RIA Money Transfer. All payments finalized via WhatsApp.",
+  openGraph: {
+    title: "Payment Methods — Clonicawatch",
+    description:
+      "Bank Transfer, Crypto, Western Union, RIA. Flexible payment options finalized via WhatsApp.",
+    url: "https://clonica.online/payment",
+  },
+  alternates: {
+    canonical: "https://clonica.online/payment",
+  },
+};
 
 export default function PaymentPage() {
   return (
