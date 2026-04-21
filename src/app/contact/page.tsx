@@ -1,6 +1,20 @@
+import type { Metadata } from "next";
 import { SITE_CONFIG } from "@/lib/config";
 
-export const metadata = { title: "Contact" };
+export const metadata: Metadata = {
+  title: "Contact Us — Clonicawatch",
+  description:
+    "Get in touch with Clonicawatch via WhatsApp, Telegram, or email. We respond within 2 hours. Worldwide support for super clone watch orders.",
+  openGraph: {
+    title: "Contact Clonicawatch",
+    description:
+      "Reach us via WhatsApp, Telegram, or email. We respond within 2 hours.",
+    url: "https://clonica.online/contact",
+  },
+  alternates: {
+    canonical: "https://clonica.online/contact",
+  },
+};
 
 export default function ContactPage() {
   const whatsappUrl = `https://wa.me/${SITE_CONFIG.contact.whatsapp}`;
