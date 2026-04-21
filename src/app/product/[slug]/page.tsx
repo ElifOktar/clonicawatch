@@ -209,7 +209,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <div>
             <h2 className="h-serif text-2xl mb-4">In the Box</h2>
             <ul className="space-y-2 text-ink-muted">
-              {p.package_contents.map((c, i) => (
+              {p.package_contents?.map((c, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-gold">&#9679;</span>
                   <span>{c}</span>
