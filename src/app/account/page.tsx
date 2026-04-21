@@ -39,6 +39,15 @@ function saveAddresses(a: SavedAddress[]) {
 export default function AccountPage() {
   const { user, signOut, updateProfile } = useAuth();
   const [tab, setTab] = useState<Tab>("profile");
+
+  // Read ?tab= from URL on mount (avoids useSearchParams Suspense requirement)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlTab = params.get("tab") as Tab;
+    if (urlTab && ["profile", "orders", "addresses"].includes(urlTab)) {
+      setTab(urlTab);
+    }
+  }, []);
   const [orders, setOrders] = useState<OrderInquiry[]>([]);
   const [addresses, setAddresses] = useState<SavedAddress[]>([]);
   const [editingAddr, setEditingAddr] = useState<SavedAddress | null>(null);
