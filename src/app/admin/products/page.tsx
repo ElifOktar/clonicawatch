@@ -117,9 +117,9 @@ export default function ProductsList() {
                 <th className="p-3">Urun</th>
                 <th className="p-3 hidden md:table-cell">Marka</th>
                 <th className="p-3 hidden lg:table-cell">Factory</th>
-                <th className="p-3">Fiyat</th>
+                <th className="p-3 hidden sm:table-cell">Fiyat</th>
                 <th className="p-3 hidden md:table-cell">Stok</th>
-                <th className="p-3 w-24">Islem</th>
+                <th className="p-3 w-20">Islem</th>
               </tr>
             </thead>
             <tbody>
@@ -140,14 +140,14 @@ export default function ProductsList() {
                         />
                       </div>
                       <div className="min-w-0">
-                        <div className="font-medium truncate">{p.model_name}</div>
+                        <div className="font-medium break-words">{p.model_name}</div>
                         <div className="text-xs text-ink-muted">{p.reference || p.sku}</div>
                       </div>
                     </Link>
                   </td>
                   <td className="p-3 hidden md:table-cell text-ink-muted">{p.brand}</td>
                   <td className="p-3 hidden lg:table-cell text-ink-muted">{p.factory || "-"}</td>
-                  <td className="p-3">
+                  <td className="p-3 hidden sm:table-cell">
                     <span className="text-gold font-medium">${p.price.usd}</span>
                     {p.is_on_sale && p.original_price && (
                       <span className="text-ink-dim line-through text-xs ml-1">${p.original_price.usd}</span>
