@@ -15,18 +15,14 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { ProductGallery } from "@/components/ProductGallery";
 import { StickyProductCTA } from "@/components/StickyProductCTA";
+import { ProductViewTracker } from "@/components/ProductViewTracker";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 export const revalidate = 60;
 
-// Build-safe: returns [] during build when Supabase is not configured
-// Pages will be generated on first request instead (ISR)
 export async function generateStaticParams() {
-  try {
-    const products = await getAllProducts();
-    return products.map((p) => ({ slug: p.slug }));
-  } catch {
-    return [];
-  }
+  const products = await getAllProducts();
+  return products.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -81,6 +77,15 @@ export default async function ProductPage({ params }: { params: { slug: string }
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      {/* GA4: view_item event */}
+      <ProductViewTracker
+        id={p.id}
+        brand={p.brand}
+        modelName={p.model_name}
+        collection={p.collection}
+        priceUsd={p.price.usd}
+      />
+
       <div className="container py-8 pb-20 md:pb-0 overflow-hidden">
         {/* Breadcrumb */}
         <nav className="text-xs text-ink-muted mb-6">
@@ -94,7 +99,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </nav>
 
         <div className="grid lg:grid-cols-2 gap-6 md:gap-10">
-          {/* GALLERY — supports 7-8 images + video */}
+          {/* GALLERY */}
           <div className="min-w-0 w-full overflow-hidden">
             <ProductGallery
               images={gallery}
@@ -152,20 +157,22 @@ export default async function ProductPage({ params }: { params: { slug: string }
               {p.short_description}
             </p>
 
-            {/* CTAs */}
+            {/* CTAs — WhatsApp tracked */}
             <div className="mt-8 space-y-3">
-              <a
+              <TrackedWhatsAppLink
                 href={waUrl}
-                target="_blank"
-                rel="noopener"
-                className="btn-gold w-full text-base"
+                context="product"
+                productId={p.id}
+                productName={p.model_name}
+                value={p.price.usd}
+                className="btn-gold w-full text-base block text-center"
               >
                 Contact Seller on WhatsApp
-              </a>
+              </TrackedWhatsAppLink>
               <AddToCartButton productId={p.id} />
             </div>
 
-            {/* Specs — cleaned up, no factory/technical info */}
+            {/* Specs */}
             <div className="mt-8 card p-5">
               <h3 className="text-xs tracking-widest uppercase text-gold mb-4">Details</h3>
               <dl className="grid grid-cols-2 gap-y-3 text-sm break-words">
@@ -200,7 +207,16 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </div>
           </div>
           <div>
-            <h3 className="h-serif text-2xl mb-4">Shipping &amp; Payment</h3>
+            <h2 className="h-serif text-2xl mb-4">In the Box</h2>
+            <ul className="space-y-2 text-ink-muted">
+              {p.package_contents.map((c, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="text-gold">&#9679;</span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+            <h3 className="h-serif text-xl mt-8 mb-3">Shipping &amp; Payment</h3>
             <p className="text-ink-muted text-sm">
               Worldwide express shipping via DHL / FedEx / UPS — 3–7 business
               days to most destinations with full tracking.
@@ -221,7 +237,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       </div>
 
       {/* Sticky Mobile CTA */}
-      <StickyProductCTA waUrl={waUrl} productId={p.id} product={{ id: p.id, model_name: p.model_name, main_image: p.main_image, price: p.price }} />
+      <StickyProductCTA waUrl={waUrl} productId={p.id} />
     </>
   );
 }
