@@ -1,4 +1,19 @@
-export const metadata = { title: "Shipping" };
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shipping — Worldwide Express Delivery | Clonicawatch",
+  description:
+    "Express shipping to 80+ countries via DHL, FedEx, and UPS. 3-7 business days, full tracking, discreet packaging. Free shipping info for super clone watches.",
+  openGraph: {
+    title: "Worldwide Express Shipping — Clonicawatch",
+    description:
+      "DHL, FedEx, UPS delivery to 80+ countries. 3-7 business days with full tracking and discreet packaging.",
+    url: "https://clonica.online/shipping",
+  },
+  alternates: {
+    canonical: "https://clonica.online/shipping",
+  },
+};
 
 export default function ShippingPage() {
   return (
