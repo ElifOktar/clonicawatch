@@ -39,6 +39,10 @@ export async function generateMetadata({
       title: getProductMetaTitle(p),
       description: getProductMetaDescription(p),
       images: [p.main_image],
+      url: `https://clonica.online/product/${p.slug}`,
+    },
+    alternates: {
+      canonical: `https://clonica.online/product/${p.slug}`,
     },
   };
 }
@@ -67,7 +71,34 @@ export default async function ProductPage({ params }: { params: { slug: string }
         p.stock_status === "In Stock"
           ? "https://schema.org/InStock"
           : "https://schema.org/LimitedAvailability",
+      url: `https://clonica.online/product/${p.slug}`,
     },
+  };
+
+  /* BreadcrumbList Schema for Google rich results */
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://clonica.online",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: p.brand,
+        item: `https://clonica.online/brand/${p.brand.toLowerCase().replace(/\s+/g, "-")}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: p.model_name,
+        item: `https://clonica.online/product/${p.slug}`,
+      },
+    ],
   };
 
   return (
@@ -75,6 +106,10 @@ export default async function ProductPage({ params }: { params: { slug: string }
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       {/* GA4: view_item event */}
