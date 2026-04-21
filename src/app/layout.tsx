@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/components/AuthProvider";
 import { CartProvider } from "@/components/CartProvider";
 import { WishlistProvider } from "@/components/WishlistProvider";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
@@ -71,13 +72,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <CurrencyProvider>
-          <WishlistProvider>
-            <CartProvider>
-              <LayoutShell>{children}</LayoutShell>
-            </CartProvider>
-          </WishlistProvider>
-        </CurrencyProvider>
+        <AuthProvider>
+          <CurrencyProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <LayoutShell>{children}</LayoutShell>
+              </CartProvider>
+            </WishlistProvider>
+          </CurrencyProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>
