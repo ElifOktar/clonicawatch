@@ -1,3 +1,11 @@
+
+PromoSlider_tsx.txt
+
+Page
+1
+/
+1
+100%
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
@@ -49,9 +57,16 @@ export function PromoSlider() {
   const [slides, setSlides] = useState<PromoSlide[]>(DEFAULT_SLIDES);
   const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  // Deferred loading: only first slide renders initially, others after hydration
+  const [hydrated, setHydrated] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const isSwiping = useRef(false);
+
+  // Mark hydrated after mount — enables deferred image loading for non-first slides
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   // Load custom promo slides from localStorage if admin uploaded them
   useEffect(() => {
@@ -121,7 +136,7 @@ export function PromoSlider() {
             }`}
           >
             {slide.isCta ? (
-              /* ─── CTA Slide — gradient background, centered text ─── */
+              /* --- CTA Slide --- gradient background, centered text --- */
               <>
                 <div className="absolute inset-0 bg-gradient-to-br from-[#0a0e17] via-[#1a1a2e] to-[#16213e]" />
                 {/* Decorative gold accent lines */}
@@ -134,7 +149,7 @@ export function PromoSlider() {
 
                 <div className="absolute top-0 left-0 right-0 bottom-[50px] md:bottom-[40px] flex items-center justify-center overflow-hidden">
                   <div className="text-center max-w-2xl px-6">
-                    {/* Diamond icon — hidden on mobile to save space */}
+                    {/* Diamond icon --- hidden on mobile to save space */}
                     <div className="hidden md:inline-flex items-center justify-center w-16 h-16 rounded-full border border-gold/30 bg-gold/5 mb-6">
                       <svg className="w-7 h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -173,16 +188,22 @@ export function PromoSlider() {
                 </div>
               </>
             ) : (
-              /* ─── Standard Image Slide ─── */
+              /* --- Standard Image Slide --- */
               <>
-                <Image
-                  src={slide.image}
-                  alt={slide.title || "Promotion"}
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                  priority={i === 0}
-                />
+                {/* LCP FIX: First slide loads immediately with priority.
+                    Other image slides only mount after hydration (~100ms)
+                    so they don't block initial paint. By the time the 5s
+                    auto-advance fires, all images are already loaded. */}
+                {(i === 0 || hydrated) && (
+                  <Image
+                    src={slide.image}
+                    alt={slide.title || "Promotion"}
+                    fill
+                    sizes="(max-width: 640px) 640px, (max-width: 1280px) 1280px, 100vw"
+                    className="object-cover"
+                    priority={i === 0}
+                  />
+                )}
                 {/* Dark gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-r from-bg/90 via-bg/50 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-transparent" />
@@ -254,3 +275,4 @@ export function PromoSlider() {
     </section>
   );
 }
+Displaying PromoSlider_tsx.txt.
