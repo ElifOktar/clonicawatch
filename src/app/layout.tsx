@@ -7,7 +7,7 @@ import { CurrencyProvider } from "@/components/CurrencyProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ToastProvider } from "@/components/Toast";
 import LayoutShell from "@/components/LayoutShell";
-import { Analytics } from "@/components/Analytics";
+import Analytics from "@/components/Analytics";
 import { SITE_CONFIG } from "@/lib/config";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
