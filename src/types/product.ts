@@ -102,8 +102,8 @@ export interface Product {
 
   short_description: string;
   long_description: string;
-  features_bullets: string[];
-  package_contents: string[];
+  features_bullets?: string[];
+  package_contents?: string[];
 
   whatsapp_message_template?: string;
 }
