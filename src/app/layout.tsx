@@ -33,9 +33,43 @@ export const metadata: Metadata = {
   },
 };
 
+/* Organization Schema — Google Knowledge Panel */
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Clonicawatch",
+  url: "https://clonica.online",
+  logo: "https://clonica.online/images/logos/clonica-logo.png",
+  description: SITE_CONFIG.description,
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer service",
+    availableLanguage: ["English", "Turkish"],
+  },
+  sameAs: [],
+};
+
+/* WebSite Schema — Google Sitelinks Search */
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Clonicawatch",
+  url: "https://clonica.online",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
       <body>
         <CurrencyProvider>
           <WishlistProvider>
