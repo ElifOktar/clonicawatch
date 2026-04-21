@@ -1,4 +1,19 @@
-export const metadata = { title: "About" };
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us — Clonicawatch",
+  description:
+    "Learn about Clonicawatch — we curate the finest super clone timepieces from top-tier factories with Swiss movements, discreet worldwide shipping, and personal service.",
+  openGraph: {
+    title: "About Clonicawatch",
+    description:
+      "Premium super clone watches from top-tier factories. Swiss movements, discreet shipping, personal service.",
+    url: "https://clonica.online/about",
+  },
+  alternates: {
+    canonical: "https://clonica.online/about",
+  },
+};
 
 export default function AboutPage() {
   return (
