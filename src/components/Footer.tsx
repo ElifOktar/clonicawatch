@@ -54,6 +54,7 @@ export function Footer() {
         <div>
           <h4 className="text-gold text-sm font-medium tracking-wider uppercase mb-4">Shop</h4>
           <ul className="space-y-2 text-sm text-ink-muted">
+            <li><Link href="/shop" className="hover:text-gold transition-colors">All Watches</Link></li>
             <li><Link href="/brand/rolex" className="hover:text-gold transition-colors">Rolex</Link></li>
             <li><Link href="/brand/audemars-piguet" className="hover:text-gold transition-colors">Audemars Piguet</Link></li>
             <li><Link href="/brand/patek-philippe" className="hover:text-gold transition-colors">Patek Philippe</Link></li>
