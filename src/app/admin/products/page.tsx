@@ -129,9 +129,20 @@ export default function ProductsList() {
                     <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggleSelect(p.id)} className="accent-gold" />
                   </td>
                   <td className="p-3">
-                    <Link href={`/admin/products/${p.id}`} className="hover:text-gold transition-colors">
-                      <div className="font-medium">{p.model_name}</div>
-                      <div className="text-xs text-ink-muted">{p.reference || p.sku}</div>
+                    <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3 hover:text-gold transition-colors">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-bg flex-shrink-0 border border-line">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={p.main_image || "/images/placeholder-watch.svg"}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder-watch.svg"; }}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{p.model_name}</div>
+                        <div className="text-xs text-ink-muted">{p.reference || p.sku}</div>
+                      </div>
                     </Link>
                   </td>
                   <td className="p-3 hidden md:table-cell text-ink-muted">{p.brand}</td>
