@@ -309,7 +309,6 @@ export default function ProductForm({ initialData, mode }: Props) {
       short_description: form.long_description?.substring(0, 160) || "",
       long_description: form.long_description,
       features_bullets: [],
-      package_contents: ["Watch", "Box", "Warranty card", "Adjustment tool"],
       main_image: imageUrls[0] || "/images/placeholder-watch.svg",
       gallery_images: imageUrls.length ? imageUrls : ["/images/placeholder-watch.svg"],
       video_url: form.video_url || undefined,
