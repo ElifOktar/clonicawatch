@@ -1,11 +1,3 @@
-
-PromoSlider_tsx.txt
-
-Page
-1
-/
-1
-100%
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
@@ -275,4 +267,3 @@ export function PromoSlider() {
     </section>
   );
 }
-
