@@ -20,7 +20,7 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
   const { user, signOut } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   useEffect(() => {
-    setProducts(getAllProducts());
+    getAllProducts().then(setProducts).catch(() => {});
   }, []);
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
