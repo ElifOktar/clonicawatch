@@ -19,11 +19,9 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
   const { items: wishItems, isHydrated: wishHydrated } = useWishlist();
   const { user, signOut } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
-
   useEffect(() => {
-    getAllProducts().then(setProducts).catch(() => {});
+    setProducts(getAllProducts());
   }, []);
-
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -59,14 +57,14 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
               src="/images/clonica-logo-horizontal.png"
               alt="Clonica — Luxury Watches"
               width={600}
-              height={186}
+              height={108}
               priority
-              className="h-8 md:h-10 w-auto object-contain"
+              className="h-10 md:h-14 w-auto object-contain"
             />
           </Link>
 
           <nav className="hidden md:flex items-center gap-7 text-sm flex-1 justify-center">
-            <Link href="/shop" className="hover:text-gold transition-colors">Shop</Link>
+            <Link href="/" className="hover:text-gold transition-colors">Shop</Link>
             <Link href="/new-arrivals" className="hover:text-gold transition-colors">New Arrivals</Link>
             <Link href="/ladies" className="hover:text-gold transition-colors">Ladies</Link>
             <Link href="/on-sale" className="text-gold/90 hover:text-gold transition-colors">Sale</Link>
@@ -77,6 +75,7 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
           <div className="flex items-center gap-3">
             <SearchModal products={products} />
             <CurrencySwitcher />
+
             <a
               href={`https://wa.me/${SITE_CONFIG.contact.whatsapp}`}
               target="_blank" rel="noopener"
@@ -96,7 +95,6 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
                   </svg>
                   <span className="hidden sm:inline text-xs">{user.name.split(" ")[0]}</span>
                 </button>
-
                 {userMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
