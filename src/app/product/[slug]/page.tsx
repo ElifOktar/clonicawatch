@@ -237,7 +237,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       </div>
 
       {/* Sticky Mobile CTA */}
-      <StickyProductCTA waUrl={waUrl} productId={p.id} />
+      <StickyProductCTA waUrl={waUrl} productId={p.id} product={p} />
     </>
   );
 }
