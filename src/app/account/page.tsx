@@ -1,11 +1,13 @@
 "use client";
+
 import { useAuth } from "@/components/AuthProvider";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { getPublicClient } from "@/lib/supabase";
 
 type Tab = "profile" | "orders" | "addresses";
 
-interface OrderInquiry {
+interface OrderRow {
   id: string;
   products: { name: string; qty: number; price: number }[];
   total: number;
@@ -13,10 +15,10 @@ interface OrderInquiry {
   status: string;
 }
 
-interface SavedAddress {
+interface AddressRow {
   id: string;
   label: string;
-  fullName: string;
+  full_name: string;
   phone: string;
   line1: string;
   line2?: string;
@@ -24,23 +26,17 @@ interface SavedAddress {
   state?: string;
   zip: string;
   country: string;
-  isDefault?: boolean;
+  is_default?: boolean;
 }
 
-const ADDR_KEY = "clonica_addresses";
-
-function getAddresses(): SavedAddress[] {
-  try { return JSON.parse(localStorage.getItem(ADDR_KEY) || "[]"); } catch { return []; }
-}
-function saveAddresses(a: SavedAddress[]) {
-  localStorage.setItem(ADDR_KEY, JSON.stringify(a));
-}
+/* ── localStorage key'leri (migrasyon icin) ── */
+const OLD_ADDR_KEY = "clonica_addresses";
+const OLD_ORDERS_KEY = "clonica_orders";
 
 export default function AccountPage() {
   const { user, signOut, updateProfile } = useAuth();
   const [tab, setTab] = useState<Tab>("profile");
 
-  // Read ?tab= from URL on mount (avoids useSearchParams Suspense requirement)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlTab = params.get("tab") as Tab;
@@ -48,21 +44,100 @@ export default function AccountPage() {
       setTab(urlTab);
     }
   }, []);
-  const [orders, setOrders] = useState<OrderInquiry[]>([]);
-  const [addresses, setAddresses] = useState<SavedAddress[]>([]);
-  const [editingAddr, setEditingAddr] = useState<SavedAddress | null>(null);
+
+  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [addresses, setAddresses] = useState<AddressRow[]>([]);
+  const [editingAddr, setEditingAddr] = useState<AddressRow | null>(null);
   const [showAddrForm, setShowAddrForm] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
 
-  useEffect(() => {
+  /* ── localStorage → Supabase migrasyon (adresler) ── */
+  const migrateAddresses = useCallback(async (userId: string) => {
+    const sb = getPublicClient();
+    if (!sb) return;
     try {
-      const stored = JSON.parse(localStorage.getItem("clonica_orders") || "[]");
-      setOrders(stored);
-    } catch {}
-    setAddresses(getAddresses());
+      const raw = localStorage.getItem(OLD_ADDR_KEY);
+      if (!raw) return;
+      const localAddrs = JSON.parse(raw);
+      if (!Array.isArray(localAddrs) || localAddrs.length === 0) return;
+
+      const toInsert = localAddrs.map((a: any) => ({
+        user_id: userId,
+        label: a.label || "",
+        full_name: a.fullName || a.full_name || "",
+        phone: a.phone || "",
+        line1: a.line1 || "",
+        line2: a.line2 || "",
+        city: a.city || "",
+        state: a.state || "",
+        zip: a.zip || "",
+        country: a.country || "",
+        is_default: a.isDefault || a.is_default || false,
+      }));
+
+      await sb.from("addresses").insert(toInsert);
+      localStorage.removeItem(OLD_ADDR_KEY);
+    } catch { /* ignore */ }
   }, []);
+
+  /* ── localStorage → Supabase migrasyon (siparisler) ── */
+  const migrateOrders = useCallback(async (userId: string) => {
+    const sb = getPublicClient();
+    if (!sb) return;
+    try {
+      const raw = localStorage.getItem(OLD_ORDERS_KEY);
+      if (!raw) return;
+      const localOrders = JSON.parse(raw);
+      if (!Array.isArray(localOrders) || localOrders.length === 0) return;
+
+      const toInsert = localOrders.map((o: any) => ({
+        user_id: userId,
+        products: o.products || [],
+        total: o.total || 0,
+        status: o.status || "pending",
+        date: o.date || new Date().toISOString(),
+      }));
+
+      await sb.from("orders").insert(toInsert);
+      localStorage.removeItem(OLD_ORDERS_KEY);
+    } catch { /* ignore */ }
+  }, []);
+
+  /* ── Supabase'den verileri yükle ── */
+  const loadData = useCallback(async (userId: string) => {
+    const sb = getPublicClient();
+    if (!sb) return;
+
+    // Adresleri yükle
+    const { data: addrData } = await sb
+      .from("addresses")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+    if (addrData) setAddresses(addrData);
+
+    // Siparisleri yükle
+    const { data: orderData } = await sb
+      .from("orders")
+      .select("*")
+      .eq("user_id", userId)
+      .order("date", { ascending: false });
+    if (orderData) setOrders(orderData);
+  }, []);
+
+  /* ── Init: migrasyon + yükle ── */
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      await Promise.all([
+        migrateAddresses(user.id),
+        migrateOrders(user.id),
+      ]);
+      await loadData(user.id);
+    })();
+  }, [user, migrateAddresses, migrateOrders, loadData]);
 
   useEffect(() => {
     if (user) {
@@ -80,37 +155,93 @@ export default function AccountPage() {
     );
   }
 
+  /* ── Profile kaydet ── */
   const handleSaveProfile = () => {
     updateProfile({ name: editName.trim(), phone: editPhone.trim() || undefined });
     setEditingProfile(false);
   };
 
-  const handleSaveAddress = (addr: SavedAddress) => {
-    let updated: SavedAddress[];
-    if (addr.isDefault) {
-      updated = addresses.map((a) => ({ ...a, isDefault: false }));
-    } else {
-      updated = [...addresses];
+  /* ── Adres kaydet (Supabase) ── */
+  const handleSaveAddress = async (addr: AddressRow) => {
+    const sb = getPublicClient();
+    if (!sb) return;
+
+    // Default ayarla: onceki default'ları kaldir
+    if (addr.is_default) {
+      await sb
+        .from("addresses")
+        .update({ is_default: false })
+        .eq("user_id", user.id)
+        .eq("is_default", true);
     }
-    const idx = updated.findIndex((a) => a.id === addr.id);
-    if (idx >= 0) updated[idx] = addr;
-    else updated.push(addr);
-    setAddresses(updated);
-    saveAddresses(updated);
+
+    const existing = addresses.find((a) => a.id === addr.id);
+    if (existing) {
+      // Güncelle
+      await sb
+        .from("addresses")
+        .update({
+          label: addr.label,
+          full_name: addr.full_name,
+          phone: addr.phone,
+          line1: addr.line1,
+          line2: addr.line2,
+          city: addr.city,
+          state: addr.state,
+          zip: addr.zip,
+          country: addr.country,
+          is_default: addr.is_default,
+        })
+        .eq("id", addr.id)
+        .eq("user_id", user.id);
+    } else {
+      // Yeni ekle
+      await sb.from("addresses").insert({
+        user_id: user.id,
+        label: addr.label,
+        full_name: addr.full_name,
+        phone: addr.phone,
+        line1: addr.line1,
+        line2: addr.line2,
+        city: addr.city,
+        state: addr.state,
+        zip: addr.zip,
+        country: addr.country,
+        is_default: addr.is_default,
+      });
+    }
+
+    await loadData(user.id);
     setShowAddrForm(false);
     setEditingAddr(null);
   };
 
-  const handleDeleteAddress = (id: string) => {
-    const updated = addresses.filter((a) => a.id !== id);
-    setAddresses(updated);
-    saveAddresses(updated);
+  /* ── Adres sil ── */
+  const handleDeleteAddress = async (id: string) => {
+    const sb = getPublicClient();
+    if (!sb) return;
+    await sb.from("addresses").delete().eq("id", id).eq("user_id", user.id);
+    setAddresses((prev) => prev.filter((a) => a.id !== id));
   };
 
-  const handleSetDefault = (id: string) => {
-    const updated = addresses.map((a) => ({ ...a, isDefault: a.id === id }));
-    setAddresses(updated);
-    saveAddresses(updated);
+  /* ── Default ayarla ── */
+  const handleSetDefault = async (id: string) => {
+    const sb = getPublicClient();
+    if (!sb) return;
+    // Hepsini false yap
+    await sb
+      .from("addresses")
+      .update({ is_default: false })
+      .eq("user_id", user.id);
+    // Seçileni true yap
+    await sb
+      .from("addresses")
+      .update({ is_default: true })
+      .eq("id", id)
+      .eq("user_id", user.id);
+    setAddresses((prev) =>
+      prev.map((a) => ({ ...a, is_default: a.id === id }))
+    );
   };
 
   const tabs: { key: Tab; label: string; icon: string; badge?: number }[] = [
@@ -137,7 +268,7 @@ export default function AccountPage() {
         </button>
       </div>
 
-      {/* Tabs — icons + labels always visible */}
+      {/* Tabs */}
       <div className="flex border border-line rounded-xl overflow-hidden mb-6">
         {tabs.map((t) => (
           <button
@@ -207,7 +338,6 @@ export default function AccountPage() {
               </button>
             </div>
           )}
-
           <div className="border-t border-line pt-5 grid grid-cols-2 gap-3">
             <Link href="/wishlist" className="card p-4 text-center hover:border-gold transition-colors">
               <div className="text-xl mb-1">♡</div>
@@ -276,14 +406,14 @@ export default function AccountPage() {
       {tab === "addresses" && (
         <div className="space-y-4">
           {addresses.map((addr) => (
-            <div key={addr.id} className={`card p-5 ${addr.isDefault ? "border-gold/40" : ""}`}>
+            <div key={addr.id} className={`card p-5 ${addr.is_default ? "border-gold/40" : ""}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  {addr.isDefault && (
+                  {addr.is_default && (
                     <span className="text-[10px] bg-gold/10 text-gold px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider mb-2 inline-block">Default</span>
                   )}
                   {addr.label && <p className="text-sm font-medium mb-1">{addr.label}</p>}
-                  <p className="text-sm">{addr.fullName}</p>
+                  <p className="text-sm">{addr.full_name}</p>
                   <p className="text-sm text-ink-muted">{addr.phone}</p>
                   <p className="text-sm text-ink-muted mt-1">
                     {addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}<br />
@@ -292,7 +422,7 @@ export default function AccountPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  {!addr.isDefault && (
+                  {!addr.is_default && (
                     <button onClick={() => handleSetDefault(addr.id)} className="text-[11px] text-ink-muted hover:text-gold transition-colors">Set Default</button>
                   )}
                   <button onClick={() => { setEditingAddr(addr); setShowAddrForm(true); }} className="text-[11px] text-gold hover:text-gold-bright transition-colors">Edit</button>
@@ -325,15 +455,40 @@ export default function AccountPage() {
   );
 }
 
-function AddressForm({ initial, onSave, onCancel }: { initial: SavedAddress | null; onSave: (a: SavedAddress) => void; onCancel: () => void }) {
-  const [form, setForm] = useState<SavedAddress>(
-    initial || { id: `addr_${Date.now().toString(36)}`, label: "", fullName: "", phone: "", line1: "", line2: "", city: "", state: "", zip: "", country: "", isDefault: false }
+/* ── AddressForm (Supabase field adlariyla) ── */
+function AddressForm({
+  initial,
+  onSave,
+  onCancel,
+}: {
+  initial: AddressRow | null;
+  onSave: (a: AddressRow) => void;
+  onCancel: () => void;
+}) {
+  const [form, setForm] = useState<AddressRow>(
+    initial || {
+      id: `new_${Date.now().toString(36)}`,
+      label: "",
+      full_name: "",
+      phone: "",
+      line1: "",
+      line2: "",
+      city: "",
+      state: "",
+      zip: "",
+      country: "",
+      is_default: false,
+    }
   );
-  const inputCls = "w-full bg-bg border border-line rounded-lg px-4 py-3 text-sm focus:border-gold focus:outline-none transition-colors placeholder:text-ink-dim";
+
+  const inputCls =
+    "w-full bg-bg border border-line rounded-lg px-4 py-3 text-sm focus:border-gold focus:outline-none transition-colors placeholder:text-ink-dim";
 
   return (
     <div className="card p-5 space-y-4">
-      <h3 className="text-gold text-sm font-semibold tracking-wider uppercase">{initial ? "Edit Address" : "New Address"}</h3>
+      <h3 className="text-gold text-sm font-semibold tracking-wider uppercase">
+        {initial ? "Edit Address" : "New Address"}
+      </h3>
       <div>
         <label className="block text-xs text-ink-muted mb-1.5 font-medium">Label (e.g. Home, Office)</label>
         <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Home" className={inputCls} />
@@ -341,7 +496,7 @@ function AddressForm({ initial, onSave, onCancel }: { initial: SavedAddress | nu
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2 sm:col-span-1">
           <label className="block text-xs text-ink-muted mb-1.5 font-medium">Full Name *</label>
-          <input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className={inputCls} required />
+          <input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className={inputCls} required />
         </div>
         <div className="col-span-2 sm:col-span-1">
           <label className="block text-xs text-ink-muted mb-1.5 font-medium">Phone *</label>
@@ -377,14 +532,28 @@ function AddressForm({ initial, onSave, onCancel }: { initial: SavedAddress | nu
         </div>
       </div>
       <label className="flex items-center gap-2">
-        <input type="checkbox" checked={form.isDefault || false} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} className="accent-gold w-4 h-4" />
+        <input
+          type="checkbox"
+          checked={form.is_default || false}
+          onChange={(e) => setForm({ ...form, is_default: e.target.checked })}
+          className="accent-gold w-4 h-4"
+        />
         <span className="text-sm">Set as default address</span>
       </label>
       <div className="flex gap-3 pt-2">
-        <button type="button" onClick={() => { if (!form.fullName || !form.line1 || !form.city || !form.country) return; onSave(form); }} className="btn-gold text-sm px-6">
+        <button
+          type="button"
+          onClick={() => {
+            if (!form.full_name || !form.line1 || !form.city || !form.country) return;
+            onSave(form);
+          }}
+          className="btn-gold text-sm px-6"
+        >
           {initial ? "Update" : "Save Address"}
         </button>
-        <button type="button" onClick={onCancel} className="text-sm text-ink-muted hover:text-ink">Cancel</button>
+        <button type="button" onClick={onCancel} className="text-sm text-ink-muted hover:text-ink">
+          Cancel
+        </button>
       </div>
     </div>
   );
