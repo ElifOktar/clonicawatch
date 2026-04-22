@@ -21,6 +21,7 @@ const BRAND_FROM_SLUG: Record<string, Brand> = {
   "omega": "Omega",
   "hublot": "Hublot",
   "breitling": "Breitling",
+  "bvlgari-men": "Bvlgari",
   "cartier": "Cartier",
   "tag-heuer": "TAG Heuer",
   "panerai": "Panerai",
