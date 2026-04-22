@@ -74,7 +74,7 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
             <Link href="/faq" className="hover:text-gold transition-colors">FAQ</Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <SearchModal products={products} />
             <CurrencySwitcher />
 
