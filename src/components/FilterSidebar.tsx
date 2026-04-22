@@ -12,8 +12,7 @@ type Filters = {
 };
 
 const PRICE_RANGES: Array<[string, number, number]> = [
-  ["Under $500", 0, 500],
-  ["$500–$1,000", 500, 1000],
+  ["Under $1,000", 0, 1000],
   ["$1,000–$1,500", 1000, 1500],
   ["$1,500+", 1500, Infinity],
 ];
