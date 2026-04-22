@@ -1,4 +1,5 @@
 "use client";
+
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Product } from "@/types/product";
@@ -17,9 +18,10 @@ const PRICE_RANGES: Array<[string, number, number]> = [
   ["$1,500+", 1500, Infinity],
 ];
 
+const ITEMS_PER_PAGE = 12;
+
 export function FilteredProductList({ products }: { products: Product[] }) {
   const searchParams = useSearchParams();
-
   const [filters, setFilters] = useState<Filters>({
     brands: new Set(),
     collections: new Set(),
@@ -27,13 +29,13 @@ export function FilteredProductList({ products }: { products: Product[] }) {
   });
   const [showFilters, setShowFilters] = useState(false);
   const [expandedBrand, setExpandedBrand] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Read collection from URL query parameter on mount and when URL changes
   useEffect(() => {
     const collectionSlug = searchParams.get("collection");
     if (!collectionSlug) return;
 
-    // Find the matching collection name from catalog
     const all = [...CATALOG_BRANDS, ...LADIES_BRANDS];
     for (const brand of all) {
       const match = brand.collections?.find((c) => c.slug === collectionSlug);
@@ -54,9 +56,7 @@ export function FilteredProductList({ products }: { products: Product[] }) {
     const productBrands = new Set<string>(products.map((p) => p.brand));
     const all = [...CATALOG_BRANDS, ...LADIES_BRANDS];
     return all.filter((b) => {
-      // Check if any product matches this catalog brand
       if (productBrands.has(b.name)) return true;
-      // For ladies brands with parentBrand, check parent
       if (b.parentBrand) {
         const parentEntry = all.find((x) => x.slug === b.parentBrand);
         if (parentEntry && productBrands.has(parentEntry.name)) return true;
@@ -70,7 +70,6 @@ export function FilteredProductList({ products }: { products: Product[] }) {
     if (filters.brands.size === 0) return [];
     const collections: Array<{ brand: string; name: string; slug: string }> = [];
     const productCollections = new Set(products.map((p) => p.collection));
-
     availableBrands.forEach((b) => {
       if (!filters.brands.has(b.name)) return;
       b.collections?.forEach((c) => {
@@ -94,12 +93,43 @@ export function FilteredProductList({ products }: { products: Product[] }) {
     });
   }, [products, filters]);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = (): (number | "...")[] => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages: (number | "...")[] = [1];
+    if (currentPage > 3) pages.push("...");
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
+
   const toggleBrand = (brandName: string) => {
     setFilters((prev) => {
       const set = new Set(prev.brands);
       if (set.has(brandName)) {
         set.delete(brandName);
-        // Clear collections for this brand
         const newCollections = new Set(prev.collections);
         const brand = availableBrands.find((b) => b.name === brandName);
         brand?.collections?.forEach((c) => newCollections.delete(c.name));
@@ -122,7 +152,6 @@ export function FilteredProductList({ products }: { products: Product[] }) {
 
   const setRange = (r: [number, number] | null) => setFilters((p) => ({ ...p, priceRange: r }));
   const clearAll = () => setFilters({ brands: new Set(), collections: new Set(), priceRange: null });
-
   const activeCount = filters.brands.size + filters.collections.size + (filters.priceRange ? 1 : 0);
 
   return (
@@ -177,7 +206,10 @@ export function FilteredProductList({ products }: { products: Product[] }) {
                         className={`w-3 h-3 transform transition-transform ${
                           expandedBrand === b.slug ? "rotate-180" : ""
                         }`}
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
@@ -218,7 +250,9 @@ export function FilteredProductList({ products }: { products: Product[] }) {
                     filters.priceRange && filters.priceRange[0] === lo ? null : [lo, hi]
                   )}
                   className={`chip-toggle justify-start ${filters.priceRange?.[0] === lo ? "chip-toggle-active" : ""}`}
-                >{label}</button>
+                >
+                  {label}
+                </button>
               ))}
             </div>
           </div>
@@ -226,7 +260,49 @@ export function FilteredProductList({ products }: { products: Product[] }) {
 
         <div>
           <p className="text-sm text-ink-muted mb-4 hidden lg:block">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</p>
-          <ProductGrid products={filtered} />
+          <ProductGrid products={paginatedProducts} />
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav className="flex items-center justify-center gap-2 mt-10">
+              {/* Previous */}
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-2 text-sm rounded-lg border border-line text-ink-muted hover:text-gold hover:border-gold/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                Prev
+              </button>
+
+              {/* Page Numbers */}
+              {getPageNumbers().map((page, idx) =>
+                page === "..." ? (
+                  <span key={`dot-${idx}`} className="px-2 text-ink-dim text-sm">...</span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`w-10 h-10 text-sm rounded-lg border transition-colors ${
+                      currentPage === page
+                        ? "bg-gold text-[#0a0e17] border-gold font-semibold"
+                        : "border-line text-ink-muted hover:text-gold hover:border-gold/30"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+
+              {/* Next */}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 text-sm rounded-lg border border-line text-ink-muted hover:text-gold hover:border-gold/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </nav>
+          )}
         </div>
       </div>
     </div>
