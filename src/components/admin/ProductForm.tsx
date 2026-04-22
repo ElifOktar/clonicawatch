@@ -1,14 +1,21 @@
 "use client";
+
 import { useState, FormEvent, useRef, DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 const BRANDS = ["Rolex","Audemars Piguet","Patek Philippe","Omega","Hublot","Breitling","Cartier","TAG Heuer","Panerai","IWC","Richard Mille","Vacheron Constantin","Jaeger-LeCoultre","Tudor","Bell & Ross","Zenith","Chopard","Longines","Ulysse Nardin","Franck Muller","Piaget"];
+
 const QUALITY = ["Super Clone","1:1","AAA+","Top Quality"];
+
 const MATERIALS = ["Stainless Steel 904L","Stainless Steel 316L","Yellow Gold Plated","Rose Gold Plated","Two-Tone (Gold/Steel)","Ceramic","Titanium","PVD Black","Carbon Fiber"];
+
 const MOVEMENTS = ["Automatic","Quartz","Manual Wind"];
+
 const STOCK_STATUSES = ["In Stock","Limited Stock","Sold Out","Pre-Order"];
+
 const GENDERS = ["Men","Women","Unisex"];
+
 const STYLE_TAGS = ["Diver","Chronograph","Dress","Pilot","Sport","GMT","Moonphase","Skeleton","Tourbillon","Perpetual Calendar"];
 
 interface Props {
@@ -43,14 +50,14 @@ export default function ProductForm({ initialData, mode }: Props) {
     case_thickness_mm: "",
     crystal: "Sapphire",
     water_resistance: "",
-    dial_color: "Black",
+    dial_color: "",
     bezel_color: "",
-    strap_type: "Oyster",
+    strap_type: "",
     strap_color: "",
     movement_type: "Automatic",
     movement_caliber: "",
     is_swiss_movement: false,
-    power_reserve_hours: 70,
+    power_reserve_hours: "",
     jewels: "",
     beat_rate_vph: "",
     price_usd: 1000,
@@ -66,7 +73,6 @@ export default function ProductForm({ initialData, mode }: Props) {
     ...initialData,
   };
 
-  // Override computed fields from nested initialData
   if (initialData) {
     defaults.price_usd = initialData.price?.usd || 1000;
     defaults.style_tags = initialData.style_tags || ["Diver", "Sport"];
@@ -125,10 +131,8 @@ export default function ProductForm({ initialData, mode }: Props) {
         canvas.width = w;
         canvas.height = h;
 
-        // Draw original image
         ctx.drawImage(img, 0, 0);
 
-        // Diagonal repeating CLONICA watermark across entire image
         const fontSize = Math.max(Math.round(w * 0.04), 16);
         const gap = Math.round(fontSize * 3.5);
         const angle = -30 * (Math.PI / 180);
@@ -141,12 +145,12 @@ export default function ProductForm({ initialData, mode }: Props) {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        // Cover area larger than image to account for rotation
         const diagonal = Math.sqrt(w * w + h * h);
         const startX = -diagonal;
         const endX = diagonal;
         const startY = -diagonal;
         const endY = diagonal;
+
         const text = "CLONICA";
         const textW = ctx.measureText(text).width + fontSize * 2;
 
@@ -163,7 +167,6 @@ export default function ProductForm({ initialData, mode }: Props) {
           "image/jpeg",
           0.92
         );
-
         URL.revokeObjectURL(img.src);
       };
       img.onerror = () => resolve(file);
@@ -177,12 +180,15 @@ export default function ProductForm({ initialData, mode }: Props) {
       const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
       return f.type.startsWith("image/") || imgExts.includes(ext);
     });
+
     if (!imageFiles.length) {
       setUploadError("Sadece gorsel dosyalari yuklenebilir");
       return;
     }
+
     setUploading(true);
     setUploadError("");
+
     try {
       const folder = getFolder();
       const uploadedUrls: string[] = [];
@@ -191,7 +197,6 @@ export default function ProductForm({ initialData, mode }: Props) {
         const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
         const filePath = `${folder}/${Date.now()}-${safeName}`;
 
-        // Add watermark before uploading
         const watermarked = await addWatermark(file);
 
         const { data, error } = await supabase.storage
@@ -220,16 +225,20 @@ export default function ProductForm({ initialData, mode }: Props) {
     const videoExts = [".mp4", ".mov", ".webm", ".avi"];
     const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
     const isVideo = file.type.startsWith("video/") || videoExts.includes(ext);
+
     if (!isVideo) {
       setVideoError("Sadece video dosyalari yuklenebilir (MP4, MOV, WEBM)");
       return;
     }
+
     if (file.size > 100 * 1024 * 1024) {
       setVideoError("Video boyutu 100MB'dan kucuk olmali");
       return;
     }
+
     setVideoUploading(true);
     setVideoError("");
+
     try {
       const folder = getFolder();
       const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
@@ -318,6 +327,7 @@ export default function ProductForm({ initialData, mode }: Props) {
       const url = mode === "edit"
         ? `/api/admin/products/${initialData.id}`
         : "/api/admin/products";
+
       const method = mode === "edit" ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -327,6 +337,7 @@ export default function ProductForm({ initialData, mode }: Props) {
       });
 
       const data = await res.json();
+
       if (!res.ok) throw new Error(data.error);
 
       router.push("/admin/products");
@@ -371,7 +382,6 @@ export default function ProductForm({ initialData, mode }: Props) {
                 <label className={labelCls}>Model Adi * (site'de gorunur)</label>
                 <input value={form.model_name} onChange={set("model_name")} placeholder="Rolex Submariner Date Black Dial 126610LN" className={inputCls} required />
               </div>
-              {/* Referans No ve SKU otomatik olusturulur */}
             </div>
           </div>
 
@@ -572,8 +582,6 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             </div>
 
-            {/* Video — URL only (iOS Safari file input video bug workaround) */}
-
             {uploadError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-lg">
                 {uploadError}
@@ -586,7 +594,6 @@ export default function ProductForm({ initialData, mode }: Props) {
                 {imageUrls.map((url, i) => (
                   <div key={i} className="flex items-center gap-2 bg-bg rounded-lg p-2 border border-line min-w-0 overflow-hidden">
                     <div className="w-14 h-14 bg-bg-soft rounded overflow-hidden flex-shrink-0 relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={url}
                         alt=""
@@ -676,7 +683,6 @@ export default function ProductForm({ initialData, mode }: Props) {
 
             {form.video_url ? (
               <div className="bg-bg rounded-lg border border-gold/30 overflow-hidden">
-                {/* Video thumbnail with play overlay */}
                 <div className="relative aspect-video bg-black">
                   <video
                     src={form.video_url}
@@ -749,7 +755,7 @@ export default function ProductForm({ initialData, mode }: Props) {
                   </div>
                 </details>
                 <p className="text-[10px] text-ink-dim leading-relaxed">
-                  MP4, MOV, WEBM desteklenir (maks 100MB). Desktoptan yukle — iOS Safari&apos;de video secimi calismaz.
+                  MP4, MOV, WEBM desteklenir (maks 100MB). Desktoptan yukle — iOS Safari'de video secimi calismaz.
                 </p>
               </div>
             )}
@@ -761,7 +767,7 @@ export default function ProductForm({ initialData, mode }: Props) {
         </div>
       </div>
 
-      {/* Save Button — always at the bottom */}
+      {/* Save Button */}
       <div className="mt-6">
         <button
           type="submit"
@@ -774,3 +780,4 @@ export default function ProductForm({ initialData, mode }: Props) {
     </form>
   );
 }
+
