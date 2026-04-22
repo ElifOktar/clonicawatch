@@ -22,31 +22,65 @@ const ITEMS_PER_PAGE = 12;
 
 export function FilteredProductList({ products }: { products: Product[] }) {
   const searchParams = useSearchParams();
+
   const [filters, setFilters] = useState<Filters>({
     brands: new Set(),
     collections: new Set(),
     priceRange: null,
   });
+
   const [showFilters, setShowFilters] = useState(false);
   const [expandedBrand, setExpandedBrand] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Read collection from URL query parameter on mount and when URL changes
+  // Read brand and collection from URL query parameters
   useEffect(() => {
+    const brandParam = searchParams.get("brand");
     const collectionSlug = searchParams.get("collection");
-    if (!collectionSlug) return;
-
     const all = [...CATALOG_BRANDS, ...LADIES_BRANDS];
-    for (const brand of all) {
-      const match = brand.collections?.find((c) => c.slug === collectionSlug);
-      if (match) {
+
+    if (brandParam) {
+      // Find brand by name (case-insensitive match)
+      const brandEntry = all.find(
+        (b) => b.name.toLowerCase() === brandParam.toLowerCase()
+      );
+
+      if (brandEntry) {
+        const newBrands = new Set([brandEntry.name]);
+        const newCollections = new Set<string>();
+
+        // If collection param is also present, find and select it
+        if (collectionSlug && brandEntry.collections) {
+          const match = brandEntry.collections.find((c) => c.slug === collectionSlug);
+          if (match) {
+            newCollections.add(match.name);
+          }
+        }
+
         setFilters((prev) => ({
           ...prev,
-          brands: new Set([brand.name]),
-          collections: new Set([match.name]),
+          brands: newBrands,
+          collections: newCollections,
         }));
-        setExpandedBrand(brand.slug);
-        break;
+
+        // Expand brand if it has collections
+        if (brandEntry.collections?.length) {
+          setExpandedBrand(brandEntry.slug);
+        }
+      }
+    } else if (collectionSlug) {
+      // Legacy: collection-only URL param (backward compatible)
+      for (const brand of all) {
+        const match = brand.collections?.find((c) => c.slug === collectionSlug);
+        if (match) {
+          setFilters((prev) => ({
+            ...prev,
+            brands: new Set([brand.name]),
+            collections: new Set([match.name]),
+          }));
+          setExpandedBrand(brand.slug);
+          break;
+        }
       }
     }
   }, [searchParams]);
@@ -151,7 +185,9 @@ export function FilteredProductList({ products }: { products: Product[] }) {
   };
 
   const setRange = (r: [number, number] | null) => setFilters((p) => ({ ...p, priceRange: r }));
+
   const clearAll = () => setFilters({ brands: new Set(), collections: new Set(), priceRange: null });
+
   const activeCount = filters.brands.size + filters.collections.size + (filters.priceRange ? 1 : 0);
 
   return (
@@ -308,3 +344,4 @@ export function FilteredProductList({ products }: { products: Product[] }) {
     </div>
   );
 }
+
