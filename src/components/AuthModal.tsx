@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 
@@ -9,7 +10,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalProps) {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">(defaultTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +33,6 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
       : await signUp(email, password, name);
 
     setLoading(false);
-
     if (result.ok) {
       setEmail("");
       setPassword("");
@@ -44,31 +44,23 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
     }
   };
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async () => {
     const normalEmail = email.toLowerCase().trim();
     if (!normalEmail) {
       setDisplayError("Please enter your email address first.");
       return;
     }
-    // Clear the stored user and let them re-register
-    try {
-      const users = JSON.parse(localStorage.getItem("clonica_users") || "{}");
-      if (users[normalEmail]) {
-        delete users[normalEmail];
-        localStorage.setItem("clonica_users", JSON.stringify(users));
-        setResetDone(true);
-        setDisplayError("");
-        setShowReset(false);
-        // Auto switch to signup
-        setTimeout(() => {
-          setTab("signup");
-          setResetDone(false);
-        }, 2500);
-      } else {
-        setDisplayError("No account found with this email.");
-      }
-    } catch {
-      setDisplayError("Something went wrong. Please try again.");
+
+    setLoading(true);
+    const result = await resetPassword(normalEmail);
+    setLoading(false);
+
+    if (result.ok) {
+      setResetDone(true);
+      setDisplayError("");
+      setShowReset(false);
+    } else {
+      setDisplayError(result.error || "Something went wrong. Please try again.");
     }
   };
 
@@ -104,7 +96,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
         {/* Tabs */}
         <div className="flex border-b border-line mx-6 mt-4">
           <button
-            onClick={() => { setTab("signin"); setDisplayError(""); setShowReset(false); }}
+            onClick={() => { setTab("signin"); setDisplayError(""); setShowReset(false); setResetDone(false); }}
             className={`flex-1 pb-3 text-sm font-medium transition-colors border-b-2 ${
               tab === "signin"
                 ? "border-gold text-gold"
@@ -114,7 +106,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
             Sign In
           </button>
           <button
-            onClick={() => { setTab("signup"); setDisplayError(""); setShowReset(false); }}
+            onClick={() => { setTab("signup"); setDisplayError(""); setShowReset(false); setResetDone(false); }}
             className={`flex-1 pb-3 text-sm font-medium transition-colors border-b-2 ${
               tab === "signup"
                 ? "border-gold text-gold"
@@ -135,7 +127,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
 
           {resetDone && (
             <div className="bg-green-400/10 border border-green-400/20 text-green-400 text-sm px-4 py-2.5 rounded-lg">
-              Account reset! You can now create a new account with the same email.
+              Password reset email sent! Check your inbox and follow the link to set a new password.
             </div>
           )}
 
@@ -183,7 +175,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
             </div>
           )}
 
-          {tab === "signin" && !showReset && (
+          {tab === "signin" && !showReset && !resetDone && (
             <label className="flex items-center gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
@@ -198,14 +190,15 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
           {showReset ? (
             <div className="space-y-3">
               <p className="text-sm text-ink-muted">
-                Enter your email above, then click the button below to reset your account. You&apos;ll be able to create a new password.
+                Enter your email above, then click the button below. We&apos;ll send you a link to reset your password.
               </p>
               <button
                 type="button"
                 onClick={handleResetPassword}
-                className="w-full bg-danger/20 hover:bg-danger/30 text-danger font-semibold py-3.5 rounded-lg text-sm transition-colors"
+                disabled={loading}
+                className="w-full bg-gold/20 hover:bg-gold/30 text-gold font-semibold py-3.5 rounded-lg text-sm transition-colors disabled:opacity-50"
               >
-                Reset Account
+                {loading ? "Sending..." : "Send Reset Link"}
               </button>
               <button
                 type="button"
@@ -217,19 +210,20 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
             </div>
           ) : (
             <>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full btn-gold py-3.5 text-sm font-semibold"
-              >
-                {loading
-                  ? "Please wait..."
-                  : tab === "signin"
-                  ? "Sign In"
-                  : "Create Account"}
-              </button>
-
-              {tab === "signin" && (
+              {!resetDone && (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full btn-gold py-3.5 text-sm font-semibold"
+                >
+                  {loading
+                    ? "Please wait..."
+                    : tab === "signin"
+                    ? "Sign In"
+                    : "Create Account"}
+                </button>
+              )}
+              {tab === "signin" && !resetDone && (
                 <button
                   type="button"
                   onClick={() => { setShowReset(true); setDisplayError(""); }}
