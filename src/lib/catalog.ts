@@ -40,6 +40,7 @@ export const CATALOG_BRANDS: CatalogBrand[] = [
     ],
   },
   { name: "Breitling", slug: "breitling" },
+  { name: "Bvlgari", slug: "bvlgari-men" },
   { name: "Cartier", slug: "cartier" },
   { name: "Franck Muller", slug: "franck-muller" },
   { name: "Hublot", slug: "hublot" },
