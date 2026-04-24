@@ -1,28 +1,18 @@
 "use client";
-
 import { useState, FormEvent, useRef, DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
 const BRANDS = ["Rolex","Audemars Piguet","Patek Philippe","Omega","Hublot","Breitling","Cartier","TAG Heuer","Panerai","IWC","Richard Mille","Vacheron Constantin","Jaeger-LeCoultre","Tudor","Bell & Ross","Zenith","Chopard","Longines","Ulysse Nardin","Franck Muller","Piaget"];
-
 const QUALITY = ["Super Clone","1:1","AAA+","Top Quality"];
-
-const MATERIALS = ["Stainless Steel 904L","Stainless Steel 316L","Yellow Gold Plated","Rose Gold Plated","Two-Tone (Gold/Steel)","Ceramic","Titanium","PVD Black","Carbon Fiber"];
-
-const MOVEMENTS = ["Automatic","Quartz","Manual Wind"];
-
+const MATERIALS = ["Stainless Steel 904L","Stainless Steel 316L","Two-Tone (Yellow Gold/Steel)","Rose Gold Plated","Two-Tone (Gold/Steel)","Two-Tone (Rose Gold/Steel)","Ceramic","Titanium","PVD Black","Carbon Fiber"];
+const MOVEMENTS = ["Automatic","Quartz","Manual Wind","Tourbillon"];
 const STOCK_STATUSES = ["In Stock","Limited Stock","Sold Out","Pre-Order"];
-
 const GENDERS = ["Men","Women","Unisex"];
-
 const STYLE_TAGS = ["Diver","Chronograph","Dress","Pilot","Sport","GMT","Moonphase","Skeleton","Tourbillon","Perpetual Calendar"];
-
 interface Props {
   initialData?: any;
   mode: "create" | "edit";
 }
-
 export default function ProductForm({ initialData, mode }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -36,7 +26,6 @@ export default function ProductForm({ initialData, mode }: Props) {
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [videoUploading, setVideoUploading] = useState(false);
   const [videoError, setVideoError] = useState("");
-
   const defaults = {
     brand: "Rolex",
     collection: "",
@@ -72,19 +61,15 @@ export default function ProductForm({ initialData, mode }: Props) {
     video_url: "",
     ...initialData,
   };
-
   if (initialData) {
     defaults.price_usd = initialData.price?.usd || 1000;
     defaults.style_tags = initialData.style_tags || ["Diver", "Sport"];
   }
-
   const [form, setForm] = useState(defaults);
-
   const set = (key: string) => (e: any) => {
     const val = e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setForm({ ...form, [key]: val });
   };
-
   const toggleStyleTag = (tag: string) => {
     const tags = [...form.style_tags];
     const idx = tags.indexOf(tag);
@@ -92,18 +77,15 @@ export default function ProductForm({ initialData, mode }: Props) {
     else tags.push(tag);
     setForm({ ...form, style_tags: tags });
   };
-
   const addImageUrl = () => {
     if (newImageUrl.trim()) {
       setImageUrls([...imageUrls, newImageUrl.trim()]);
       setNewImageUrl("");
     }
   };
-
   const removeImage = (idx: number) => {
     setImageUrls(imageUrls.filter((_, i) => i !== idx));
   };
-
   const moveImage = (idx: number, dir: -1 | 1) => {
     const next = [...imageUrls];
     const target = idx + dir;
@@ -111,13 +93,11 @@ export default function ProductForm({ initialData, mode }: Props) {
     [next[idx], next[target]] = [next[target], next[idx]];
     setImageUrls(next);
   };
-
   const getFolder = () => {
     if (initialData?.sku) return `products/${initialData.sku.toLowerCase()}`;
     if (form.sku) return `products/${form.sku.toLowerCase()}`;
     return `products/${(form.brand || "misc").toLowerCase()}-${Date.now()}`;
   };
-
   const addWatermark = (file: File): Promise<Blob> => {
     return new Promise((resolve) => {
       const img = new window.Image();
@@ -125,18 +105,14 @@ export default function ProductForm({ initialData, mode }: Props) {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) { resolve(file); return; }
-
         const w = img.width;
         const h = img.height;
         canvas.width = w;
         canvas.height = h;
-
         ctx.drawImage(img, 0, 0);
-
         const fontSize = Math.max(Math.round(w * 0.04), 16);
         const gap = Math.round(fontSize * 3.5);
         const angle = -30 * (Math.PI / 180);
-
         ctx.save();
         ctx.translate(w / 2, h / 2);
         ctx.rotate(angle);
@@ -144,24 +120,19 @@ export default function ProductForm({ initialData, mode }: Props) {
         ctx.fillStyle = "rgba(255,255,255,0.35)";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-
         const diagonal = Math.sqrt(w * w + h * h);
         const startX = -diagonal;
         const endX = diagonal;
         const startY = -diagonal;
         const endY = diagonal;
-
         const text = "CLONICA";
         const textW = ctx.measureText(text).width + fontSize * 2;
-
         for (let y = startY; y < endY; y += gap) {
           for (let x = startX; x < endX; x += textW) {
             ctx.fillText(text, x, y);
           }
         }
-
         ctx.restore();
-
         canvas.toBlob(
           (blob) => blob ? resolve(blob) : resolve(file),
           "image/jpeg",
@@ -173,45 +144,34 @@ export default function ProductForm({ initialData, mode }: Props) {
       img.src = URL.createObjectURL(file);
     });
   };
-
   const uploadFiles = async (files: FileList | File[]) => {
     const imgExts = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
     const imageFiles = Array.from(files).filter((f) => {
       const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
       return f.type.startsWith("image/") || imgExts.includes(ext);
     });
-
     if (!imageFiles.length) {
       setUploadError("Sadece gorsel dosyalari yuklenebilir");
       return;
     }
-
     setUploading(true);
     setUploadError("");
-
     try {
       const folder = getFolder();
       const uploadedUrls: string[] = [];
-
       for (const file of imageFiles) {
         const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
         const filePath = `${folder}/${Date.now()}-${safeName}`;
-
         const watermarked = await addWatermark(file);
-
         const { data, error } = await supabase.storage
           .from("product-images")
           .upload(filePath, watermarked, { cacheControl: "3600", upsert: true, contentType: "image/jpeg" });
-
         if (error) throw new Error(error.message);
-
         const { data: urlData } = supabase.storage
           .from("product-images")
           .getPublicUrl(data.path);
-
         uploadedUrls.push(urlData.publicUrl);
       }
-
       const cleaned = imageUrls.filter((u) => !u.includes("placeholder"));
       setImageUrls([...cleaned, ...uploadedUrls]);
     } catch (err: any) {
@@ -220,40 +180,31 @@ export default function ProductForm({ initialData, mode }: Props) {
       setUploading(false);
     }
   };
-
   const uploadVideo = async (file: File) => {
     const videoExts = [".mp4", ".mov", ".webm", ".avi"];
     const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
     const isVideo = file.type.startsWith("video/") || videoExts.includes(ext);
-
     if (!isVideo) {
       setVideoError("Sadece video dosyalari yuklenebilir (MP4, MOV, WEBM)");
       return;
     }
-
     if (file.size > 100 * 1024 * 1024) {
       setVideoError("Video boyutu 100MB'dan kucuk olmali");
       return;
     }
-
     setVideoUploading(true);
     setVideoError("");
-
     try {
       const folder = getFolder();
       const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
       const filePath = `${folder}/${Date.now()}-${safeName}`;
-
       const { data, error } = await supabase.storage
         .from("product-images")
         .upload(filePath, file, { cacheControl: "3600", upsert: true });
-
       if (error) throw new Error(error.message);
-
       const { data: urlData } = supabase.storage
         .from("product-images")
         .getPublicUrl(data.path);
-
       setForm({ ...form, video_url: urlData.publicUrl });
     } catch (err: any) {
       setVideoError(err.message || "Video yukleme hatasi");
@@ -261,7 +212,6 @@ export default function ProductForm({ initialData, mode }: Props) {
       setVideoUploading(false);
     }
   };
-
   const onDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(false);
@@ -269,22 +219,18 @@ export default function ProductForm({ initialData, mode }: Props) {
       uploadFiles(e.dataTransfer.files);
     }
   };
-
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (!dragOver) setDragOver(true);
   };
-
   const onDragLeave = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(false);
   };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError("");
-
     const product: any = {
       brand: form.brand,
       collection: form.collection,
@@ -322,24 +268,18 @@ export default function ProductForm({ initialData, mode }: Props) {
       gallery_images: imageUrls.length ? imageUrls : ["/images/placeholder-watch.svg"],
       video_url: form.video_url || undefined,
     };
-
     try {
       const url = mode === "edit"
         ? `/api/admin/products/${initialData.id}`
         : "/api/admin/products";
-
       const method = mode === "edit" ? "PUT" : "POST";
-
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product),
       });
-
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error);
-
       router.push("/admin/products");
       router.refresh();
     } catch (err: any) {
@@ -348,11 +288,9 @@ export default function ProductForm({ initialData, mode }: Props) {
       setSaving(false);
     }
   };
-
   const labelCls = "block text-xs text-ink-muted mb-1.5 font-medium";
   const inputCls = "w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm focus:border-gold focus:outline-none transition-colors";
   const sectionCls = "bg-bg-elev border border-line rounded-xl p-5 space-y-4 min-w-0 overflow-hidden";
-
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-full overflow-hidden">
       {error && (
@@ -360,7 +298,6 @@ export default function ProductForm({ initialData, mode }: Props) {
           {error}
         </div>
       )}
-
       <div className="grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-6 min-w-0 overflow-hidden">
         {/* Left Column — Main Form */}
         <div className="space-y-6 min-w-0">
@@ -384,7 +321,6 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             </div>
           </div>
-
           {/* Quality */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Kalite</h2>
@@ -395,7 +331,6 @@ export default function ProductForm({ initialData, mode }: Props) {
               </select>
             </div>
           </div>
-
           {/* Case & Design */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Kasa & Tasarim</h2>
@@ -428,7 +363,6 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             </div>
           </div>
-
           {/* Movement */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Mekanizma</h2>
@@ -459,17 +393,15 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             </div>
           </div>
-
           {/* Descriptions */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Aciklama</h2>
             <div>
               <label className={labelCls}>Detayli Aciklama (urun sayfasi, markdown destekli)</label>
-              <textarea value={form.long_description} onChange={set("long_description")} rows={6} placeholder="## Clean Factory Super Clone&#10;&#10;Detayli aciklama..." className={inputCls} />
+              <textarea value={form.long_description} onChange={set("long_description")} rows={6} placeholder={"## Clean Factory Super Clone\n\nDetayli aciklama..."} className={inputCls} />
             </div>
           </div>
         </div>
-
         {/* Right Column — Sidebar */}
         <div className="space-y-6 min-w-0">
           {/* Pricing */}
@@ -492,7 +424,6 @@ export default function ProductForm({ initialData, mode }: Props) {
               </select>
             </div>
           </div>
-
           {/* Flags */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Etiketler</h2>
@@ -530,11 +461,9 @@ export default function ProductForm({ initialData, mode }: Props) {
               </div>
             </div>
           </div>
-
           {/* Images */}
           <div className={sectionCls}>
             <h2 className="text-gold text-sm font-semibold tracking-wider uppercase">Medya (Foto & Video)</h2>
-
             {/* Drag & Drop zone */}
             <div
               onDrop={onDrop}
@@ -581,13 +510,11 @@ export default function ProductForm({ initialData, mode }: Props) {
                 )}
               </div>
             </div>
-
             {uploadError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-lg">
                 {uploadError}
               </div>
             )}
-
             {/* Image list with preview, reorder, delete */}
             {imageUrls.length > 0 && (
               <div className="space-y-2">
@@ -643,7 +570,6 @@ export default function ProductForm({ initialData, mode }: Props) {
                 ))}
               </div>
             )}
-
             {/* Optional: paste URL */}
             <details className="text-xs">
               <summary className="text-ink-muted cursor-pointer hover:text-gold transition-colors py-1">
@@ -662,14 +588,12 @@ export default function ProductForm({ initialData, mode }: Props) {
                 </button>
               </div>
             </details>
-
             {/* Video section */}
             {videoError && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-3 py-2 rounded-lg">
                 {videoError}
               </div>
             )}
-
             <input
               ref={videoInputRef}
               type="file"
@@ -680,7 +604,6 @@ export default function ProductForm({ initialData, mode }: Props) {
                 try { if (videoInputRef.current) videoInputRef.current.value = ""; } catch (_) {}
               }}
             />
-
             {form.video_url ? (
               <div className="bg-bg rounded-lg border border-gold/30 overflow-hidden">
                 <div className="relative aspect-video bg-black">
@@ -759,14 +682,12 @@ export default function ProductForm({ initialData, mode }: Props) {
                 </p>
               </div>
             )}
-
             <p className="text-[11px] text-ink-dim leading-relaxed">
               Ilk gorsel <strong className="text-gold">ana gorsel</strong> olarak kullanilir. Ok tuslariyla sirayi degistirebilirsin.
             </p>
           </div>
         </div>
       </div>
-
       {/* Save Button */}
       <div className="mt-6">
         <button
@@ -780,4 +701,3 @@ export default function ProductForm({ initialData, mode }: Props) {
     </form>
   );
 }
-
