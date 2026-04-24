@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { trackPurchase } from "@/components/Analytics";
 import type { Product } from "@/types/product";
-
 export default function ProductsList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-
+  const [soldId, setSoldId] = useState<string | null>(null);
   const load = () => {
     setLoading(true);
     fetch("/api/admin/products")
@@ -16,9 +16,7 @@ export default function ProductsList() {
       .then((d) => setProducts(d.products || []))
       .finally(() => setLoading(false));
   };
-
   useEffect(load, []);
-
   const filtered = products.filter((p) => {
     const q = search.toLowerCase();
     return (
@@ -28,14 +26,12 @@ export default function ProductsList() {
       (p.reference || "").toLowerCase().includes(q)
     );
   });
-
   const toggleSelect = (id: string) => {
     const next = new Set(selected);
     if (next.has(id)) next.delete(id);
     else next.add(id);
     setSelected(next);
   };
-
   const toggleAll = () => {
     if (selected.size === filtered.length) {
       setSelected(new Set());
@@ -43,7 +39,6 @@ export default function ProductsList() {
       setSelected(new Set(filtered.map((p) => p.id)));
     }
   };
-
   const deleteSelected = async () => {
     if (!selected.size) return;
     if (!confirm(`${selected.size} urunu silmek istediginize emin misiniz?`)) return;
@@ -55,13 +50,20 @@ export default function ProductsList() {
     setSelected(new Set());
     load();
   };
-
   const deleteSingle = async (id: string) => {
     if (!confirm("Bu urunu silmek istediginize emin misiniz?")) return;
     await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
     load();
   };
-
+  const handleSale = (p: Product) => {
+    if (!confirm(`"${p.model_name}" satisi onaylansin mi?\nFiyat: $${p.price.usd}`)) return;
+    trackPurchase(
+      [{ id: p.id, name: p.model_name, brand: p.brand, price: p.price.usd, qty: 1 }],
+      p.price.usd
+    );
+    setSoldId(p.id);
+    setTimeout(() => setSoldId(null), 3000);
+  };
   const statusColor = (s: string) => {
     switch (s) {
       case "In Stock": return "text-green-400 bg-green-400/10";
@@ -71,7 +73,6 @@ export default function ProductsList() {
       default: return "text-ink-muted bg-bg";
     }
   };
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -83,7 +84,6 @@ export default function ProductsList() {
           + Yeni Urun
         </Link>
       </div>
-
       {/* Toolbar */}
       <div className="flex items-center gap-3 mb-4">
         <input
@@ -102,7 +102,6 @@ export default function ProductsList() {
           </button>
         )}
       </div>
-
       {/* Table */}
       {loading ? (
         <div className="text-ink-muted py-12 text-center">Yukleniyor...</div>
@@ -119,7 +118,7 @@ export default function ProductsList() {
                 <th className="p-3 hidden lg:table-cell">Factory</th>
                 <th className="p-3 hidden sm:table-cell">Fiyat</th>
                 <th className="p-3 hidden md:table-cell">Stok</th>
-                <th className="p-3 w-20">Islem</th>
+                <th className="p-3 w-36">Islem</th>
               </tr>
             </thead>
             <tbody>
@@ -160,15 +159,25 @@ export default function ProductsList() {
                   </td>
                   <td className="p-3">
                     <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSale(p)}
+                        className={`text-xs px-2 py-1 rounded transition-colors ${
+                          soldId === p.id
+                            ? "bg-green-500/20 text-green-400"
+                            : "text-green-400 hover:bg-green-500/10"
+                        }`}
+                      >
+                        {soldId === p.id ? "✓ Kaydedildi" : "Satildi"}
+                      </button>
                       <Link
                         href={`/admin/products/${p.id}`}
-                        className="text-xs text-gold hover:underline"
+                        className="text-xs text-gold hover:underline py-1"
                       >
                         Duzenle
                       </Link>
                       <button
                         onClick={() => deleteSingle(p.id)}
-                        className="text-xs text-red-400 hover:underline"
+                        className="text-xs text-red-400 hover:underline py-1"
                       >
                         Sil
                       </button>
@@ -190,3 +199,4 @@ export default function ProductsList() {
     </div>
   );
 }
+
