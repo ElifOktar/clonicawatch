@@ -8,7 +8,7 @@ export default function ProductsList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [soldId, setSoldId] = useState<string | null>(null);
+  const [soldIds, setSoldIds] = useState<Set<string>>(new Set());
   const load = () => {
     setLoading(true);
     fetch("/api/admin/products")
@@ -61,8 +61,7 @@ export default function ProductsList() {
       [{ id: p.id, name: p.model_name, brand: p.brand, price: p.price.usd, qty: 1 }],
       p.price.usd
     );
-    setSoldId(p.id);
-    setTimeout(() => setSoldId(null), 3000);
+    setSoldIds((prev) => new Set(prev).add(p.id));
   };
   const statusColor = (s: string) => {
     switch (s) {
@@ -162,12 +161,12 @@ export default function ProductsList() {
                       <button
                         onClick={() => handleSale(p)}
                         className={`text-xs px-2 py-1 rounded font-medium transition-colors ${
-                          soldId === p.id
+                          soldIds.has(p.id)
                             ? "bg-green-500/20 text-green-400"
                             : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                         }`}
                       >
-                        {soldId === p.id ? "✓ Kaydedildi" : "Satildi"}
+                        {soldIds.has(p.id) ? "✓ Kaydedildi" : "Satildi"}
                       </button>
                       <Link
                         href={`/admin/products/${p.id}`}
