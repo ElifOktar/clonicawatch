@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -11,10 +10,8 @@ import {
   trackViewCart,
   trackBeginCheckout,
   trackWhatsAppClick,
-  trackPurchase,
 } from "@/components/Analytics";
 import type { Product } from "@/types/product";
-
 interface ShippingAddress {
   fullName: string;
   phone: string;
@@ -25,7 +22,6 @@ interface ShippingAddress {
   zip: string;
   country: string;
 }
-
 export default function CartPage() {
   const { items, updateQty, removeItem, clear, isHydrated } = useCart();
   const { user, updateProfile } = useAuth();
@@ -33,7 +29,6 @@ export default function CartPage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState<"cart" | "address">("cart");
-
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
@@ -43,9 +38,7 @@ export default function CartPage() {
       })
       .catch(() => setLoading(false));
   }, []);
-
   const resolved = resolveCartItems(items, allProducts);
-
   const [address, setAddress] = useState<ShippingAddress>({
     fullName: user?.name || "",
     phone: user?.phone || "",
@@ -56,18 +49,14 @@ export default function CartPage() {
     zip: user?.address?.zip || "",
     country: user?.address?.country || "",
   });
-
   const total = resolved.reduce(
     (sum, it) => sum + it.product.price.usd * it.qty,
     0
   );
-
   const addressText = `\n\n📦 Shipping Address:\n${address.fullName}\n${address.phone}\n${address.line1}${address.line2 ? ", " + address.line2 : ""}\n${address.city}, ${address.state} ${address.zip}\n${address.country}`;
   const waMessage = buildCartWhatsAppMessage(resolved) + (step === "address" ? addressText : "");
   const waUrl = getWhatsAppUrl(waMessage);
-
   const inputCls = "w-full bg-bg border border-line rounded-lg px-4 py-3 text-sm focus:border-gold focus:outline-none transition-colors placeholder:text-ink-dim";
-
   /* GA4: Helper */
   const gaItems = resolved.map(({ product, qty }) => ({
     id: product.id,
@@ -76,7 +65,6 @@ export default function CartPage() {
     price: product.price.usd,
     qty,
   }));
-
   /* GA4: view_cart */
   useEffect(() => {
     if (!loading && resolved.length > 0) {
@@ -84,21 +72,17 @@ export default function CartPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
-
   const handleProceedToCheckout = () => {
     /* GA4: begin_checkout */
     trackBeginCheckout(gaItems, total);
-
     setStep("address");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
   const handleCheckout = () => {
     if (!address.fullName || !address.phone || !address.line1 || !address.city || !address.country) {
       showToast("Please fill in all required address fields", "error");
       return;
     }
-
     if (user) {
       updateProfile({
         phone: address.phone,
@@ -112,18 +96,13 @@ export default function CartPage() {
         },
       });
     }
-
-    /* GA4: whatsapp_click + purchase */
+    /* GA4: whatsapp_click (purchase artik admin panelinden tetikleniyor) */
     trackWhatsAppClick({ page: "cart", value: total });
-    trackPurchase(gaItems, total);
-
     showToast("Order details prepared! Redirecting to WhatsApp...", "success");
-
     setTimeout(() => {
       window.open(waUrl, "_blank");
     }, 1000);
   };
-
   if (!isHydrated || loading) {
     return (
       <div className="container py-20 text-center text-ink-muted">
@@ -131,7 +110,6 @@ export default function CartPage() {
       </div>
     );
   }
-
   return (
     <div className="container py-12">
       {/* Steps indicator */}
@@ -154,11 +132,9 @@ export default function CartPage() {
           </button>
         </div>
       )}
-
       <h1 className="h-serif text-4xl mb-8">
         {step === "cart" ? "Your Cart" : "Shipping Address"}
       </h1>
-
       {resolved.length === 0 ? (
         <div className="card p-12 text-center">
           <p className="text-ink-muted text-lg">Your cart is empty.</p>
@@ -203,7 +179,6 @@ export default function CartPage() {
             ))}
             <button onClick={clear} className="text-sm text-ink-dim hover:text-danger">Clear cart</button>
           </div>
-
           {/* Summary */}
           <aside className="card p-6 h-fit lg:sticky lg:top-24 min-w-0 overflow-hidden">
             <h3 className="h-serif text-xl mb-4">Order Summary</h3>
@@ -221,7 +196,6 @@ export default function CartPage() {
               <span className="text-gold font-medium">{formatPrice(total)}</span>
             </div>
             <p className="text-xs text-ink-muted mt-2">Shipping calculated in next step.</p>
-
             <button onClick={handleProceedToCheckout} className="btn-gold w-full mt-6 text-base">
               Proceed to Checkout
             </button>
@@ -232,7 +206,6 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-[1fr,360px] gap-8">
           <div className="card p-6 space-y-4">
             <h3 className="text-gold text-sm font-semibold tracking-wider uppercase">Delivery Information</h3>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 sm:col-span-1">
                 <label className="block text-xs text-ink-muted mb-1.5 font-medium">Full Name *</label>
@@ -243,17 +216,14 @@ export default function CartPage() {
                 <input value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} placeholder="+1 234 567 8900" className={inputCls} required />
               </div>
             </div>
-
             <div>
               <label className="block text-xs text-ink-muted mb-1.5 font-medium">Address Line 1 *</label>
               <input value={address.line1} onChange={(e) => setAddress({ ...address, line1: e.target.value })} placeholder="123 Main Street, Apt 4B" className={inputCls} required />
             </div>
-
             <div>
               <label className="block text-xs text-ink-muted mb-1.5 font-medium">Address Line 2</label>
               <input value={address.line2} onChange={(e) => setAddress({ ...address, line2: e.target.value })} placeholder="Building, Floor (optional)" className={inputCls} />
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs text-ink-muted mb-1.5 font-medium">City *</label>
@@ -264,7 +234,6 @@ export default function CartPage() {
                 <input value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} placeholder="NY" className={inputCls} />
               </div>
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs text-ink-muted mb-1.5 font-medium">Postal Code</label>
@@ -276,7 +245,6 @@ export default function CartPage() {
               </div>
             </div>
           </div>
-
           {/* Order summary sidebar */}
           <aside className="card p-6 h-fit lg:sticky lg:top-24">
             <h3 className="h-serif text-xl mb-4">Order Summary</h3>
@@ -293,15 +261,12 @@ export default function CartPage() {
               <span>Total</span>
               <span className="text-gold font-medium">{formatPrice(total)}</span>
             </div>
-
             <button onClick={handleCheckout} className="btn-gold w-full mt-6 text-base">
               Complete Order via WhatsApp
             </button>
-
             <button onClick={() => setStep("cart")} className="w-full mt-3 text-sm text-ink-muted hover:text-gold transition-colors text-center">
               ← Back to Cart
             </button>
-
             <div className="mt-4 text-xs text-ink-muted space-y-2">
               <p>✓ Order details + address auto-fill into WhatsApp.</p>
               <p>✓ Our team responds within 2 hours.</p>
@@ -313,3 +278,4 @@ export default function CartPage() {
     </div>
   );
 }
+
