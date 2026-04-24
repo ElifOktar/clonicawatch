@@ -56,6 +56,13 @@ export default function ProductsList() {
     load();
   };
   const handleSale = (p: Product) => {
+    if (soldIds.has(p.id)) {
+      // Geri al
+      if (!confirm(`"${p.model_name}" satis kaydini geri almak istediginize emin misiniz?`)) return;
+      setSoldIds((prev) => { const next = new Set(prev); next.delete(p.id); return next; });
+      return;
+    }
+    // Satis onayla
     if (!confirm(`"${p.model_name}" satisi onaylansin mi?\nFiyat: $${p.price.usd}`)) return;
     trackPurchase(
       [{ id: p.id, name: p.model_name, brand: p.brand, price: p.price.usd, qty: 1 }],
@@ -166,7 +173,7 @@ export default function ProductsList() {
                             : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                         }`}
                       >
-                        {soldIds.has(p.id) ? "✓ Kaydedildi" : "Satildi"}
+                        {soldIds.has(p.id) ? "✓ Satildi" : "Satildi"}
                       </button>
                       <Link
                         href={`/admin/products/${p.id}`}
