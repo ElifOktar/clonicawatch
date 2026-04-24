@@ -161,10 +161,10 @@ export default function ProductsList() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleSale(p)}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${
+                        className={`text-xs px-2 py-1 rounded font-medium transition-colors ${
                           soldId === p.id
                             ? "bg-green-500/20 text-green-400"
-                            : "text-green-400 hover:bg-green-500/10"
+                            : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                         }`}
                       >
                         {soldId === p.id ? "✓ Kaydedildi" : "Satildi"}
