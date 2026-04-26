@@ -3,8 +3,32 @@ import { useState, FormEvent, useRef, DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 const BRANDS = ["Rolex","Audemars Piguet","Patek Philippe","Omega","Hublot","Breitling","Cartier","TAG Heuer","Panerai","IWC","Richard Mille","Vacheron Constantin","Jaeger-LeCoultre","Tudor","Bell & Ross","Zenith","Chopard","Longines","Ulysse Nardin","Franck Muller","Piaget"];
+// Marka -> Koleksiyon listesi. Listede olmayan markada manuel input gosterilir.
+const COLLECTIONS: Record<string, string[]> = {
+  "Rolex": ["Submariner","GMT-Master II","Daytona","Datejust","Day-Date","Yacht-Master","Explorer","Explorer II","Sea-Dweller","Deepsea","Sky-Dweller","Air-King","Oyster Perpetual","Milgauss","Cellini"],
+  "Audemars Piguet": ["Royal Oak","Royal Oak Offshore","Royal Oak Concept","Code 11.59","Millenary","Jules Audemars"],
+  "Patek Philippe": ["Nautilus","Aquanaut","Calatrava","Grand Complications","Complications","Twenty~4","Gondolo","Golden Ellipse"],
+  "Omega": ["Speedmaster","Seamaster","Constellation","De Ville","Aqua Terra","Planet Ocean","Railmaster"],
+  "Hublot": ["Big Bang","Classic Fusion","Spirit of Big Bang","MP Collection","King Power"],
+  "Cartier": ["Santos","Tank","Ballon Bleu","Pasha","Panthere","Drive","Cle"],
+  "TAG Heuer": ["Carrera","Aquaracer","Monaco","Formula 1","Connected","Autavia","Link"],
+  "Panerai": ["Luminor","Radiomir","Submersible","Luminor Due"],
+  "IWC": ["Portugieser","Pilot's Watches","Portofino","Aquatimer","Da Vinci","Ingenieur"],
+  "Richard Mille": ["RM 011","RM 035","RM 055","RM 027","RM 67","RM 030","RM 050","RM 052"],
+  "Breitling": ["Navitimer","Superocean","Chronomat","Avenger","Premier","Top Time","Endurance Pro"],
+  "Vacheron Constantin": ["Patrimony","Overseas","Traditionnelle","Fiftysix","Historiques","Malte"],
+  "Jaeger-LeCoultre": ["Reverso","Master","Polaris","Rendez-Vous","Duometre"],
+  "Tudor": ["Black Bay","Pelagos","Royal","1926","Ranger","Glamour","Heritage"],
+  "Bell & Ross": ["BR 03","BR 05","BR V2","Vintage","BR-X1"],
+  "Zenith": ["El Primero","Defy","Chronomaster","Pilot","Elite"],
+  "Chopard": ["Mille Miglia","Happy Sport","L.U.C","Alpine Eagle","Imperiale"],
+  "Longines": ["HydroConquest","Master Collection","Conquest","Heritage","DolceVita","La Grande Classique"],
+  "Ulysse Nardin": ["Marine","Diver","Freak","Executive","Blast"],
+  "Franck Muller": ["Vanguard","Cintree Curvex","Crazy Hours","Long Island","Casablanca"],
+  "Piaget": ["Altiplano","Polo","Limelight","Possession"],
+};
 const QUALITY = ["Super Clone","1:1","AAA+","Top Quality"];
-const MATERIALS = ["Stainless Steel 904L","Stainless Steel 316L","Two-Tone (Yellow Gold/Steel)","Rose Gold Plated","Two-Tone (Gold/Steel)","Two-Tone (Rose Gold/Steel)","Ceramic","Titanium","PVD Black","Carbon Fiber"];
+const MATERIALS = ["Stainless Steel 904L","Stainless Steel 316L","Yellow Gold Plated","Rose Gold Plated","Two-Tone (Gold/Steel)","Two-Tone (Rose Gold/Steel)","Ceramic","Titanium","PVD Black","Carbon Fiber"];
 const MOVEMENTS = ["Automatic","Quartz","Manual Wind","Tourbillon"];
 const STOCK_STATUSES = ["In Stock","Limited Stock","Sold Out","Pre-Order"];
 const GENDERS = ["Men","Women","Unisex"];
@@ -66,9 +90,37 @@ export default function ProductForm({ initialData, mode }: Props) {
     defaults.style_tags = initialData.style_tags || ["Diver", "Sport"];
   }
   const [form, setForm] = useState(defaults);
+  // Koleksiyon: predefined liste varsa select, yoksa manuel input.
+  // Edit modunda gelen koleksiyon listede yoksa manuel moda dus.
+  const computeInitialCollectionMode = (): "select" | "manual" => {
+    const cols = COLLECTIONS[defaults.brand] || [];
+    if (cols.length === 0) return "manual";
+    if (initialData?.collection && !cols.includes(initialData.collection)) return "manual";
+    return "select";
+  };
+  const [collectionMode, setCollectionMode] = useState<"select" | "manual">(computeInitialCollectionMode());
   const set = (key: string) => (e: any) => {
     const val = e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setForm({ ...form, [key]: val });
+  };
+  const handleBrandChange = (e: any) => {
+    const newBrand = e.target.value;
+    const cols = COLLECTIONS[newBrand] || [];
+    setForm({ ...form, brand: newBrand, collection: "" });
+    setCollectionMode(cols.length > 0 ? "select" : "manual");
+  };
+  const handleCollectionSelect = (e: any) => {
+    const val = e.target.value;
+    if (val === "__manual__") {
+      setCollectionMode("manual");
+      setForm({ ...form, collection: "" });
+    } else {
+      setForm({ ...form, collection: val });
+    }
+  };
+  const switchToSelectMode = () => {
+    setCollectionMode("select");
+    setForm({ ...form, collection: "" });
   };
   const toggleStyleTag = (tag: string) => {
     const tags = [...form.style_tags];
@@ -291,6 +343,8 @@ export default function ProductForm({ initialData, mode }: Props) {
   const labelCls = "block text-xs text-ink-muted mb-1.5 font-medium";
   const inputCls = "w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm focus:border-gold focus:outline-none transition-colors";
   const sectionCls = "bg-bg-elev border border-line rounded-xl p-5 space-y-4 min-w-0 overflow-hidden";
+  const brandCollections = COLLECTIONS[form.brand] || [];
+  const hasCollections = brandCollections.length > 0;
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-full overflow-hidden">
       {error && (
@@ -307,13 +361,44 @@ export default function ProductForm({ initialData, mode }: Props) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>Marka *</label>
-                <select value={form.brand} onChange={set("brand")} className={inputCls}>
+                <select value={form.brand} onChange={handleBrandChange} className={inputCls}>
                   {BRANDS.map((b) => <option key={b}>{b}</option>)}
                 </select>
               </div>
               <div>
                 <label className={labelCls}>Koleksiyon *</label>
-                <input value={form.collection} onChange={set("collection")} placeholder="Submariner" className={inputCls} required />
+                {hasCollections && collectionMode === "select" ? (
+                  <select
+                    value={form.collection}
+                    onChange={handleCollectionSelect}
+                    className={inputCls}
+                    required
+                  >
+                    <option value="">Sec...</option>
+                    {brandCollections.map((c) => <option key={c} value={c}>{c}</option>)}
+                    <option value="__manual__">Diger (manuel gir)...</option>
+                  </select>
+                ) : (
+                  <div className="flex gap-2 min-w-0">
+                    <input
+                      value={form.collection}
+                      onChange={set("collection")}
+                      placeholder="Koleksiyon adi"
+                      className={`${inputCls} flex-1 min-w-0`}
+                      required
+                    />
+                    {hasCollections && (
+                      <button
+                        type="button"
+                        onClick={switchToSelectMode}
+                        className="text-[11px] text-gold hover:bg-gold/10 border border-gold/30 px-2 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors"
+                        title="Listeden sec"
+                      >
+                        Liste
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="col-span-2">
                 <label className={labelCls}>Model Adi * (site'de gorunur)</label>
@@ -701,3 +786,4 @@ export default function ProductForm({ initialData, mode }: Props) {
     </form>
   );
 }
+
