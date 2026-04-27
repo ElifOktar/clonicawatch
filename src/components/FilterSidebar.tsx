@@ -191,7 +191,7 @@ export function FilteredProductList({ products }: { products: Product[] }) {
   const activeCount = filters.brands.size + filters.collections.size + (filters.priceRange ? 1 : 0);
 
   return (
-    <div>
+    <div className="w-full max-w-full overflow-x-hidden">
       {/* Mobile filter toggle */}
       <div className="flex items-center justify-between mb-6 lg:hidden">
         <p className="text-sm text-ink-muted">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</p>
@@ -206,8 +206,8 @@ export function FilteredProductList({ products }: { products: Product[] }) {
         </button>
       </div>
 
-      <div className="grid lg:grid-cols-[220px,1fr] gap-8">
-        <aside className={`space-y-6 lg:sticky lg:top-24 h-fit ${showFilters ? "block" : "hidden lg:block"}`}>
+      <div className="grid lg:grid-cols-[220px,1fr] gap-8 min-w-0">
+        <aside className={`space-y-6 lg:sticky lg:top-24 h-fit min-w-0 ${showFilters ? "block" : "hidden lg:block"}`}>
           <div className="flex items-center justify-between">
             <h3 className="text-gold text-xs tracking-widest uppercase">Filters</h3>
             {activeCount > 0 && (
@@ -294,18 +294,18 @@ export function FilteredProductList({ products }: { products: Product[] }) {
           </div>
         </aside>
 
-        <div>
+        <div className="min-w-0">
           <p className="text-sm text-ink-muted mb-4 hidden lg:block">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</p>
           <ProductGrid products={paginatedProducts} />
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <nav className="flex items-center justify-center gap-2 mt-10">
+            <nav className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-10 max-w-full">
               {/* Previous */}
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-3 py-2 text-sm rounded-lg border border-line text-ink-muted hover:text-gold hover:border-gold/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="px-2.5 sm:px-3 py-2 text-xs sm:text-sm rounded-lg border border-line text-ink-muted hover:text-gold hover:border-gold/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 Prev
               </button>
@@ -313,12 +313,12 @@ export function FilteredProductList({ products }: { products: Product[] }) {
               {/* Page Numbers */}
               {getPageNumbers().map((page, idx) =>
                 page === "..." ? (
-                  <span key={`dot-${idx}`} className="px-2 text-ink-dim text-sm">...</span>
+                  <span key={`dot-${idx}`} className="px-1 sm:px-2 text-ink-dim text-xs sm:text-sm">...</span>
                 ) : (
                   <button
                     key={page}
                     onClick={() => goToPage(page)}
-                    className={`w-10 h-10 text-sm rounded-lg border transition-colors ${
+                    className={`w-9 h-9 sm:w-10 sm:h-10 text-xs sm:text-sm rounded-lg border transition-colors ${
                       currentPage === page
                         ? "bg-gold text-[#0a0e17] border-gold font-semibold"
                         : "border-line text-ink-muted hover:text-gold hover:border-gold/30"
@@ -333,7 +333,7 @@ export function FilteredProductList({ products }: { products: Product[] }) {
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-3 py-2 text-sm rounded-lg border border-line text-ink-muted hover:text-gold hover:border-gold/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="px-2.5 sm:px-3 py-2 text-xs sm:text-sm rounded-lg border border-line text-ink-muted hover:text-gold hover:border-gold/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 Next
               </button>
