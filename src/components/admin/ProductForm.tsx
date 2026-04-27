@@ -28,7 +28,7 @@ const COLLECTIONS: Record<string, string[]> = {
   "Piaget": ["Altiplano","Polo","Limelight","Possession"],
 };
 const QUALITY = ["Super Clone","1:1","AAA+","Top Quality"];
-const MATERIALS = ["Stainless Steel 904L","Stainless Steel 316L","Yellow Gold Plated","Rose Gold Plated","Two-Tone (Gold/Steel)","Two-Tone (Rose Gold/Steel)","Ceramic","Titanium","PVD Black","Carbon Fiber"];
+const MATERIALS = ["Stainless Steel 904L","Stainless Steel 316L","Yellow Gold Plated","Rose Gold Plated","Two-Tone (Gold/Steel)","Two-Tone (Rose Gold/Steel)","Ceramic","Titanium","PVD Black","NTPT CARBON","CU-W metal weighted RG","CU-W metal weighted YG","CU-W metal weighted SS","Sapphire crystal"];
 const MOVEMENTS = ["Automatic","Quartz","Manual Wind","Tourbillon"];
 const STOCK_STATUSES = ["In Stock","Limited Stock","Sold Out","Pre-Order"];
 const GENDERS = ["Men","Women","Unisex"];
