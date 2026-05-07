@@ -206,9 +206,13 @@ export function MobileMenu({
 
           {/* ── Ladies Brands ── */}
           <div className="px-2 pt-1 pb-1">
-            <div className="flex items-center gap-3 px-4 py-2">
+            <Link
+              href="/ladies"
+              onClick={handleClose}
+              className="group flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-pink-500/5 transition-colors"
+            >
               <svg
-                className="w-5 h-5 text-pink-400/70"
+                className="w-5 h-5 text-pink-400/70 group-hover:text-pink-400 transition-colors"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -220,10 +224,19 @@ export function MobileMenu({
                   d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
                 />
               </svg>
-              <span className="font-semibold tracking-wide text-xs uppercase text-pink-400">
+              <span className="font-semibold tracking-wide text-xs uppercase text-pink-400 group-hover:text-pink-300 transition-colors">
                 Ladies Brands
               </span>
-            </div>
+              <svg
+                className="ml-auto w-3.5 h-3.5 text-pink-400/40 group-hover:text-pink-400 group-hover:translate-x-0.5 transition-all"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
             <div className="ml-2 mr-1 border-l-2 border-pink-400/20 pl-3">
               <BrandList
                 brands={LADIES_BRANDS}
@@ -406,4 +419,5 @@ export function MobileMenu({
     </>
   );
 }
+
 
