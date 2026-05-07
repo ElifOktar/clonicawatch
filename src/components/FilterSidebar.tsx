@@ -115,6 +115,13 @@ export function FilteredProductList({ products }: { products: Product[] }) {
     return collections;
   }, [filters.brands, availableBrands, products]);
 
+  // When a brand is selected, only show that brand in the sidebar.
+  // To switch brands, the user uses the "Clear" button at the top of the filter panel.
+  const displayedBrands = useMemo(() => {
+    if (filters.brands.size === 0) return availableBrands;
+    return availableBrands.filter((b) => filters.brands.has(b.name));
+  }, [availableBrands, filters.brands]);
+
   const filtered = useMemo(() => {
     return products.filter((p) => {
       if (filters.brands.size && !filters.brands.has(p.brand)) return false;
@@ -173,10 +180,13 @@ export function FilteredProductList({ products }: { products: Product[] }) {
 
   const toggleCollection = (collectionName: string) => {
     setFilters((prev) => {
-      const set = new Set(prev.collections);
-      if (set.has(collectionName)) set.delete(collectionName);
-      else set.add(collectionName);
-      return { ...prev, collections: set };
+      // Single-select collection mode (matches brand behaviour). Clicking a
+      // different collection REPLACES the selection. Clicking the same one
+      // deselects it.
+      if (prev.collections.has(collectionName)) {
+        return { ...prev, collections: new Set() };
+      }
+      return { ...prev, collections: new Set([collectionName]) };
     });
   };
 
@@ -217,7 +227,7 @@ export function FilteredProductList({ products }: { products: Product[] }) {
           <div>
             <h4 className="text-sm mb-3 font-medium">Brand</h4>
             <div className="flex flex-col gap-0.5 max-h-64 overflow-y-auto pr-1">
-              {availableBrands.map((b) => (
+              {displayedBrands.map((b) => (
                 <div key={b.slug}>
                   <button
                     onClick={() => {
