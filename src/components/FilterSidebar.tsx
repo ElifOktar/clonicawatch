@@ -14,9 +14,9 @@ type Filters = {
 type SortKey = "default" | "price-asc" | "price-desc";
 
 const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
-  { value: "default", label: "Varsayılan" },
-  { value: "price-asc", label: "Fiyat: Düşük → Yüksek" },
-  { value: "price-desc", label: "Fiyat: Yüksek → Düşük" },
+  { value: "default", label: "Featured" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
 ];
 
 const ITEMS_PER_PAGE = 12;
