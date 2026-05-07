@@ -36,9 +36,9 @@ export function ProductCard({ product: p }: { product: Product }) {
   };
 
   return (
-    <div className="group relative">
-      <Link href={`/product/${p.slug}`} className="block card overflow-hidden transition-all hover:border-gold-deep">
-        <div className="relative aspect-square bg-bg overflow-hidden">
+    <div className="group relative h-full flex flex-col">
+      <Link href={`/product/${p.slug}`} className="flex flex-col h-full card overflow-hidden transition-all hover:border-gold-deep">
+        <div className="relative aspect-square bg-bg overflow-hidden flex-shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
@@ -59,13 +59,13 @@ export function ProductCard({ product: p }: { product: Product }) {
             </div>
           )}
         </div>
-        <div className="p-4 md:p-4 flex flex-col min-h-[120px] md:min-h-auto">
-          <p className="text-xs md:text-xs text-ink-dim tracking-widest uppercase">{p.brand}</p>
-          <h3 className="mt-1 text-[11px] md:text-xs font-medium leading-snug">
+        <div className="p-4 flex flex-col flex-1 min-w-0">
+          <p className="text-xs text-ink-dim tracking-widest uppercase">{p.brand}</p>
+          <h3 className="mt-1 text-[11px] md:text-xs font-medium leading-snug line-clamp-4 min-h-[5.5em] overflow-hidden">
             {p.model_name}
           </h3>
-          <div className="mt-3 flex items-baseline gap-2 min-h-[44px] md:min-h-auto flex items-center">
-            <Price usd={p.price.usd} className="text-gold font-medium text-base md:text-base" />
+          <div className="mt-auto pt-3 flex items-center gap-2">
+            <Price usd={p.price.usd} className="text-gold font-medium text-base" />
             {p.original_price?.usd && (
               <Price usd={p.original_price.usd} className="text-ink-dim text-xs line-through" />
             )}
@@ -98,4 +98,5 @@ export function ProductCard({ product: p }: { product: Product }) {
     </div>
   );
 }
+
 
