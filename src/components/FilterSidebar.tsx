@@ -161,17 +161,13 @@ export function FilteredProductList({ products }: { products: Product[] }) {
 
   const toggleBrand = (brandName: string) => {
     setFilters((prev) => {
-      const set = new Set(prev.brands);
-      if (set.has(brandName)) {
-        set.delete(brandName);
-        const newCollections = new Set(prev.collections);
-        const brand = availableBrands.find((b) => b.name === brandName);
-        brand?.collections?.forEach((c) => newCollections.delete(c.name));
-        return { ...prev, brands: set, collections: newCollections };
-      } else {
-        set.add(brandName);
-        return { ...prev, brands: set };
+      // Single-select brand mode: clicking a different brand REPLACES the
+      // previous selection (and clears collections). Clicking the same brand
+      // again deselects everything.
+      if (prev.brands.has(brandName)) {
+        return { ...prev, brands: new Set(), collections: new Set() };
       }
+      return { ...prev, brands: new Set([brandName]), collections: new Set() };
     });
   };
 
@@ -344,4 +340,5 @@ export function FilteredProductList({ products }: { products: Product[] }) {
     </div>
   );
 }
+
 
