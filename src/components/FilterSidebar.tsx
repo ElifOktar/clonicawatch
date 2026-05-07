@@ -9,13 +9,14 @@ import { CATALOG_BRANDS, LADIES_BRANDS } from "@/lib/catalog";
 type Filters = {
   brands: Set<string>;
   collections: Set<string>;
-  priceRange: [number, number] | null;
 };
 
-const PRICE_RANGES: Array<[string, number, number]> = [
-  ["Under $1,000", 0, 1000],
-  ["$1,000–$1,500", 1000, 1500],
-  ["$1,500+", 1500, Infinity],
+type SortKey = "default" | "price-asc" | "price-desc";
+
+const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
+  { value: "default", label: "Varsayılan" },
+  { value: "price-asc", label: "Fiyat: Düşük → Yüksek" },
+  { value: "price-desc", label: "Fiyat: Yüksek → Düşük" },
 ];
 
 const ITEMS_PER_PAGE = 12;
@@ -26,8 +27,8 @@ export function FilteredProductList({ products }: { products: Product[] }) {
   const [filters, setFilters] = useState<Filters>({
     brands: new Set(),
     collections: new Set(),
-    priceRange: null,
   });
+  const [sortBy, setSortBy] = useState<SortKey>("default");
 
   const [showFilters, setShowFilters] = useState(false);
   const [expandedBrand, setExpandedBrand] = useState<string | null>(null);
@@ -123,21 +124,23 @@ export function FilteredProductList({ products }: { products: Product[] }) {
   }, [availableBrands, filters.brands]);
 
   const filtered = useMemo(() => {
-    return products.filter((p) => {
+    const result = products.filter((p) => {
       if (filters.brands.size && !filters.brands.has(p.brand)) return false;
       if (filters.collections.size && !filters.collections.has(p.collection)) return false;
-      if (filters.priceRange) {
-        const [lo, hi] = filters.priceRange;
-        if (p.price.usd < lo || p.price.usd > hi) return false;
-      }
       return true;
     });
-  }, [products, filters]);
+    if (sortBy === "price-asc") {
+      result.sort((a, b) => a.price.usd - b.price.usd);
+    } else if (sortBy === "price-desc") {
+      result.sort((a, b) => b.price.usd - a.price.usd);
+    }
+    return result;
+  }, [products, filters, sortBy]);
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters or sort change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters]);
+  }, [filters, sortBy]);
 
   // Pagination logic
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
@@ -190,26 +193,36 @@ export function FilteredProductList({ products }: { products: Product[] }) {
     });
   };
 
-  const setRange = (r: [number, number] | null) => setFilters((p) => ({ ...p, priceRange: r }));
+  const clearAll = () => setFilters({ brands: new Set(), collections: new Set() });
 
-  const clearAll = () => setFilters({ brands: new Set(), collections: new Set(), priceRange: null });
-
-  const activeCount = filters.brands.size + filters.collections.size + (filters.priceRange ? 1 : 0);
+  const activeCount = filters.brands.size + filters.collections.size;
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      {/* Mobile filter toggle */}
-      <div className="flex items-center justify-between mb-6 lg:hidden">
-        <p className="text-sm text-ink-muted">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</p>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 text-sm text-gold border border-gold/30 rounded-lg px-4 py-2 hover:bg-gold/5 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-          </svg>
-          Filters{activeCount > 0 ? ` (${activeCount})` : ""}
-        </button>
+      {/* Mobile filter toggle + sort */}
+      <div className="flex items-center justify-between mb-6 lg:hidden gap-2">
+        <p className="text-sm text-ink-muted shrink-0">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</p>
+        <div className="flex items-center gap-2">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortKey)}
+            className="text-sm text-gold bg-transparent border border-gold/30 rounded-lg px-3 py-2 hover:bg-gold/5 transition-colors focus:outline-none focus:border-gold/60"
+            aria-label="Sort"
+          >
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value} className="bg-bg text-ink">{o.label}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 text-sm text-gold border border-gold/30 rounded-lg px-4 py-2 hover:bg-gold/5 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+            Filters{activeCount > 0 ? ` (${activeCount})` : ""}
+          </button>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-[220px,1fr] gap-8 min-w-0">
@@ -281,27 +294,22 @@ export function FilteredProductList({ products }: { products: Product[] }) {
             </div>
           </div>
 
-          {/* Price */}
-          <div>
-            <h4 className="text-sm mb-3 font-medium">Price</h4>
-            <div className="flex flex-col gap-1.5">
-              {PRICE_RANGES.map(([label, lo, hi]) => (
-                <button
-                  key={label}
-                  onClick={() => setRange(
-                    filters.priceRange && filters.priceRange[0] === lo ? null : [lo, hi]
-                  )}
-                  className={`chip-toggle justify-start ${filters.priceRange?.[0] === lo ? "chip-toggle-active" : ""}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
         </aside>
 
         <div className="min-w-0">
-          <p className="text-sm text-ink-muted mb-4 hidden lg:block">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</p>
+          <div className="hidden lg:flex items-center justify-between mb-4 gap-4">
+            <p className="text-sm text-ink-muted">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</p>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortKey)}
+              className="text-sm text-gold bg-transparent border border-gold/30 rounded-lg px-3 py-2 hover:bg-gold/5 transition-colors focus:outline-none focus:border-gold/60"
+              aria-label="Sort"
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value} className="bg-bg text-ink">{o.label}</option>
+              ))}
+            </select>
+          </div>
           <ProductGrid products={paginatedProducts} />
 
           {/* Pagination */}
