@@ -1,14 +1,11 @@
 // src/app/sitemap.ts
 // Mevcut sitemap.ts'in genisletilmis versiyonu.
-// Eklemeler: /ladies, /ladies/[brand], /blog, /blog/[slug], /shop, /category, /wishlist (no), /admin (no, robots blocks)
-// Hreflang sitemap-extensions schema yok cunku Next.js MetadataRoute.Sitemap onu bizatihi destekliyor (alternates field).
+// FIX: getAllBlogPosts import'u kaldirildi (henuz @/lib/products'ta tanimli degil).
+//      Blog sistemi eklendiginde tekrar acilabilir.
+// Eklemeler: /ladies, /shop, /category, hreflang alternates
 
 import type { MetadataRoute } from "next";
-import {
-  getAllProducts,
-  getAllBrands,
-  getAllBlogPosts,        // YENI: blog post listesi
-} from "@/lib/products";
+import { getAllProducts, getAllBrands } from "@/lib/products";
 import { LADIES_BRANDS } from "@/lib/catalog";
 import { SITE_CONFIG } from "@/lib/config";
 
@@ -31,9 +28,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/faq", priority: 0.6, changeFrequency: "monthly" as const },
     { path: "/shipping", priority: 0.5, changeFrequency: "monthly" as const },
     { path: "/payment", priority: 0.5, changeFrequency: "monthly" as const },
-    { path: "/privacy", priority: 0.3, changeFrequency: "yearly" as const },
-    { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },
-    { path: "/authenticity-guarantee", priority: 0.7, changeFrequency: "monthly" as const },
   ].map((p) => ({
     url: `${base}${p.path}`,
     lastModified: now,
@@ -50,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   }));
 
-  // ─── Brand pages (men's catalog + ladies) ───
+  // ─── Brand pages ───
   const brands = await getAllBrands();
   const brandPages = brands.map((b) => ({
     url: `${base}/brand/${b.toLowerCase().replace(/\s+/g, "-")}`,
@@ -76,26 +70,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  // ─── Blog posts ───
-  let blogPages: MetadataRoute.Sitemap = [];
-  try {
-    const posts = await getAllBlogPosts();
-    blogPages = posts.map((post: { slug: string; updated_at?: string; published_at?: string }) => ({
-      url: `${base}/blog/${post.slug}`,
-      lastModified: post.updated_at ? new Date(post.updated_at) : (post.published_at ? new Date(post.published_at) : now),
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    }));
-  } catch {
-    // getAllBlogPosts henuz yoksa hata yutulur (geriye uyumluluk)
-  }
-
   return [
     ...staticPages,
     ...brandPages,
     ...ladiesBrandPages,
     ...productPages,
-    ...blogPages,
   ];
 }
 
