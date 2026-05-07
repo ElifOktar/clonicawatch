@@ -2,7 +2,7 @@
 import { useState, FormEvent, useRef, DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-const BRANDS = ["Rolex","Audemars Piguet","Patek Philippe","Omega","Hublot","Breitling","Cartier","TAG Heuer","Panerai","IWC","Richard Mille","Vacheron Constantin","Jaeger-LeCoultre","Tudor","Bell & Ross","Zenith","Chopard","Longines","Ulysse Nardin","Franck Muller","Piaget"];
+const BRANDS = ["Rolex","Audemars Piguet","Patek Philippe","Omega","Hublot","Breitling","Cartier","TAG Heuer","Panerai","IWC","Richard Mille","Vacheron Constantin","Jaeger-LeCoultre","Tudor","Bell & Ross","Zenith","Chopard","Longines","Ulysse Nardin","Franck Muller","Piaget","Bvlgari","Rolex Ladies","Cartier Ladies","Audemars Piguet Ladies","Patek Philippe Ladies"];
 // Marka -> Koleksiyon listesi. Listede olmayan markada manuel input gosterilir.
 const COLLECTIONS: Record<string, string[]> = {
   "Rolex": ["Submariner","GMT-Master II","Daytona","Datejust","Day-Date","Yacht-Master","Explorer","Explorer II","Sea-Dweller","Deepsea","Sky-Dweller","Air-King","Oyster Perpetual","Milgauss","Cellini"],
@@ -786,4 +786,3 @@ export default function ProductForm({ initialData, mode }: Props) {
     </form>
   );
 }
-
