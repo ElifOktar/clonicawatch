@@ -7,7 +7,6 @@ import { WishlistProvider } from "@/components/WishlistProvider";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import LayoutShell from "@/components/LayoutShell";
 import Analytics from "@/components/Analytics";
-import ConsentManager from "@/components/ConsentManager";
 import { SITE_CONFIG } from "@/lib/config";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap" });
@@ -108,7 +107,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </WishlistProvider>
           </CurrencyProvider>
         </AuthProvider>
-        <ConsentManager />
         <Analytics />
       </body>
     </html>
