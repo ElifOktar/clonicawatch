@@ -5,7 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/types/product";
 
-const POPULAR_BRANDS = ["Rolex", "Omega", "AP", "Patek", "Hublot", "Cartier"];
+// Display label -> actual brand name used in product data / shop filter
+const POPULAR_BRANDS: Array<{ label: string; brand: string }> = [
+  { label: "Rolex", brand: "Rolex" },
+  { label: "Omega", brand: "Omega" },
+  { label: "Audemars Piguet", brand: "Audemars Piguet" },
+  { label: "Patek Philippe", brand: "Patek Philippe" },
+  { label: "Hublot", brand: "Hublot" },
+  { label: "Cartier", brand: "Cartier" },
+];
 
 export function SearchModal({ products }: { products: Product[] }) {
   const [open, setOpen] = useState(false);
@@ -27,6 +35,19 @@ export function SearchModal({ products }: { products: Product[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Lock body scroll while modal is open (prevents the homepage from
+  // scrolling behind the modal on mobile and avoids iOS Safari rendering
+  // glitches where fixed positioning + keyboard caused the page to bleed
+  // through the modal).
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   const results = useMemo(() => {
     const needle = q.trim().toLowerCase();
     if (!needle) return [];
@@ -34,7 +55,7 @@ export function SearchModal({ products }: { products: Product[] }) {
       [p.model_name, p.brand, p.collection, p.reference, p.dial_color]
         .filter(Boolean)
         .some((v) => (v as string).toLowerCase().includes(needle))
-    ).slice(0, 8);
+    ).slice(0, 20);
   }, [q, products]);
 
   return (
@@ -48,57 +69,67 @@ export function SearchModal({ products }: { products: Product[] }) {
       </button>
       {open && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-24 px-4 md:pt-24 md:px-4"
+          className="fixed inset-0 z-[60] bg-bg-elev md:bg-black/70 md:backdrop-blur-sm md:flex md:items-start md:justify-center md:pt-24 md:px-4"
+          style={{ minHeight: "100dvh" }}
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full md:max-w-2xl md:rounded-sm bg-bg-elev border border-line md:border shadow-2xl animate-fade-in fixed inset-0 md:inset-auto md:static flex flex-col"
+            className="w-full h-full md:h-auto md:max-w-2xl md:bg-bg-elev md:rounded-sm md:border md:border-line md:shadow-2xl md:animate-fade-in flex flex-col bg-bg-elev"
+            style={{ minHeight: "100dvh" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button — visible on all screens */}
-            <button
-              onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-ink-muted hover:text-gold transition-colors z-10 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-bg-soft"
-              aria-label="Close search"
-            >
-              ✕
-            </button>
+            {/* Header: input + close button */}
+            <div className="relative flex-shrink-0 border-b border-line">
+              <input
+                autoFocus
+                type="text"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
+                autoCorrect="on"
+                autoCapitalize="none"
+                spellCheck={true}
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search brands, models, references…"
+                className="w-full bg-bg-elev px-5 py-4 pr-12 text-base focus:outline-none"
+              />
+              <button
+                onClick={() => setOpen(false)}
+                className="absolute top-1/2 -translate-y-1/2 right-3 text-ink-muted hover:text-gold transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-bg-soft"
+                aria-label="Close search"
+              >
+                ✕
+              </button>
+            </div>
 
-            <input
-              autoFocus
-              type="search"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search brands, models, references…"
-              className="w-full bg-transparent border-b border-line px-5 py-4 text-lg md:text-lg focus:outline-none focus:border-gold md:py-4 md:px-5 mobile:text-xl mobile:py-5 mobile:px-6"
-            />
-
-            {/* Mobile: show Popular Brands when search is empty */}
-            {!q && (
-              <div className="md:hidden flex-1 overflow-y-auto">
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto bg-bg-elev">
+              {/* Empty state — Popular Brands */}
+              {!q && (
                 <div className="p-6">
                   <p className="text-xs text-ink-dim uppercase tracking-widest mb-4">Popular Brands</p>
-                  <div className="flex flex-wrap gap-3">
-                    {POPULAR_BRANDS.map((brand) => (
+                  <div className="flex flex-wrap gap-2">
+                    {POPULAR_BRANDS.map((b) => (
                       <Link
-                        key={brand}
-                        href={`/?brand=${encodeURIComponent(brand)}`}
+                        key={b.brand}
+                        href={`/shop?brand=${encodeURIComponent(b.brand)}`}
                         onClick={() => setOpen(false)}
                         className="chip-toggle hover:border-gold hover:text-gold transition-colors"
                       >
-                        {brand}
+                        {b.label}
                       </Link>
                     ))}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Results / Desktop Popular Brands */}
-            <div className="max-h-96 md:max-h-96 flex-1 overflow-y-auto">
+              {/* No results */}
               {q && results.length === 0 && (
                 <p className="p-6 text-center text-ink-muted">No results for "{q}"</p>
               )}
+
+              {/* Results */}
               {q && results.map((p) => (
                 <Link
                   key={p.id}
@@ -113,12 +144,13 @@ export function SearchModal({ products }: { products: Product[] }) {
                     <p className="text-xs text-ink-dim uppercase tracking-widest">{p.brand}</p>
                     <p className="text-sm truncate">{p.model_name}</p>
                   </div>
-                  <span className="text-gold text-sm">${p.price.usd.toLocaleString()}</span>
+                  <span className="text-gold text-sm shrink-0">${p.price.usd.toLocaleString()}</span>
                 </Link>
               ))}
             </div>
 
-            <div className="hidden md:flex px-4 py-2 text-xs text-ink-dim border-t border-line justify-between">
+            {/* Footer (desktop only) */}
+            <div className="hidden md:flex px-4 py-2 text-xs text-ink-dim border-t border-line justify-between flex-shrink-0">
               <span>Press ESC to close</span>
               <span>⌘K / Ctrl+K to open</span>
             </div>
@@ -128,3 +160,4 @@ export function SearchModal({ products }: { products: Product[] }) {
     </>
   );
 }
+
