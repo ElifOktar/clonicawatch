@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/types/product";
@@ -19,6 +19,15 @@ export function SearchModal({ products }: { products: Product[] }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const needle = q.trim();
+    if (!needle) return;
+    setOpen(false);
+    router.push(`/search?q=${encodeURIComponent(needle)}`);
+  };
 
   // Close search modal on route change
   useEffect(() => {
@@ -79,7 +88,7 @@ export function SearchModal({ products }: { products: Product[] }) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header: input + close button */}
-            <div className="relative flex-shrink-0 border-b border-line">
+            <form onSubmit={handleSubmit} className="relative flex-shrink-0 border-b border-line">
               <input
                 autoFocus
                 type="text"
@@ -95,13 +104,14 @@ export function SearchModal({ products }: { products: Product[] }) {
                 className="w-full bg-bg-elev px-5 py-4 pr-12 text-base focus:outline-none"
               />
               <button
+                type="button"
                 onClick={() => setOpen(false)}
                 className="absolute top-1/2 -translate-y-1/2 right-3 text-ink-muted hover:text-gold transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-bg-soft"
                 aria-label="Close search"
               >
                 ✕
               </button>
-            </div>
+            </form>
 
             {/* Body */}
             <div className="flex-1 overflow-y-auto bg-bg-elev">
@@ -147,6 +157,17 @@ export function SearchModal({ products }: { products: Product[] }) {
                   <span className="text-gold text-sm shrink-0">${p.price.usd.toLocaleString()}</span>
                 </Link>
               ))}
+
+              {/* See all results — full grid page */}
+              {q && results.length > 0 && (
+                <Link
+                  href={`/search?q=${encodeURIComponent(q.trim())}`}
+                  onClick={() => setOpen(false)}
+                  className="block p-4 text-center text-sm text-gold hover:bg-gold/5 transition-colors border-b border-line"
+                >
+                  See all results for "{q.trim()}" →
+                </Link>
+              )}
             </div>
 
             {/* Footer (desktop only) */}
