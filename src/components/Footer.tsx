@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { SITE_CONFIG } from "@/lib/config";
-
 export function Footer() {
   return (
     <footer className="mt-24 border-t border-line bg-bg-elev">
@@ -15,7 +14,6 @@ export function Footer() {
             <br />
             Worldwide discreet delivery, every order.
           </p>
-
           {/* Social Icons Row */}
           <div className="flex gap-3 mt-5">
             <a
@@ -29,13 +27,23 @@ export function Footer() {
               </svg>
             </a>
             <a
-              href={`https://t.me/+${SITE_CONFIG.contact.telegram}`}
+              href={`https://t.me/${SITE_CONFIG.contact.telegram}`}
               target="_blank" rel="noopener"
               className="w-10 h-10 rounded-full bg-[#0088cc]/10 hover:bg-[#0088cc]/20 flex items-center justify-center transition-colors"
               title="Telegram"
             >
               <svg className="w-5 h-5 text-[#0088cc]" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+              </svg>
+            </a>
+            <a
+              href={`https://www.instagram.com/${SITE_CONFIG.contact.instagram}`}
+              target="_blank" rel="noopener"
+              className="w-10 h-10 rounded-full bg-[#E4405F]/10 hover:bg-[#E4405F]/20 flex items-center justify-center transition-colors"
+              title="Instagram"
+            >
+              <svg className="w-5 h-5 text-[#E4405F]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.057-1.645.069-4.849.069-3.204 0-3.584-.012-4.849-.069-3.259-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
               </svg>
             </a>
             <a
@@ -49,7 +57,6 @@ export function Footer() {
             </a>
           </div>
         </div>
-
         {/* Shop */}
         <div>
           <h4 className="text-gold text-sm font-medium tracking-wider uppercase mb-4">Shop</h4>
@@ -64,7 +71,6 @@ export function Footer() {
             <li><Link href="/on-sale" className="hover:text-gold transition-colors">Sale</Link></li>
           </ul>
         </div>
-
         {/* Info */}
         <div>
           <h4 className="text-gold text-sm font-medium tracking-wider uppercase mb-4">Information</h4>
@@ -77,7 +83,6 @@ export function Footer() {
             <li><Link href="/contact" className="hover:text-gold transition-colors">Contact</Link></li>
           </ul>
         </div>
-
         {/* Contact */}
         <div>
           <h4 className="text-gold text-sm font-medium tracking-wider uppercase mb-4">Contact</h4>
@@ -96,7 +101,7 @@ export function Footer() {
             </li>
             <li>
               <a
-                href={`https://t.me/+${SITE_CONFIG.contact.telegram}`}
+                href={`https://t.me/${SITE_CONFIG.contact.telegram}`}
                 target="_blank" rel="noopener"
                 className="flex items-center gap-2.5 hover:text-gold transition-colors"
               >
@@ -104,6 +109,18 @@ export function Footer() {
                   <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
                 </svg>
                 {SITE_CONFIG.contact.telegramDisplay}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`https://www.instagram.com/${SITE_CONFIG.contact.instagram}`}
+                target="_blank" rel="noopener"
+                className="flex items-center gap-2.5 hover:text-gold transition-colors"
+              >
+                <svg className="w-5 h-5 text-[#E4405F] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.057-1.645.069-4.849.069-3.204 0-3.584-.012-4.849-.069-3.259-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+                </svg>
+                {SITE_CONFIG.contact.instagramDisplay}
               </a>
             </li>
             <li>
@@ -117,10 +134,16 @@ export function Footer() {
                 {SITE_CONFIG.contact.email}
               </a>
             </li>
+            <li className="flex items-start gap-2.5 pt-1">
+              <svg className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              <span className="text-xs leading-relaxed">{SITE_CONFIG.contact.addressLine}</span>
+            </li>
           </ul>
         </div>
       </div>
-
       {/* Payment + Shipping strip with real logos */}
       <div className="border-t border-line">
         <div className="container py-6 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-ink-dim">
@@ -141,7 +164,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-
       <div className="border-t border-line">
         <div className="container py-5 flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-ink-dim">
           <p>&copy; {new Date().getFullYear()} {SITE_CONFIG.fullName}. All rights reserved.</p>
@@ -155,3 +177,4 @@ export function Footer() {
     </footer>
   );
 }
+
