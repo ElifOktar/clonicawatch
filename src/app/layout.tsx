@@ -62,12 +62,26 @@ const organizationSchema = {
   url: "https://clonica.online",
   logo: "https://clonica.online/images/logos/clonica-logo.png",
   description: SITE_CONFIG.description,
+  telephone: `+${SITE_CONFIG.contact.whatsapp}`,
+  email: SITE_CONFIG.contact.email,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: SITE_CONFIG.contact.addressLocality,
+    addressCountry: SITE_CONFIG.contact.addressCountry,
+  },
   contactPoint: {
     "@type": "ContactPoint",
     contactType: "customer service",
+    telephone: `+${SITE_CONFIG.contact.whatsapp}`,
+    email: SITE_CONFIG.contact.email,
     availableLanguage: ["English", "Turkish"],
+    areaServed: "Worldwide",
   },
-  sameAs: [],
+  sameAs: [
+    `https://t.me/${SITE_CONFIG.contact.telegram}`,
+    `https://www.instagram.com/${SITE_CONFIG.contact.instagram}`,
+    `https://wa.me/${SITE_CONFIG.contact.whatsapp}`,
+  ],
 };
 /* WebSite Schema — Google Sitelinks Search */
 const websiteSchema = {
