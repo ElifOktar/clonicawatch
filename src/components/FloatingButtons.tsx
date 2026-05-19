@@ -1,12 +1,12 @@
 "use client";
-
+import { SITE_CONFIG } from "@/lib/config";
 export function FloatingButtons() {
   return (
     <>
       <div className="fixed bottom-36 right-3 md:bottom-6 md:right-6 z-50 flex flex-col gap-3">
         {/* WhatsApp Button */}
         <a
-          href="https://wa.me/905355430744"
+          href={`https://wa.me/${SITE_CONFIG.contact.whatsapp}`}
           target="_blank"
           rel="noopener noreferrer"
           className="group relative w-[56px] h-[56px] md:w-[60px] md:h-[60px] rounded-full bg-[#25D366] shadow-xl shadow-[#25D366]/30 hover:scale-110 hover:shadow-2xl hover:shadow-[#25D366]/50 transition-all duration-200 flex items-center justify-center animate-float-wa"
@@ -20,7 +20,7 @@ export function FloatingButtons() {
         </a>
         {/* Telegram Button */}
         <a
-          href="https://t.me/+905355430744"
+          href={`https://t.me/${SITE_CONFIG.contact.telegram}`}
           target="_blank"
           rel="noopener noreferrer"
           className="group relative w-[56px] h-[56px] md:w-[60px] md:h-[60px] rounded-full bg-[#0088cc] shadow-xl shadow-[#0088cc]/30 hover:scale-110 hover:shadow-2xl hover:shadow-[#0088cc]/50 transition-all duration-200 flex items-center justify-center animate-float-tg"
