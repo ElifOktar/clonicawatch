@@ -3,7 +3,6 @@
  * Keep all brand/contact/copy constants here so they can be swapped
  * from one place when branding is finalized.
  */
-
 export const SITE_CONFIG = {
   // Branding
   name: "CLONICA",                // short wordmark
@@ -16,17 +15,19 @@ export const SITE_CONFIG = {
   supportedLocales: ["en"] as const,
   defaultCurrency: "USD" as const,
   supportedCurrencies: ["USD", "EUR", "GBP", "AED", "TRY"] as const,
-
   // Contact
   contact: {
-    whatsapp: "905355430744",           // +90 535 543 07 44
-    whatsappDisplay: "+90 535 543 07 44",
-    telegram: "905355430744",           // same number
-    telegramDisplay: "+90 535 543 07 44",
+    whatsapp: "905535566422",                  // +90 553 556 64 22 (no leading + for wa.me)
+    whatsappDisplay: "+90 553 556 64 22",
+    telegram: "CLONICAWATCHES",                // Telegram username — used as https://t.me/CLONICAWATCHES
+    telegramDisplay: "@CLONICAWATCHES",
     email: "Clonicawatch@gmail.com",
-    instagram: "",                      // to be added
+    instagram: "clonicaonline",                // Instagram handle — used as https://www.instagram.com/clonicaonline
+    instagramDisplay: "@clonicaonline",
+    addressLine: "Istanbul, Türkiye — Showroom visits by appointment",
+    addressLocality: "Istanbul",
+    addressCountry: "TR",
   },
-
   // Payment methods displayed across the site
   paymentMethods: [
     { key: "bank", label: "Bank Transfer", note: "Wise / SWIFT" },
@@ -34,10 +35,8 @@ export const SITE_CONFIG = {
     { key: "wu", label: "Western Union" },
     { key: "ria", label: "RIA Money Transfer" },
   ],
-
   // Shipping carriers
   shippingCarriers: ["DHL Express", "FedEx", "UPS"],
-
   // Trust signals (homepage strip)
   trustSignals: [
     { icon: "shield", label: "Secure Transactions" },
@@ -46,5 +45,5 @@ export const SITE_CONFIG = {
     { icon: "package", label: "Discreet Packaging" },
   ],
 };
-
 export type SiteConfig = typeof SITE_CONFIG;
+
