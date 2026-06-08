@@ -50,7 +50,6 @@ export async function generateMetadata({
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   const p = await getProductBySlug(params.slug);
   if (!p) notFound();
-
   const related = await getRelatedProducts(p, 4);
   const waUrl = getProductWhatsAppUrl(p);
   const gallery = p.gallery_images?.length ? p.gallery_images : [p.main_image];
@@ -61,17 +60,55 @@ export default async function ProductPage({ params }: { params: { slug: string }
     name: p.model_name,
     brand: { "@type": "Brand", name: p.brand },
     sku: p.sku,
+    mpn: p.sku,
     image: gallery,
-    description: p.short_description,
+    description: p.short_description || p.long_description?.slice(0, 200),
     offers: {
       "@type": "Offer",
       priceCurrency: "USD",
       price: p.price.usd,
+      priceValidUntil: "2027-12-31",
+      itemCondition: "https://schema.org/NewCondition",
       availability:
         p.stock_status === "In Stock"
           ? "https://schema.org/InStock"
           : "https://schema.org/LimitedAvailability",
       url: `https://clonica.online/product/${p.slug}`,
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: 0,
+          currency: "USD",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: ["US", "GB", "DE", "FR", "AE", "TR"],
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 2,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 3,
+            maxValue: 7,
+            unitCode: "DAY",
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "US",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 14,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/CustomerResponsibleForReturnShipping",
+      },
     },
   };
 
@@ -111,7 +148,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-
       {/* GA4: view_item event */}
       <ProductViewTracker
         id={p.id}
@@ -120,7 +156,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
         collection={p.collection}
         priceUsd={p.price.usd}
       />
-
       <div className="container py-8 pb-20 md:pb-0 overflow-hidden">
         {/* Breadcrumb */}
         <nav className="text-xs text-ink-muted mb-6">
@@ -132,7 +167,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <span className="mx-2">&rsaquo;</span>
           <span className="text-ink">{p.collection}</span>
         </nav>
-
         <div className="grid lg:grid-cols-2 gap-6 md:gap-10">
           {/* GALLERY */}
           <div className="min-w-0 w-full overflow-hidden">
@@ -142,14 +176,12 @@ export default async function ProductPage({ params }: { params: { slug: string }
               modelName={p.model_name}
             />
           </div>
-
           {/* INFO */}
           <div className="min-w-0">
             <div className="flex gap-2 mb-3">
               {p.is_new_arrival && <span className="chip-gold">NEW</span>}
               {p.is_on_sale && <span className="chip bg-danger/20 border-danger/40 text-danger">SALE</span>}
             </div>
-
             <p className="text-xs text-ink-dim tracking-widest uppercase">
               {p.brand} &middot; {p.collection}
             </p>
@@ -157,7 +189,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
             {p.reference && (
               <p className="text-ink-muted mt-1 text-sm">Ref. {p.reference}</p>
             )}
-
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-4xl font-serif text-gold">
                 {formatPrice(p.price.usd)}
@@ -168,7 +199,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 </span>
               )}
             </div>
-
             <div className="mt-2 text-sm">
               <span
                 className={
@@ -187,11 +217,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 </span>
               )}
             </div>
-
             <p className="mt-4 text-ink-muted leading-relaxed break-words overflow-wrap-anywhere">
               {p.short_description}
             </p>
-
             {/* CTAs — WhatsApp tracked */}
             <div className="mt-8 space-y-3">
               <TrackedWhatsAppLink
@@ -212,7 +240,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 priceUsd={p.price.usd}
               />
             </div>
-
             {/* Specs */}
             <div className="mt-8 card p-5">
               <h3 className="text-xs tracking-widest uppercase text-gold mb-4">Details</h3>
@@ -229,7 +256,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 {p.water_resistance && <><dt className="text-ink-muted">Water Resistance</dt><dd>{p.water_resistance}</dd></>}
               </dl>
             </div>
-
             {/* Trust */}
             <div className="mt-6 flex flex-wrap gap-2 text-xs text-ink-muted">
               <span className="chip">Discreet Packaging</span>
@@ -238,7 +264,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </div>
           </div>
         </div>
-
         {/* DESCRIPTION */}
         <div className="mt-12 md:mt-16 grid md:grid-cols-2 gap-6 md:gap-10">
           <div className="min-w-0">
@@ -258,7 +283,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </p>
           </div>
         </div>
-
         {/* RELATED */}
         {related.length > 0 && (
           <section className="mt-20">
@@ -267,7 +291,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
           </section>
         )}
       </div>
-
       {/* Sticky Mobile CTA */}
       <StickyProductCTA waUrl={waUrl} productId={p.id} product={p} />
     </>
