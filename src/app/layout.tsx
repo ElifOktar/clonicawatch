@@ -37,4 +37,85 @@ export const metadata: Metadata = {
     alternateLocale: ["en_GB", "de_DE", "fr_FR", "ar_AE"],
     type: "website",
   },
-  twitter: { card: "summary_large_image", title: SITE_CONF
+  twitter: { card: "summary_large_image", title: SITE_CONFIG.fullName, description: SITE_CONFIG.description },
+  robots: { index: true, follow: true },
+  alternates: {
+    canonical: SITE_CONFIG.url,
+    languages: {
+      "en-US": SITE_CONFIG.url,
+      "en-GB": `${SITE_CONFIG.url}/en-gb`,
+      "de-DE": `${SITE_CONFIG.url}/de`,
+      "fr-FR": `${SITE_CONFIG.url}/fr`,
+      "ar-AE": `${SITE_CONFIG.url}/ar`,
+      "x-default": SITE_CONFIG.url,
+    },
+  },
+  verification: {
+    google: "_SMYZ1Yx5wetOCoA6qrD_KE76mOQzyXDaxj6oADHjvw",
+  },
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Clonicawatch",
+  url: "https://clonica.online",
+  logo: "https://clonica.online/images/logos/clonica-logo.png",
+  description: SITE_CONFIG.description,
+  telephone: `+${SITE_CONFIG.contact.whatsapp}`,
+  email: SITE_CONFIG.contact.email,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: SITE_CONFIG.contact.addressLocality,
+    addressCountry: SITE_CONFIG.contact.addressCountry,
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer service",
+    telephone: `+${SITE_CONFIG.contact.whatsapp}`,
+    email: SITE_CONFIG.contact.email,
+    availableLanguage: ["English", "Turkish"],
+    areaServed: "Worldwide",
+  },
+  sameAs: [
+    `https://t.me/${SITE_CONFIG.contact.telegram}`,
+    `https://www.instagram.com/${SITE_CONFIG.contact.instagram}`,
+    `https://wa.me/${SITE_CONFIG.contact.whatsapp}`,
+  ],
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Clonicawatch",
+  url: "https://clonica.online",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: { "@type": "EntryPoint", urlTemplate: "https://clonica.online/shop?q={search_term_string}" },
+    "query-input": "required name=search_term_string",
+  },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <head>
+        <meta name="trustpilot-one-time-domain-verification-id" content="224c190c-9425-450a-b6a8-5cad62e70be9" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+      </head>
+      <body>
+        <AuthProvider>
+          <CurrencyProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <LayoutShell>{children}</LayoutShell>
+              </CartProvider>
+            </WishlistProvider>
+          </CurrencyProvider>
+        </AuthProvider>
+        <Analytics />
+      </body>
+    </html>
+  );
+}
