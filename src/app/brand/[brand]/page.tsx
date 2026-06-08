@@ -48,24 +48,21 @@ export async function generateMetadata({ params }: { params: { brand: string } }
   if (!entry) return {};
   const isLadies = isLadiesBrand(params.brand);
   const title = isLadies
-    ? `${entry.name} — Elegant Timepieces for Women`
-    : `${entry.name} Replica Watches — Super Clone & 1:1 Quality`;
+    ? `${entry.name} Replica Watches for Women — 1:1 Super Clone Quality`
+    : `${entry.name} Superclone Replica Watches — Super Clone & 1:1 Quality`;
   const description = isLadies
-    ? `Shop ${entry.name} replica watches. Premium quality, worldwide express shipping, discreet packaging.`
-    : `Shop ${entry.name} super clone replica watches. Swiss mechanisms available. Worldwide express shipping, discreet packaging.`;
+    ? `Shop ${entry.name} superclone replica watches for women. Swiss mechanism options, 1:1 quality. Worldwide express shipping, discreet packaging.`
+    : `Shop ${entry.name} superclone & super clone replica watches with 1:1 quality. Swiss mechanism options. Worldwide express shipping, discreet packaging to 100+ countries.`;
   return { title, description };
 }
 
 export default async function BrandPage({ params }: { params: { brand: string } }) {
   const brandKey = BRAND_FROM_SLUG[params.brand];
   if (!brandKey) notFound();
-
   const entry = ALL_CATALOG_BRANDS.find((b) => b.slug === params.brand);
   if (!entry) notFound();
-
   const isLadies = isLadiesBrand(params.brand);
   const collections = getCollections(params.brand);
-
   // Get products — for ladies brands, filter by gender too
   let products = await getProductsByBrand(brandKey);
   if (isLadies) {
@@ -73,7 +70,6 @@ export default async function BrandPage({ params }: { params: { brand: string } 
       (p) => p.gender === "Women" || p.gender === "Unisex"
     );
   }
-
   return (
     <div className="container py-12">
       <nav className="text-xs text-ink-muted mb-6">
@@ -88,7 +84,6 @@ export default async function BrandPage({ params }: { params: { brand: string } 
         {!isLadies && <><span>Brands</span><span className="mx-2">›</span></>}
         <span className="text-ink">{entry.name}</span>
       </nav>
-
       <header className="mb-10">
         <p className="chip-gold inline-block mb-4">
           {isLadies ? "LADIES COLLECTION" : "SUPER CLONE COLLECTION"}
@@ -100,7 +95,6 @@ export default async function BrandPage({ params }: { params: { brand: string } 
             : `Explore our curated selection of ${entry.name} super clone watches — faithfully built by the industry's most respected ateliers.`}
         </p>
       </header>
-
       {/* Collection quick-filters */}
       {collections.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-8">
@@ -121,11 +115,9 @@ export default async function BrandPage({ params }: { params: { brand: string } 
           ))}
         </div>
       )}
-
       <Suspense fallback={<div className="text-ink-muted text-sm">Loading...</div>}>
         <FilteredProductList products={products} />
       </Suspense>
-
       <div className="mt-20 max-w-3xl text-ink-muted text-sm leading-relaxed space-y-4">
         <h2 className="h-serif text-2xl text-ink">About {entry.name}</h2>
         <p>
