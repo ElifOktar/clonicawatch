@@ -52,6 +52,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "_SMYZ1Yx5wetOCoA6qrD_KE76mOQzyXDaxj6oADHjvw",
+    other: {
+      "trustpilot-one-time-domain-verification-id": "224c190c-9425-450a-b6a8-5cad62e70be9",
+    },
   },
 };
 /* Organization Schema — Google Knowledge Panel */
@@ -126,4 +129,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
