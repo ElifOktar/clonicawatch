@@ -32,7 +32,7 @@ const DEFAULT_SLIDES: PromoSlide[] = [
     image: "",
     title: "Can't Find the Watch You Want?",
     subtitle: "Send us a photo or a link — we'll source it for you",
-    link: "https://wa.me/905355430744?text=Hi%2C%20I%20couldn%27t%20find%20a%20watch%20on%20your%20website.%20Can%20you%20help%20me%20source%20it%3F",
+    link: "https://wa.me/905535566422?text=Hi%2C%20I%20couldn%27t%20find%20a%20watch%20on%20your%20website.%20Can%20you%20help%20me%20source%20it%3F",
     isCta: true,
     ctaButton: "Message Us on WhatsApp",
     ctaIcon: "whatsapp",
@@ -267,3 +267,4 @@ export function PromoSlider() {
     </section>
   );
 }
+
