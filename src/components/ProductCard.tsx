@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import type { Product } from "@/types/product";
 import { Price } from "@/components/Price";
@@ -39,13 +40,19 @@ export function ProductCard({ product: p }: { product: Product }) {
     <div className="group relative h-full flex flex-col">
       <Link href={`/product/${p.slug}`} className="flex flex-col h-full card overflow-hidden transition-all hover:border-gold-deep">
         <div className="relative aspect-square bg-bg overflow-hidden flex-shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          {/* LCP FIX: Next.js <Image> serves optimized, resized WebP via Vercel
+              instead of full-size originals. sizes matches the responsive grid
+              (2 cols mobile, 3 tablet, 4 desktop). The SVG placeholder bypasses
+              the optimizer (unoptimized) to avoid the SVG 400 error. */}
+          <Image
             src={src}
             alt={p.model_name}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             loading="lazy"
+            unoptimized={src === PLACEHOLDER}
             onError={() => src !== PLACEHOLDER && setSrc(PLACEHOLDER)}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute top-3 left-3 flex flex-col gap-1">
             {p.is_new_arrival && <span className="chip-gold">NEW</span>}
@@ -98,5 +105,4 @@ export function ProductCard({ product: p }: { product: Product }) {
     </div>
   );
 }
-
 
