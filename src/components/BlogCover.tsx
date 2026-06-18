@@ -21,6 +21,10 @@ const BLOG_IMAGES: Record<string, string> = {
   "which-watch-matches-your-style": "https://images.unsplash.com/photo-1434056886845-dbe89f0b9571?w=800&h=500&fit=crop&q=80",
   "caring-for-your-watch": "https://images.unsplash.com/photo-1526045431048-f857369baa09?w=800&h=500&fit=crop&q=80",
   "rolex-vs-omega-vs-ap": "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&h=500&fit=crop&q=80",
+  "best-panerai-super-clone": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&h=500&fit=crop&q=80",
+  "best-vacheron-constantin-super-clone": "https://images.unsplash.com/photo-1434056886845-dbe89f0b9571?w=800&h=500&fit=crop&q=80",
+  "best-richard-mille-super-clone": "https://images.unsplash.com/photo-1618220179428-22790b461013?w=800&h=500&fit=crop&q=80",
+  "super-clone-factories-guide": "https://images.unsplash.com/photo-1548171916-c8d1c2d1bb30?w=800&h=500&fit=crop&q=80",
 };
 
 // Category label based on slug keywords
@@ -83,3 +87,4 @@ export function BlogCover({ slug, title, className = "", imageUrl, showCategory 
     </div>
   );
 }
+
