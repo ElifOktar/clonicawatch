@@ -39,17 +39,11 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: SITE_CONFIG.fullName, description: SITE_CONFIG.description },
   robots: { index: true, follow: true },
-  alternates: {
-    canonical: SITE_CONFIG.url,
-    languages: {
-      "en-US": SITE_CONFIG.url,
-      "en-GB": `${SITE_CONFIG.url}/en-gb`,
-      "de-DE": `${SITE_CONFIG.url}/de`,
-      "fr-FR": `${SITE_CONFIG.url}/fr`,
-      "ar-AE": `${SITE_CONFIG.url}/ar`,
-      "x-default": SITE_CONFIG.url,
-    },
-  },
+  // NOTE: No hardcoded `alternates.canonical` here. A site-wide canonical
+  // pointing to the homepage made every sub-page (blog, shop, info, etc.)
+  // declare itself a duplicate of the homepage, blocking their indexing.
+  // Each page now self-canonicalizes by default; pages that need an explicit
+  // canonical set it in their own generateMetadata (e.g. brand/[brand]).
   verification: {
     google: "_SMYZ1Yx5wetOCoA6qrD_KE76mOQzyXDaxj6oADHjvw",
   },
@@ -119,3 +113,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
