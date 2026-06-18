@@ -2,7 +2,7 @@
 // Mevcut sitemap.ts'in genisletilmis versiyonu.
 // FIX: getAllBlogPosts import'u kaldirildi (henuz @/lib/products'ta tanimli degil).
 //      Blog sistemi eklendiginde tekrar acilabilir.
-// Eklemeler: /ladies, /shop, /category, hreflang alternates
+// Eklemeler: /ladies, /shop, /category, /reviews, hreflang alternates
 
 import type { MetadataRoute } from "next";
 import { getAllProducts, getAllBrands } from "@/lib/products";
@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/new-arrivals", priority: 0.9, changeFrequency: "daily" as const },
     { path: "/on-sale", priority: 0.8, changeFrequency: "daily" as const },
     { path: "/ladies", priority: 0.9, changeFrequency: "daily" as const },
+    { path: "/reviews", priority: 0.8, changeFrequency: "weekly" as const },
     { path: "/blog", priority: 0.7, changeFrequency: "weekly" as const },
     { path: "/about", priority: 0.5, changeFrequency: "monthly" as const },
     { path: "/contact", priority: 0.5, changeFrequency: "monthly" as const },
