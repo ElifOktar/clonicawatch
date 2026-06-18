@@ -3,7 +3,7 @@ import { Suspense } from "react";
 /**
  * Customer Reviews — real, verified WhatsApp messages from buyers.
  * Server component (SSR) so the quote text is in the HTML for SEO.
- * Images live in /public/images/testimonials/review-1.jpg ... review-14.jpg
+ * Images live in /public/images/review-1.jpg ... review-14.jpg
  */
 
 type Review = {
@@ -18,20 +18,20 @@ type Review = {
 };
 
 const REVIEWS: Review[] = [
-  { img: "/images/testimonials/review-1.jpg", model: "Rolex Daytona", inQuote: "Wow! 🤩 Amazing customer service and super fast delivery, and the watch is 10/10 🔥 I'll be ordering again soon!", out: "So happy to hear that bro 🙏 Enjoy it! 😊", time: "09:14", status: "online", blur: 5, grad: "#b08968,#7f5539" },
-  { img: "/images/testimonials/review-2.jpg", model: "Rolex Daytona", inQuote: "She is perfect! 😍 Thank you my friend 🙏", out: "You're welcome bro 😊 Beautiful timepiece! 👌", time: "11:32", status: "last seen today at 12:05", blur: 4, grad: "#6d8a96,#41545c" },
-  { img: "/images/testimonials/review-3.jpg", model: "Rolex Submariner Hulk", inQuote: "Thx bro 🙏 Good quality, 1:1 👍", out: "I told you bro, it's the best one you can ever get 😊👍", time: "15:38", status: "online", blur: 6, grad: "#8a7a9a,#564a66" },
-  { img: "/images/testimonials/review-4.jpg", model: "Rolex Submariner Hulk", inQuote: "Just received it now bro, looks awesome! Thank you 🙏", out: "You're welcome mate 😊 The best edition ever made 👍", time: "11:22", status: "last seen recently", blur: 4.5, grad: "#7a8a6d,#4a543b" },
-  { img: "/images/testimonials/review-5.jpg", model: "Rolex GMT-Master II", inQuote: "Perfect bro 👍 Beautiful watch 🚀", out: "Thank you 😊 Always glad to do business with you ❤️", time: "23:20", status: "online", blur: 5.5, grad: "#96736d,#5c413b" },
-  { img: "/images/testimonials/review-6.jpg", model: "Rolex Deepsea", inQuote: "Thank you brother!!! ✅", out: "You're welcome brother 😊 Looks amazing, beautiful timepiece! 🔥", time: "00:29", status: "last seen today at 00:42", blur: 4, grad: "#6d7d96,#3b475c" },
-  { img: "/images/testimonials/review-7.jpg", model: "Patek Philippe Nautilus", inQuote: "This is perfect 😍", out: "I told you bro 🙏 Enjoy it!", time: "19:26", status: "online", blur: 6, grad: "#7d967d,#3b5c3b" },
-  { img: "/images/testimonials/review-8.jpg", model: "Rolex Daytona", inQuote: "The watch is extraordinary beautiful 🤩 It's my fourth watch from you, always perfect service 🙏", out: "Thank you so much bro ❤️ Big pleasure doing business 😊", time: "10:48", status: "last seen today at 11:20", blur: 5, grad: "#967d6d,#5c463b" },
-  { img: "/images/testimonials/review-9.jpg", model: "Rolex Datejust", inQuote: "Watch quality is very good. Case, size, crown smoothness — perfect 👌", out: "I know 😊 Thank you bro 👍", time: "18:05", status: "online", blur: 4.5, grad: "#6d9690,#3b5c56" },
-  { img: "/images/testimonials/review-10.jpg", model: "Panerai Submersible", inQuote: "The best model! 😍 Beautiful, really very beautiful watch 🔥", out: "Beautiful bro 😎 Enjoy this beast!", time: "15:30", status: "last seen recently", blur: 5.5, grad: "#8a8a6d,#54543b" },
-  { img: "/images/testimonials/review-11.jpg", model: "Patek Aquanaut", inQuote: "I told you bro, amazing choice 🔥 the orange strap made it double amazing 😎", out: "Perfect 😊👌", time: "14:27", status: "online", blur: 6, grad: "#96856d,#5c4a3b" },
-  { img: "/images/testimonials/review-12.jpg", model: "Rolex GMT-Master II", inQuote: "Perfect 😊🚀", out: "Glad to do business with you again 🙏😊", time: "17:08", status: "last seen today at 17:30", blur: 4, grad: "#7d6d96,#473b5c" },
-  { img: "/images/testimonials/review-13.jpg", model: "Rolex Submariner", inQuote: "Received the package bro, that was super fast! 🚀 As promised 👌", out: "Glad you like it bro 😊", time: "13:30", status: "online", blur: 5, grad: "#6d8896,#3b505c" },
-  { img: "/images/testimonials/review-14.jpg", model: "Cartier Santos", inQuote: "Looks beautiful 😊🙏", out: "Blue sweater, blue watch 😊 Looks amazing on you! 👌", time: "10:40", status: "last seen today at 10:55", blur: 4.5, grad: "#6d7596,#3b425c" },
+  { img: "/images/review-1.jpg", model: "Rolex Daytona", inQuote: "Wow! 🤩 Amazing customer service and super fast delivery, and the watch is 10/10 🔥 I'll be ordering again soon!", out: "So happy to hear that bro 🙏 Enjoy it! 😊", time: "09:14", status: "online", blur: 5, grad: "#b08968,#7f5539" },
+  { img: "/images/review-2.jpg", model: "Rolex Daytona", inQuote: "She is perfect! 😍 Thank you my friend 🙏", out: "You're welcome bro 😊 Beautiful timepiece! 👌", time: "11:32", status: "last seen today at 12:05", blur: 4, grad: "#6d8a96,#41545c" },
+  { img: "/images/review-3.jpg", model: "Rolex Submariner Hulk", inQuote: "Thx bro 🙏 Good quality, 1:1 👍", out: "I told you bro, it's the best one you can ever get 😊👍", time: "15:38", status: "online", blur: 6, grad: "#8a7a9a,#564a66" },
+  { img: "/images/review-4.jpg", model: "Rolex Submariner Hulk", inQuote: "Just received it now bro, looks awesome! Thank you 🙏", out: "You're welcome mate 😊 The best edition ever made 👍", time: "11:22", status: "last seen recently", blur: 4.5, grad: "#7a8a6d,#4a543b" },
+  { img: "/images/review-5.jpg", model: "Rolex GMT-Master II", inQuote: "Perfect bro 👍 Beautiful watch 🚀", out: "Thank you 😊 Always glad to do business with you ❤️", time: "23:20", status: "online", blur: 5.5, grad: "#96736d,#5c413b" },
+  { img: "/images/review-6.jpg", model: "Rolex Deepsea", inQuote: "Thank you brother!!! ✅", out: "You're welcome brother 😊 Looks amazing, beautiful timepiece! 🔥", time: "00:29", status: "last seen today at 00:42", blur: 4, grad: "#6d7d96,#3b475c" },
+  { img: "/images/review-7.jpg", model: "Patek Philippe Nautilus", inQuote: "This is perfect 😍", out: "I told you bro 🙏 Enjoy it!", time: "19:26", status: "online", blur: 6, grad: "#7d967d,#3b5c3b" },
+  { img: "/images/review-8.jpg", model: "Rolex Daytona", inQuote: "The watch is extraordinary beautiful 🤩 It's my fourth watch from you, always perfect service 🙏", out: "Thank you so much bro ❤️ Big pleasure doing business 😊", time: "10:48", status: "last seen today at 11:20", blur: 5, grad: "#967d6d,#5c463b" },
+  { img: "/images/review-9.jpg", model: "Rolex Datejust", inQuote: "Watch quality is very good. Case, size, crown smoothness — perfect 👌", out: "I know 😊 Thank you bro 👍", time: "18:05", status: "online", blur: 4.5, grad: "#6d9690,#3b5c56" },
+  { img: "/images/review-10.jpg", model: "Panerai Submersible", inQuote: "The best model! 😍 Beautiful, really very beautiful watch 🔥", out: "Beautiful bro 😎 Enjoy this beast!", time: "15:30", status: "last seen recently", blur: 5.5, grad: "#8a8a6d,#54543b" },
+  { img: "/images/review-11.jpg", model: "Patek Aquanaut", inQuote: "I told you bro, amazing choice 🔥 the orange strap made it double amazing 😎", out: "Perfect 😊👌", time: "14:27", status: "online", blur: 6, grad: "#96856d,#5c4a3b" },
+  { img: "/images/review-12.jpg", model: "Rolex GMT-Master II", inQuote: "Perfect 😊🚀", out: "Glad to do business with you again 🙏😊", time: "17:08", status: "last seen today at 17:30", blur: 4, grad: "#7d6d96,#473b5c" },
+  { img: "/images/review-13.jpg", model: "Rolex Submariner", inQuote: "Received the package bro, that was super fast! 🚀 As promised 👌", out: "Glad you like it bro 😊", time: "13:30", status: "online", blur: 5, grad: "#6d8896,#3b505c" },
+  { img: "/images/review-14.jpg", model: "Cartier Santos", inQuote: "Looks beautiful 😊🙏", out: "Blue sweater, blue watch 😊 Looks amazing on you! 👌", time: "10:40", status: "last seen today at 10:55", blur: 4.5, grad: "#6d7596,#3b425c" },
 ];
 
 const STYLE = `
