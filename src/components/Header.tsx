@@ -65,12 +65,13 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
             />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-7 text-sm flex-1 justify-center">
+          <nav className="hidden md:flex items-center gap-5 lg:gap-6 text-sm flex-1 justify-center whitespace-nowrap">
             <Link href="/shop" className="hover:text-gold transition-colors">Shop</Link>
             <Link href="/new-arrivals" className="hover:text-gold transition-colors">New Arrivals</Link>
             <Link href="/ladies" className="hover:text-gold transition-colors">Ladies</Link>
             <Link href="/on-sale" className="text-gold/90 hover:text-gold transition-colors">Sale</Link>
-            <Link href="/blog" className="hover:text-gold transition-colors">News</Link>
+            <Link href="/reviews" className="hover:text-gold transition-colors">Reviews</Link>
+            <Link href="/blog" className="hover:text-gold transition-colors">Blog &amp; News</Link>
             <Link href="/faq" className="hover:text-gold transition-colors">FAQ</Link>
           </nav>
 
@@ -160,3 +161,4 @@ export function Header({ onMobileMenuOpen }: { onMobileMenuOpen?: () => void }) 
     </>
   );
 }
+
