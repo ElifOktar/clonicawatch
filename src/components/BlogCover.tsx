@@ -3,38 +3,39 @@
 import { useState } from "react";
 
 /**
- * Blog cover with real supporting images.
- * Each article gets a relevant watch/luxury image.
- * Falls back to elegant gradient if image fails to load.
+ * Blog cover images — local, verified, on-brand.
+ * Original posts use their purpose-made SVG covers; brand buyer-guides use a
+ * real customer watch photo where we have a match, else a branded cover.
+ * Falls back to an elegant gradient if an image fails to load.
  */
 
 const BLOG_IMAGES: Record<string, string> = {
-  "what-is-a-super-clone-watch": "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=800&h=500&fit=crop&q=80",
-  "clean-vs-vs-factory": "https://images.unsplash.com/photo-1548171916-c8d1c2d1bb30?w=800&h=500&fit=crop&q=80",
-  "how-to-spot-fake": "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=800&h=500&fit=crop&q=80",
-  "history-of-rolex": "https://images.unsplash.com/photo-1627037558426-c2d07beda3af?w=800&h=500&fit=crop&q=80",
-  "audemars-piguet-royal-oak-legend": "https://images.unsplash.com/photo-1618220179428-22790b461013?w=800&h=500&fit=crop&q=80",
-  "swiss-movement-explained": "https://images.unsplash.com/photo-1495857000853-fe46c8aefc30?w=800&h=500&fit=crop&q=80",
-  "sapphire-vs-mineral-crystal": "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=800&h=500&fit=crop&q=80",
-  "water-resistance-guide": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&h=500&fit=crop&q=80",
-  "most-popular-watches-2026": "https://images.unsplash.com/photo-1622434641406-a158123450f9?w=800&h=500&fit=crop&q=80",
-  "which-watch-matches-your-style": "https://images.unsplash.com/photo-1434056886845-dbe89f0b9571?w=800&h=500&fit=crop&q=80",
-  "caring-for-your-watch": "https://images.unsplash.com/photo-1526045431048-f857369baa09?w=800&h=500&fit=crop&q=80",
-  "rolex-vs-omega-vs-ap": "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&h=500&fit=crop&q=80",
+  "what-is-a-super-clone-watch": "/images/blog/super-clone-guide.svg",
+  "clean-vs-vs-factory": "/images/blog/clean-vs-vs.svg",
+  "how-to-spot-fake": "/images/blog/spot-fake.svg",
+  "history-of-rolex": "/images/blog/history-rolex.svg",
+  "audemars-piguet-royal-oak-legend": "/images/blog/royal-oak-legend.svg",
+  "swiss-movement-explained": "/images/blog/swiss-movement.svg",
+  "sapphire-vs-mineral-crystal": "/images/blog/sapphire-crystal.svg",
+  "water-resistance-guide": "/images/blog/water-resistance.svg",
+  "most-popular-watches-2026": "/images/blog/popular-2026.svg",
+  "which-watch-matches-your-style": "/images/blog/style-guide.svg",
+  "caring-for-your-watch": "/images/blog/watch-care.svg",
+  "rolex-vs-omega-vs-ap": "/images/blog/rolex-omega-ap.svg",
   "best-panerai-super-clone": "/images/review-10.jpg",
-  "best-vacheron-constantin-super-clone": "https://images.unsplash.com/photo-1639037687537-31f4e3f4f0e0?w=800&h=500&fit=crop&q=80",
-  "best-richard-mille-super-clone": "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=800&h=500&fit=crop&q=80",
-  "super-clone-factories-guide": "https://images.unsplash.com/photo-1606220838315-056192d5e927?w=800&h=500&fit=crop&q=80",
+  "best-vacheron-constantin-super-clone": "/images/blog/super-clone-guide.svg",
+  "best-richard-mille-super-clone": "/images/blog/popular-2026.svg",
+  "super-clone-factories-guide": "/images/blog/clean-vs-vs.svg",
 };
 
 // Category label based on slug keywords
 function getCategory(slug: string): string {
   if (slug.includes("history") || slug.includes("legend") || slug.includes("royal-oak")) return "BRAND STORY";
   if (slug.includes("vs") || slug.includes("rolex-omega")) return "COMPARISON";
+  if (slug.includes("best-") || slug.includes("factories")) return "BUYER GUIDE";
   if (slug.includes("guide") || slug.includes("style") || slug.includes("spot") || slug.includes("caring")) return "GUIDE";
   if (slug.includes("movement") || slug.includes("sapphire") || slug.includes("water") || slug.includes("crystal")) return "TECHNICAL";
   if (slug.includes("popular") || slug.includes("2026") || slug.includes("trend")) return "TRENDING";
-  if (slug.includes("best-") || slug.includes("factories")) return "BUYER GUIDE";
   return "EDITORIAL";
 }
 
