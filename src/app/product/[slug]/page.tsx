@@ -7,8 +7,6 @@ import {
   getProductBySlug,
   getRelatedProducts,
   formatPrice,
-  getProductMetaTitle,
-  getProductMetaDescription,
   getProductWhatsAppUrl,
 } from "@/lib/products";
 import { ProductGrid } from "@/components/ProductGrid";
@@ -32,12 +30,26 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const p = await getProductBySlug(params.slug);
   if (!p) return {};
+
+  // Keyword-rich, super-clone focused meta (no factory details).
+  const title = `${p.brand} ${p.model_name} Super Clone & Replica — 1:1 Quality`;
+  const specBits = [
+    p.case_material,
+    p.case_diameter_mm ? `${p.case_diameter_mm}mm` : "",
+    p.dial_color ? `${p.dial_color} dial` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const description = `Shop the ${p.brand} ${p.model_name} super clone replica — 1:1 quality${
+    specBits ? `, ${specBits}` : ""
+  }. Premium materials, faithful finishing, worldwide discreet shipping. Message us on WhatsApp.`;
+
   return {
-    title: getProductMetaTitle(p),
-    description: getProductMetaDescription(p),
+    title,
+    description,
     openGraph: {
-      title: getProductMetaTitle(p),
-      description: getProductMetaDescription(p),
+      title,
+      description,
       images: [p.main_image],
       url: `https://clonica.online/product/${p.slug}`,
     },
@@ -53,11 +65,10 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const related = await getRelatedProducts(p, 4);
   const waUrl = getProductWhatsAppUrl(p);
   const gallery = p.gallery_images?.length ? p.gallery_images : [p.main_image];
-
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: p.model_name,
+    name: `${p.brand} ${p.model_name} Super Clone`,
     brand: { "@type": "Brand", name: p.brand },
     sku: p.sku,
     mpn: p.sku,
@@ -111,7 +122,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
       },
     },
   };
-
   /* BreadcrumbList Schema for Google rich results */
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -137,7 +147,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
       },
     ],
   };
-
   return (
     <>
       <script
@@ -185,7 +194,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
             <p className="text-xs text-ink-dim tracking-widest uppercase">
               {p.brand} &middot; {p.collection}
             </p>
-            <h1 className="h-serif text-3xl md:text-4xl mt-2 break-words">{p.model_name}</h1>
+            <h1 className="h-serif text-3xl md:text-4xl mt-2 break-words">{p.model_name} Super Clone</h1>
             {p.reference && (
               <p className="text-ink-muted mt-1 text-sm">Ref. {p.reference}</p>
             )}
@@ -267,10 +276,21 @@ export default async function ProductPage({ params }: { params: { slug: string }
         {/* DESCRIPTION */}
         <div className="mt-12 md:mt-16 grid md:grid-cols-2 gap-6 md:gap-10">
           <div className="min-w-0">
-            <h2 className="h-serif text-2xl mb-4">Description</h2>
-            <div className="text-ink-muted leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere">
-              {p.long_description}
-            </div>
+            <h2 className="h-serif text-2xl mb-4">About the {p.model_name} Super Clone</h2>
+            <p className="text-ink-muted leading-relaxed mb-4 break-words">
+              The {p.brand} {p.model_name} super clone is a 1:1 replica built to mirror the original in
+              every detail{p.case_diameter_mm ? ` — a ${p.case_diameter_mm}mm` : " — a"}
+              {p.case_material ? ` ${p.case_material}` : ""} case
+              {p.dial_color ? `, ${p.dial_color} dial` : ""}
+              {p.bezel_color ? ` and ${p.bezel_color} bezel` : ""}. Each piece is finished with premium
+              materials and hand-checked before discreet worldwide delivery. Message us on WhatsApp for
+              full specifications and current availability.
+            </p>
+            {p.long_description && (
+              <div className="text-ink-muted leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                {p.long_description}
+              </div>
+            )}
           </div>
           <div>
             <h3 className="h-serif text-xl mt-8 mb-3">Shipping &amp; Payment</h3>
@@ -296,3 +316,4 @@ export default async function ProductPage({ params }: { params: { slug: string }
     </>
   );
 }
+
