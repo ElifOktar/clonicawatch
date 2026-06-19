@@ -1,12 +1,11 @@
 // src/app/sitemap.ts
 // Mevcut sitemap.ts'in genisletilmis versiyonu.
-// FIX: getAllBlogPosts import'u kaldirildi (henuz @/lib/products'ta tanimli degil).
-//      Blog sistemi eklendiginde tekrar acilabilir.
-// Eklemeler: /ladies, /shop, /category, /reviews, hreflang alternates
+// Eklemeler: /reviews, bireysel blog yazilari, hreflang alternates
 
 import type { MetadataRoute } from "next";
 import { getAllProducts, getAllBrands } from "@/lib/products";
 import { LADIES_BRANDS } from "@/lib/catalog";
+import { getAllPosts } from "@/lib/blog";
 import { SITE_CONFIG } from "@/lib/config";
 
 export const revalidate = 3600;
@@ -45,6 +44,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   }));
 
+  // ─── Blog posts ───
+  const blogPosts = getAllPosts().map((post) => ({
+    url: `${base}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
   // ─── Brand pages ───
   const brands = await getAllBrands();
   const brandPages = brands.map((b) => ({
@@ -73,6 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticPages,
+    ...blogPosts,
     ...brandPages,
     ...ladiesBrandPages,
     ...productPages,
