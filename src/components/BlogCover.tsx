@@ -22,7 +22,7 @@ const BLOG_IMAGES: Record<string, string> = {
   "which-watch-matches-your-style": "/images/blog/style-guide.svg",
   "caring-for-your-watch": "/images/blog/watch-care.svg",
   "rolex-vs-omega-vs-ap": "/images/blog/rolex-omega-ap.svg",
-  "best-panerai-super-clone": "/images/review-10.jpg",
+  "best-panerai-super-clone": "/images/blog/swiss-movement.svg",
   "best-vacheron-constantin-super-clone": "/images/blog/super-clone-guide.svg",
   "best-richard-mille-super-clone": "/images/blog/popular-2026.svg",
   "super-clone-factories-guide": "/images/blog/clean-vs-vs.svg",
