@@ -23,10 +23,15 @@ const LADIES_LOGOS: Record<string, string> = {
 };
 
 export default async function LadiesPage() {
-  // Gather all women/unisex products
+  // Gather all ladies products — match by ladies brand OR women/unisex gender
   const all = await getAllProducts();
+  const ladiesBrandNames = new Set(LADIES_BRANDS.map((b) => b.name));
   const allProducts = all.filter(
-    (p) => p.gender === "Women" || p.gender === "Unisex"
+    (p) =>
+      ladiesBrandNames.has(p.brand) ||
+      (p.brand?.includes("Ladies") ?? false) ||
+      p.gender === "Women" ||
+      p.gender === "Unisex"
   );
 
   return (
