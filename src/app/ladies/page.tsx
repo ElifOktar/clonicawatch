@@ -23,16 +23,24 @@ const LADIES_LOGOS: Record<string, string> = {
 };
 
 export default async function LadiesPage() {
-  // Gather all ladies products — match by ladies brand OR women/unisex gender
+  // Gather all ladies products — robust match so naming/case variants don't slip:
+  //  1) brand exactly matches a LADIES_BRANDS name (case/space-insensitive)
+  //  2) brand contains "ladies" in any casing
+  //  3) gender is Women or Unisex
   const all = await getAllProducts();
-  const ladiesBrandNames = new Set(LADIES_BRANDS.map((b) => b.name));
-  const allProducts = all.filter(
-    (p) =>
-      ladiesBrandNames.has(p.brand) ||
-      (p.brand?.includes("Ladies") ?? false) ||
-      p.gender === "Women" ||
-      p.gender === "Unisex"
+  const ladiesBrandNames = new Set(
+    LADIES_BRANDS.map((b) => b.name.trim().toLowerCase())
   );
+  const allProducts = all.filter((p) => {
+    const brand = (p.brand ?? "").trim().toLowerCase();
+    const gender = (p.gender ?? "").trim().toLowerCase();
+    return (
+      ladiesBrandNames.has(brand) ||
+      brand.includes("ladies") ||
+      gender === "women" ||
+      gender === "unisex"
+    );
+  });
 
   return (
     <div className="container py-12">
@@ -96,7 +104,3 @@ export default async function LadiesPage() {
       {/* All Ladies Products */}
       <Suspense fallback={<div className="text-ink-muted text-sm">Loading...</div>}>
         <FilteredProductList products={allProducts} />
-      </Suspense>
-    </div>
-  );
-}
