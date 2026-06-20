@@ -104,3 +104,7 @@ export default async function LadiesPage() {
       {/* All Ladies Products */}
       <Suspense fallback={<div className="text-ink-muted text-sm">Loading...</div>}>
         <FilteredProductList products={allProducts} />
+      </Suspense>
+    </div>
+  );
+}
