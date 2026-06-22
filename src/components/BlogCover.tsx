@@ -26,6 +26,10 @@ const BLOG_IMAGES: Record<string, string> = {
   "best-vacheron-constantin-super-clone": "/images/blog/super-clone-guide.svg",
   "best-richard-mille-super-clone": "/images/blog/popular-2026.svg",
   "super-clone-factories-guide": "/images/blog/clean-vs-vs.svg",
+  "best-rolex-super-clone": "/images/blog/history-rolex.svg",
+  "best-audemars-piguet-super-clone": "/images/blog/royal-oak-legend.svg",
+  "best-patek-philippe-super-clone": "/images/blog/popular-2026.svg",
+  "super-clone-vs-replica-vs-aaa": "/images/blog/clean-vs-vs.svg",
 };
 
 // Category label based on slug keywords
