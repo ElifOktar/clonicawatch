@@ -32,7 +32,13 @@ export async function generateMetadata({
   if (!p) return {};
 
   // Keyword-rich, super-clone focused meta (no factory details).
-  const title = `${p.brand} ${p.model_name} Super Clone & Replica — 1:1 Quality`;
+  // Title front-loaded with brand + collection + "Super Clone" so the key
+  // terms survive Google's ~60-char truncation (model_name can be 80+ chars).
+  // The full model_name + reference stays in the H1, description and body
+  // below for long-tail keyword coverage.
+  const coreModel =
+    p.collection && p.collection.trim() ? p.collection : p.model_name;
+  const title = `${p.brand} ${coreModel} Super Clone Watch`;
   const specBits = [
     p.case_material,
     p.case_diameter_mm ? `${p.case_diameter_mm}mm` : "",
