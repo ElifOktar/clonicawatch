@@ -1,3 +1,8 @@
+// src/app/brand/[brand]/page.tsx
+// 2026-07-13 FAZ2: FAQPage schema kaldirildi (19 sayfada schema spam sinyaliydi).
+// Ladies sayfalarindaki erkek icerigi uyumsuzlugu duzeltildi (BRAND_SEO artik ladies'te kullanilmiyor).
+// Title/description'daki "superclone + super clone + replica" yigilmasi sadelestirildi.
+
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -42,8 +47,10 @@ const BRAND_FROM_SLUG: Record<string, Brand> = {
 /**
  * Per-brand SEO content. Keyed by the Brand display name (brandKey).
  * Adds unique long-form text, popular model keywords and FAQs so each
- * brand page can rank for "<brand> super clone / superclone / replica"
- * and the model-level long-tail (e.g. "rolex submariner super clone").
+ * brand page can rank for "<brand> super clone" and the model-level
+ * long-tail (e.g. "rolex submariner super clone").
+ * NOT: Sadece erkek/unisex marka sayfalarinda kullanilir — ladies
+ * sayfalari kendi koleksiyonlarini gosterir (icerik uyumsuzlugu fixi).
  */
 type BrandSeo = { intro: string; models: string[]; faqs: { q: string; a: string }[] };
 
@@ -156,11 +163,11 @@ export async function generateMetadata({ params }: { params: { brand: string } }
   if (!entry) return {};
   const isLadies = isLadiesBrand(params.brand);
   const title = isLadies
-    ? `${entry.name} Replica Watches for Women — 1:1 Super Clone Quality`
-    : `${entry.name} Superclone Replica Watches — Super Clone & 1:1 Quality`;
+    ? `${entry.name} Watches for Women — 1:1 Super Clone Quality`
+    : `${entry.name} Super Clone Watches — 1:1 Quality`;
   const description = isLadies
-    ? `Shop ${entry.name} superclone replica watches for women. Swiss mechanism options, 1:1 quality. Worldwide express shipping, discreet packaging.`
-    : `Shop ${entry.name} superclone & super clone replica watches with 1:1 quality. Swiss mechanism options. Worldwide express shipping, discreet packaging to 100+ countries.`;
+    ? `Shop ${entry.name} super clone watches for women. Swiss mechanism options, 1:1 quality. Worldwide express shipping, discreet packaging.`
+    : `Shop ${entry.name} super clone watches with 1:1 quality. Swiss mechanism options. Worldwide express shipping, discreet packaging to 100+ countries.`;
   return { title, description, alternates: { canonical: `/brand/${params.brand}` } };
 }
 
@@ -179,32 +186,19 @@ export default async function BrandPage({ params }: { params: { brand: string } 
     );
   }
 
-  // SEO content (unique per brand, with safe fallbacks)
-  const seo = BRAND_SEO[brandKey];
+  // SEO content — ladies sayfalari parent markanin erkek icerigini KULLANMAZ;
+  // kendi koleksiyonlarini ve kendi adiyla uretilen FAQ'lari gosterir.
+  const seo = isLadies ? undefined : BRAND_SEO[brandKey];
   const models = seo?.models ?? collections.map((c) => c.name);
   const faqs = seo?.faqs ?? defaultFaqs(entry.name);
   const intro =
     seo?.intro ??
-    `Explore our curated selection of ${entry.name} super clone and replica watches — faithfully built by the industry's most respected ateliers, with 1:1 quality and worldwide discreet shipping.`;
-
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqs.map((f) => ({
-      "@type": "Question",
-      name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
-    })),
-  };
+    (isLadies
+      ? `Explore our curated selection of ${entry.name} watches for women — elegant 1:1 super clone timepieces crafted with precision, with worldwide discreet shipping.`
+      : `Explore our curated selection of ${entry.name} super clone watches — faithfully built by the industry's most respected ateliers, with 1:1 quality and worldwide discreet shipping.`);
 
   return (
     <div className="container py-12">
-      {/* FAQ structured data for Google rich results */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-
       <nav className="text-xs text-ink-muted mb-6">
         <Link href="/" className="hover:text-gold transition-colors">Home</Link>
         <span className="mx-2">›</span>
@@ -223,8 +217,8 @@ export default async function BrandPage({ params }: { params: { brand: string } 
         </p>
         <h1 className="h-serif text-4xl md:text-5xl">
           {isLadies
-            ? `${entry.name} Replica Watches for Women`
-            : `${entry.name} Super Clone & Replica Watches`}
+            ? `${entry.name} Watches for Women`
+            : `${entry.name} Super Clone Watches`}
         </h1>
         <p className="text-ink-muted mt-3 max-w-2xl">
           {isLadies
@@ -260,7 +254,7 @@ export default async function BrandPage({ params }: { params: { brand: string } 
       <div className="mt-20 max-w-3xl text-ink-muted text-sm leading-relaxed space-y-6">
         <div className="space-y-4">
           <h2 className="h-serif text-2xl text-ink">
-            About {entry.name} {isLadies ? "Replica Watches" : "Super Clone Watches"}
+            About {entry.name} {isLadies ? "Watches for Women" : "Super Clone Watches"}
           </h2>
           <p>{intro}</p>
         </div>
@@ -283,7 +277,7 @@ export default async function BrandPage({ params }: { params: { brand: string } 
 
         <div className="space-y-4">
           <h2 className="h-serif text-2xl text-ink">
-            {entry.name} Super Clone — Frequently Asked Questions
+            {entry.name} — Frequently Asked Questions
           </h2>
           <div className="space-y-4">
             {faqs.map((f) => (
