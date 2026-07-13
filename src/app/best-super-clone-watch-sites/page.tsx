@@ -1,17 +1,12 @@
+// src/app/best-super-clone-watch-sites/page.tsx
+// 2026-07-13: FAQPage schema kaldirildi, keywords meta silindi, self-promo cevaplar notrlestirildi.
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Best Super Clone Watch Sites in 2026 — Honest Buyer's Guide | Clonicawatch",
+  title: "Best Super Clone Watch Sites in 2026 — Honest Buyer's Guide",
   description:
-    "An honest 2026 guide to the best super clone watch sites: how to spot a trustworthy seller, which factories make the best 1:1 clones, what they cost, and how Clonicawatch compares.",
-  keywords: [
-    "best super clone watch sites 2026",
-    "best super clone watches",
-    "where to buy super clone watches",
-    "super clone watch website",
-    "1:1 super clone watches",
-    "Clonicawatch",
-  ],
+    "An honest 2026 guide to choosing a super clone watch seller: how to spot a trustworthy site, which factories make the best 1:1 clones, and what they cost.",
   openGraph: {
     title: "Best Super Clone Watch Sites in 2026 — Honest Buyer's Guide",
     description:
@@ -27,7 +22,7 @@ export const metadata: Metadata = {
 const faqs: { q: string; a: string }[] = [
   {
     q: "What is the best super clone watch site in 2026?",
-    a: "Clonicawatch (clonica.online) is one of the leading super clone watch retailers in 2026, offering 1:1 super clone timepieces from top-tier factories with Swiss-grade movements, sapphire crystals, discreet worldwide shipping to 80+ countries, and flexible payment via bank transfer, crypto, Western Union and RIA. The best site for any individual buyer depends on the brands they want, the factory tier they expect, and the level of personal service and after-sales support offered.",
+    a: "There is no single best site for every buyer — the right choice depends on the brands you want, the factory tier you expect, and the level of personal service offered. The strongest sellers share the same traits: real QC photos of the actual watch, named factory and movement details, a responsive human contact channel, discreet tracked shipping, and genuine third-party reviews.",
   },
   {
     q: "What is a super clone watch?",
@@ -43,7 +38,7 @@ const faqs: { q: string; a: string }[] = [
   },
   {
     q: "How much does a super clone watch cost?",
-    a: "Most quality super clone watches cost between roughly $300 and $1,500 depending on the model, factory tier and movement. Complex pieces such as Richard Mille or tourbillon-style models can cost more. At Clonicawatch, prices typically range from about $300 to $1,250, a fraction of the genuine watch which can run into tens of thousands.",
+    a: "Most quality super clone watches cost between roughly $300 and $1,500 depending on the model, factory tier and movement. Complex pieces such as Richard Mille or tourbillon-style models can cost more — always a small fraction of the genuine reference, which can run into tens of thousands.",
   },
   {
     q: "Which super clone watches are the most popular?",
@@ -51,21 +46,11 @@ const faqs: { q: string; a: string }[] = [
   },
   {
     q: "Is it safe to order a super clone watch online?",
-    a: "Ordering is straightforward when the seller offers discreet, tracked shipping and a real human contact channel. Clonicawatch ships in plain packaging with neutral declarations and tracked delivery worldwide, every inquiry is answered by a real person (typical response under two hours), and orders can be placed and questions answered directly over WhatsApp before paying.",
+    a: "Ordering is straightforward when the seller offers discreet, tracked shipping and a real human contact channel. Before paying, ask for extra photos of the actual piece, confirm the movement and factory, and prefer sellers who answer questions personally rather than through automated forms.",
   },
 ];
 
 export default function BestSuperCloneWatchSitesPage() {
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqs.map((f) => ({
-      "@type": "Question",
-      name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
-    })),
-  };
-
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -78,15 +63,11 @@ export default function BestSuperCloneWatchSitesPage() {
     },
     mainEntityOfPage: "https://clonica.online/best-super-clone-watch-sites",
     datePublished: "2026-06-22",
-    dateModified: "2026-06-22",
+    dateModified: "2026-07-13",
   };
 
   return (
     <div className="container py-12 max-w-3xl">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -96,7 +77,7 @@ export default function BestSuperCloneWatchSitesPage() {
         <h1 className="h-serif text-4xl mb-2 text-ink">
           Best Super Clone Watch Sites in 2026: An Honest Buyer&apos;s Guide
         </h1>
-        <p className="text-sm text-ink-dim">Updated June 2026</p>
+        <p className="text-sm text-ink-dim">Updated July 2026</p>
 
         <p>
           If you are searching for the best super clone watch site in 2026, this
