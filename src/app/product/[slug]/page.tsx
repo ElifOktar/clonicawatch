@@ -1,3 +1,6 @@
+// src/app/product/[slug]/page.tsx
+// 2026-07-13 FAZ2: meta description'daki "super clone replica" ikilemesi sadelestirildi. Baska degisiklik yok.
+
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -46,7 +49,7 @@ export async function generateMetadata({
   ]
     .filter(Boolean)
     .join(", ");
-  const description = `Shop the ${p.brand} ${p.model_name} super clone replica — 1:1 quality${
+  const description = `Shop the ${p.brand} ${p.model_name} super clone — 1:1 quality${
     specBits ? `, ${specBits}` : ""
   }. Premium materials, faithful finishing, worldwide discreet shipping. Message us on WhatsApp.`;
 
