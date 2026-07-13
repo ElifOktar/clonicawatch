@@ -1,16 +1,19 @@
 // src/app/sitemap.ts
-// Mevcut sitemap.ts'in genisletilmis versiyonu.
-// Eklemeler: /reviews, bireysel blog yazilari, hreflang alternates
-// 2026-06-22: /best-super-clone-watch-sites (AI pillar sayfasi) eklendi.
+// 2026-07-13: hreflang alternates kaldirildi (var olmayan /en-gb,/de,/fr,/ar → 44 adet 404).
+// Ladies marka URL'leri /ladies/{slug} → /brand/{slug} duzeltildi + dedupe.
+
 import type { MetadataRoute } from "next";
 import { getAllProducts, getAllBrands } from "@/lib/products";
 import { LADIES_BRANDS } from "@/lib/catalog";
 import { getAllPosts } from "@/lib/blog";
 import { SITE_CONFIG } from "@/lib/config";
+
 export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE_CONFIG.url;
   const now = new Date();
+
   // ─── Static & semi-static pages ───
   const staticPages: MetadataRoute.Sitemap = [
     { path: "", priority: 1.0, changeFrequency: "daily" as const },
@@ -31,16 +34,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
     changeFrequency: p.changeFrequency,
     priority: p.priority,
-    alternates: {
-      languages: {
-        "en-US": `${base}${p.path}`,
-        "en-GB": `${base}/en-gb${p.path}`,
-        "de-DE": `${base}/de${p.path}`,
-        "fr-FR": `${base}/fr${p.path}`,
-        "ar-AE": `${base}/ar${p.path}`,
-      },
-    },
   }));
+
   // ─── Blog posts ───
   const blogPosts = getAllPosts().map((post) => ({
     url: `${base}/blog/${post.slug}`,
@@ -48,6 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
+
   // ─── Brand pages ───
   const brands = await getAllBrands();
   const brandPages = brands.map((b) => ({
@@ -56,13 +52,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "daily" as const,
     priority: 0.85,
   }));
-  // ─── Ladies brand sub-pages ───
+
+  // ─── Ladies brand pages (gercek rota /brand/{slug}) ───
+  const brandUrlSet = new Set(brandPages.map((b) => b.url));
   const ladiesBrandPages = LADIES_BRANDS.map((b) => ({
-    url: `${base}/ladies/${b.slug}`,
+    url: `${base}/brand/${b.slug}`,
     lastModified: now,
     changeFrequency: "daily" as const,
     priority: 0.85,
-  }));
+  })).filter((b) => !brandUrlSet.has(b.url));
+
   // ─── Product pages ───
   const products = await getAllProducts();
   const productPages = products.map((p) => ({
@@ -71,6 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "weekly" as const,
     priority: 0.9,
   }));
+
   return [
     ...staticPages,
     ...blogPosts,
