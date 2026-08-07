@@ -1,3 +1,7 @@
+// src/app/blog/page.tsx
+// 2026-08-07: self-canonical eklendi (GSC "Duplicate without user-selected canonical"
+// sorunu — Google www versiyonunu canonical secmisti; www 308 redirect + bu canonical ile cozuldu).
+
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
 import { BlogCover } from "@/components/BlogCover";
@@ -5,6 +9,7 @@ import { BlogCover } from "@/components/BlogCover";
 export const metadata = {
   title: "News & Blog — Clonicawatch",
   description: "Guides, comparisons, and the craft behind premium timepieces.",
+  alternates: { canonical: "/blog" },
 };
 
 export default function BlogIndexPage() {
@@ -84,3 +89,4 @@ export default function BlogIndexPage() {
     </div>
   );
 }
+
