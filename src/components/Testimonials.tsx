@@ -104,7 +104,7 @@ export function Testimonials() {
         <div className="text-center mt-12">
           <p className="text-ink-muted text-sm mb-4">Join hundreds of happy collectors worldwide.</p>
           <a
-            href="https://wa.me/905535566422?text=Hi%2C%20I%27d%20like%20to%20order%20a%20watch."
+            href="https://wa.me/905355430744?text=Hi%2C%20I%27d%20like%20to%20order%20a%20watch."
             target="_blank"
             rel="noopener"
             className="btn-gold inline-flex items-center gap-2 text-sm"
