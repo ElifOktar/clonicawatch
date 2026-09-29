@@ -17,10 +17,10 @@ export const SITE_CONFIG = {
   supportedCurrencies: ["USD", "EUR", "GBP", "AED", "TRY"] as const,
   // Contact
   contact: {
-    whatsapp: "905535566422",                  // +90 553 556 64 22 (no leading + for wa.me)
-    whatsappDisplay: "+90 553 556 64 22",
-    telegram: "CLONICAWATCHES",                // Telegram username — used as https://t.me/CLONICAWATCHES
-    telegramDisplay: "@CLONICAWATCHES",
+    whatsapp: "905355430744",                  // +90 535 543 07 44 (no leading + for wa.me)
+    whatsappDisplay: "+90 535 543 07 44",
+    telegram: "905355430744",                // Telegram username — used as https://t.me/CLONICAWATCHES
+    telegramDisplay: "905355430744",
     email: "Clonicawatch@gmail.com",
     instagram: "clonicaonline",                // Instagram handle — used as https://www.instagram.com/clonicaonline
     instagramDisplay: "@clonicaonline",
