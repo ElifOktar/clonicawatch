@@ -188,7 +188,7 @@ export default function BestSuperCloneWatchSitesPage() {
           </p>
           <p className="flex flex-wrap gap-4">
             <a href="/shop" className="text-gold underline">Shop all watches →</a>
-            <a href="https://wa.me/905535566422" className="text-gold underline">Message us on WhatsApp →</a>
+            <a href="https://wa.me/905335430744" className="text-gold underline">Message us on WhatsApp →</a>
           </p>
         </div>
 
