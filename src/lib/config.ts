@@ -19,8 +19,8 @@ export const SITE_CONFIG = {
   contact: {
     whatsapp: "905355430744",                  // +90 535 543 07 44 (no leading + for wa.me)
     whatsappDisplay: "+90 535 543 07 44",
-    telegram: "905355430744",                // Telegram username — used as https://t.me/CLONICAWATCHES
-    telegramDisplay: "905355430744",
+    telegram: "+905355430744",
+    telegramDisplay: "+90 535 543 07 44",
     email: "Clonicawatch@gmail.com",
     instagram: "clonicaonline",                // Instagram handle — used as https://www.instagram.com/clonicaonline
     instagramDisplay: "@clonicaonline",
